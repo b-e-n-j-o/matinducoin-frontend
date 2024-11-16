@@ -6,51 +6,89 @@ import styles from '../styles/Products.module.css';
 import 'tailwindcss/tailwind.css';
 
 const Products = () => {
-  const [products, setProducts] = useState([]); // State pour stocker les produits
-  const [loading, setLoading] = useState(true); // State pour le chargement
-  const [visible, setVisible] = useState(false); // State pour gérer la visibilité des cartes
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Utilisation du hook useEffect pour récupérer les produits lors du montage du composant
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
+        // Utilisation de l'endpoint API local
+        const response = await fetch('/api/products');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        console.log('Données produits récupérées :', data); // Log pour voir les produits récupérés
-        setProducts(data); // Mise à jour du state avec les produits
-        setVisible(true); // Affiche les produits
+        console.log('Données produits récupérées :', data);
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Les données reçues ne sont pas au format attendu');
+        }
+        
+        setProducts(data);
+        setVisible(true);
+        setError(null);
       } catch (error) {
         console.error('Échec de la récupération des produits :', error);
+        setError('Impossible de charger les produits. Veuillez réessayer plus tard.');
       } finally {
-        setLoading(false); // Fin du chargement
+        setLoading(false);
       }
     };
 
-    fetchProducts(); // Appel de la fonction pour récupérer les produits
-  }, []); // Ce useEffect ne s'exécutera qu'une seule fois (lors du montage)
+    fetchProducts();
+  }, []);
 
-  // Affiche un loader si les produits sont en cours de chargement
   if (loading) {
-    return <div>Chargement...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
   }
 
-  // Rendu de la liste des produits après chargement
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-500 text-center">
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col font-roboto">
       <Navbar />
       <div className="pt-16 px-4 sm:px-6 lg:px-8">
         <div className={`${styles.titleContainer} text-center`}>
-          <h1 className={`${styles.title} text-3xl sm:text-4xl font-fungroovy text-orange-600`}>Nos Recettes</h1>
+          <h1 className={`${styles.title} text-3xl sm:text-4xl font-fungroovy text-orange-600`}>
+            Nos Recettes
+          </h1>
         </div>
+        
         <div className={`${styles.container} mt-8`}>
           <div className={`${styles.card__container} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`}>
-            {Array.isArray(products) && products.map((product, index) => (
+            {products.map((product, index) => (
               <Link href={`/products/${product._id}`} key={product._id} passHref>
                 <article 
-                  className={`${styles.card__article} bg-transparent rounded-lg shadow-md overflow-hidden transition-all duration-300 transform hover:scale-105`} 
-                  style={{ transitionDelay: `${index * 100}ms` }}
+                  className={`${styles.card__article} bg-white rounded-lg shadow-md overflow-hidden 
+                    transition-all duration-300 transform hover:scale-105 hover:shadow-lg`}
+                  style={{ 
+                    transitionDelay: `${index * 100}ms`,
+                    opacity: visible ? 1 : 0,
+                    transform: visible ? 'translateY(0)' : 'translateY(20px)'
+                  }}
                 >
-                  {/* Conteneur de l'image */}
                   <div className="relative w-full h-0 pb-[80%]">
                     <Image 
                       src={product.imageUrl} 
@@ -58,20 +96,32 @@ const Products = () => {
                       layout="fill"
                       objectFit="cover"
                       className={`${styles.card__img}`}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.src = '/placeholder-image.jpg'; // Assurez-vous d'avoir une image par défaut
+                      }}
                     />
                   </div>
 
-                  {/* Conteneur du texte (en dessous de l'image) */}
                   <div className={`${styles.card__data} p-4`}>
-                    <h3 className={`${styles.card__title} text-xl font-semibold text-orange-500`}>{product.name}</h3>
-                    <p className={`${styles.card__ingredients} text-gray-700`}>{product.ingredients}</p>
-
+                    <h3 className={`${styles.card__title} text-xl font-semibold text-orange-500 mb-2`}>
+                      {product.name}
+                    </h3>
+                    <p className={`${styles.card__ingredients} text-gray-700 text-sm line-clamp-2`}>
+                      {product.ingredients}
+                    </p>
                   </div>
                 </article>
               </Link>
             ))}
           </div>
         </div>
+
+        {products.length === 0 && !loading && !error && (
+          <div className="text-center mt-8">
+            <p className="text-gray-500">Aucune recette disponible pour le moment.</p>
+          </div>
+        )}
       </div>
     </div>
   );
