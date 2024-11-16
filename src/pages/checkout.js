@@ -13,7 +13,6 @@ const CheckoutPage = () => {
     email: '',
     promoCode: ''
   });
-  const [promoValidation, setPromoValidation] = useState({ valid: null, message: '' });
 
   useEffect(() => {
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -26,35 +25,6 @@ const CheckoutPage = () => {
       ...prevData,
       [name]: value
     }));
-  };
-
-  const checkPromoCode = async (promoCode) => {
-    if (promoCode.trim() === '') {
-      setPromoValidation({ valid: null, message: '' });
-      return false;
-    }
-
-    try {
-      const response = await fetch('http://localhost:5001/api/check-promo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ promoCode }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setPromoValidation({ valid: true, message: data.message });
-        return true;
-      } else {
-        setPromoValidation({ valid: false, message: data.message });
-        return false;
-      }
-    } catch (error) {
-      console.error('Erreur lors de la vérification du code promo:', error);
-      setPromoValidation({ valid: false, message: 'Erreur de vérification' });
-      return false;
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -74,7 +44,7 @@ const CheckoutPage = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5001/api/orders', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,11 +108,6 @@ const CheckoutPage = () => {
                   value={formData.promoCode}
                   onChange={handleInputChange}
                 />
-                {promoValidation.message && (
-                  <p className={promoValidation.valid ? styles.validPromo : styles.invalidPromo}>
-                    {promoValidation.message}
-                  </p>
-                )}
               </div>
               <button 
                 type="submit" 

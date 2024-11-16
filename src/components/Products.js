@@ -14,7 +14,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/products');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
         const data = await response.json();
         console.log('Données produits récupérées :', data); // Log pour voir les produits récupérés
         setProducts(data); // Mise à jour du state avec les produits

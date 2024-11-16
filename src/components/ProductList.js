@@ -10,7 +10,7 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/products');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
         const data = await response.json();
         setProducts(data);
         setVisible(true);

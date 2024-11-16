@@ -19,7 +19,7 @@ const Profile = () => {
       }
 
       try {
-        const res = await fetch('http://localhost:5001/api/profile', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -52,7 +52,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/auth/logout', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });

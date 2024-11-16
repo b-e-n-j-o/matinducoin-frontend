@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       // Appel au backend séparé
-      const response = await fetch('http://localhost:5001/api/articles');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles`);
       const articles = await response.json();
 
       res.status(200).json(articles);

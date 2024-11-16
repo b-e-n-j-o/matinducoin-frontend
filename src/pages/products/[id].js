@@ -34,7 +34,7 @@ const ProductDetail = () => {
       const fetchProductAndRelated = async () => {
         try {
           // Récupération du produit principal
-          const response = await fetch(`http://localhost:5001/api/products/${id}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`);
           const data = await response.json();
           console.log('Produit récupéré :', data);
           setProduct(data);
@@ -44,7 +44,7 @@ const ProductDetail = () => {
             const relatedPromises = data.product_ids
               .filter(relatedId => relatedId !== id)
               .map(relatedId => 
-                fetch(`http://localhost:5001/api/products/${relatedId}`).then(res => res.json())
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${relatedId}`).then(res => res.json())
               );
             const relatedData = await Promise.all(relatedPromises);
             console.log('Produits associés :', relatedData);

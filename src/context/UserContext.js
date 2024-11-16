@@ -10,7 +10,7 @@ export const UserProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await fetch('http://localhost:5001/api/profile', {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }

@@ -20,7 +20,7 @@ const BlogArticle = ({ article }) => {
       if (product_ids && product_ids.length > 0) {
         try {
           const productRequests = product_ids.map((productId) =>
-            fetch(`http://localhost:5001/api/products/${productId}`).then((response) => response.json())
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`).then((response) => response.json())
           );
           const productsData = await Promise.all(productRequests);
           setAssociatedProducts(productsData);

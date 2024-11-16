@@ -6,7 +6,6 @@ const OrderForm = () => {
   const router = useRouter();
   const { flavor: initialFlavor } = router.query;
   const [error, setError] = useState(false);
-  const [promoValidation, setPromoValidation] = useState({ valid: null, message: '' });
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -39,35 +38,6 @@ const OrderForm = () => {
     }));
   };
 
-  const checkPromoCode = async (promoCode) => {
-    if (promoCode.trim() === '') {
-      setPromoValidation({ valid: null, message: '' });
-      return false;
-    }
-
-    try {
-      const response = await fetch('http://localhost:5001/api/check-promo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ promoCode }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setPromoValidation({ valid: true, message: data.message });
-        return true;
-      } else {
-        setPromoValidation({ valid: false, message: data.message });
-        return false;
-      }
-    } catch (error) {
-      console.error('Erreur lors de la vérification du code promo:', error);
-      setPromoValidation({ valid: false, message: 'Erreur de vérification' });
-      return false;
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Submitting form with data:', formData);
@@ -82,7 +52,7 @@ const OrderForm = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5001/api/clients', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +78,7 @@ const OrderForm = () => {
 
   const sendOwnerNotification = async (orderData) => {
     try {
-      const response = await fetch('http://localhost:5001/api/notify-owner', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notify-owner`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

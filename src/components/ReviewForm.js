@@ -11,7 +11,7 @@ const ReviewForm = ({ productId }) => {
       review
     };
 
-    fetch(`http://localhost:5002/api/products/${productId}/reviews`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}/reviews`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

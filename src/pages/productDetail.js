@@ -12,7 +12,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:5002/api/products/${id}`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`)
         .then(response => response.json())
         .then(data => setProduct(data))
         .catch(error => console.error('Error fetching product:', error));
