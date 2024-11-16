@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from './ProductDetail.module.css';
+import styles from '../../styles/ProductDetail.module.css';
 import Navbar from '../../components/Navbar';
 import ProductCard from '../../components/ProductCard';
 
