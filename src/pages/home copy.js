@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
-import ChatInterface from '../components/ChatInterface';
+import Chat from '../components/Chat';
 import 'tailwindcss/tailwind.css';
 import homeStyles from '../styles/Home.module.css';
 
@@ -96,7 +96,7 @@ const Home = () => {
         Chat with AI
       </button>
       {isChatVisible && (
-        <ChatInterface 
+        <Chat 
           isOpen={isChatOpen} 
           onClose={() => setIsChatOpen(false)} 
         />

@@ -7,7 +7,7 @@ import homeStyles from '../styles/Home.module.css';  // Important pour le style 
 import '../styles/Landing.module.css';
 import '../styles/Navbar.module.css';
 import LoadingIndicator from '../components/LoadingIndicator';
-import ChatInterface from '../components/ChatInterface';
+import Chat from '../components/Chat';
 import { TransitionProvider, useTransition } from '../context/TransitionContext';
 import { UserProvider } from '../context/UserContext';
 
@@ -139,7 +139,7 @@ const AppContent = ({ Component, pageProps }) => {
           transition-transform duration-300 ease-in-out
           ${isChatOpen ? 'scale-100' : 'scale-95'}
         `}>
-          <ChatInterface 
+          <Chat
             isOpen={isChatOpen} 
             onClose={() => setIsChatOpen(false)} 
           />

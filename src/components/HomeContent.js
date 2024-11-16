@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Navbar from './Navbar';
-import ChatInterface from './ChatInterface';
+import Chat from './Chat';
 import DeliveryZoneMap from './DeliveryZoneMap'; // Importer le composant de la carte
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -258,7 +258,7 @@ const HomeContent = ({ sections = [] }) => {
       </button>
       
       {isChatVisible && (
-        <ChatInterface 
+        <Chat 
           isOpen={isChatOpen} 
           onClose={() => setIsChatOpen(false)} 
         />

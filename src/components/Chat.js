@@ -22,7 +22,7 @@ const TypingMessage = ({ text, onComplete }) => {
   return <div className="whitespace-pre-wrap">{displayedText}</div>;
 };
 
-const ChatInterface = ({ isOpen, onClose }) => {
+const Chat = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -181,4 +181,4 @@ const ChatInterface = ({ isOpen, onClose }) => {
   );
 };
 
-export default ChatInterface; // Ajout du point-virgule
+export default Chat;

@@ -1,5 +1,5 @@
 import Products from '../components/Products';
-import styles from '../styles/ProductsPage.module.css'; // Importer le fichier CSS spécifique
+import styles from '../styles/Products.module.css'; // Importer le fichier CSS spécifique
 
 export default function ProductsPage() {
   return (
