@@ -181,4 +181,4 @@ const ChatInterface = ({ isOpen, onClose }) => {
   );
 };
 
-export default ChatInterface;
+export default ChatInterface; // Ajout du point-virgule
