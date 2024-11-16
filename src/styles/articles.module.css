@@ -1,0 +1,224 @@
+/* Container principal */
+.container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Galerie */
+.gallery {
+  width: 200vw;
+  height: 200vh;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 2000ms cubic-bezier(0.075, 0.82, 0.165, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10em;
+}
+
+/* Rangées d'articles */
+.row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.row:nth-child(2) {
+  justify-content: space-around;
+}
+
+/* Effet de zoom pour les articles */
+.item {
+  position: relative;
+  width: 400px;
+  height: 275px;
+  overflow: hidden;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); /* Courbe de Bézier pour une transition plus douce */
+}
+
+.item:hover {
+  transform: scale(1.15); /* Agrandissement fluide de l'article lors du survol */
+}
+
+/* Image de prévisualisation */
+.previewImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.previewImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Assure que l'image couvre tout l'espace du conteneur sans déformation */
+  transition: transform 0.5s cubic-bezier(0.5, 0.1, 0.5, 1); /* Courbe de Bézier pour une transition plus douce */
+}
+
+.item:hover .previewImg img {
+  transform: scale(1.2); /* Zoom de l'image lors du survol pour un effet harmonieux avec l'agrandissement de l'article */
+}
+
+/* Zone de texte avec zoom */
+.videoName {
+  position: absolute;
+  width: 90%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: clamp(12px, 3vw, 24px); /* Réduction de la taille de la police */
+  font-family: "Bobby Jones Soft", sans-serif;
+  color: #fff;
+  opacity: 1;
+  transition: 0.15s;
+  pointer-events: none;
+  z-index: 3;
+  word-wrap: break-word;
+  filter: none; /* Supprime le flou autour du texte */
+  background: rgba(0, 0, 0, 0.306); /* Ajoute un fond semi-transparent pour améliorer la lisibilité */
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* Vidéo (désactivée pour éviter la disparition de l'image) */
+.workVideoWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(2);
+  transition: 0.3s all;
+}
+
+.workVideoWrapper > div {
+  opacity: 0;
+  transition: 300ms;
+}
+
+.item:hover .workVideoWrapper > div {
+  opacity: 1;
+}
+
+/* Texte de la vidéo */
+.videoName {
+  position: absolute;
+  width: 90%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: clamp(12px, 3vw, 25px);
+  font-family: "Bobby Jones Soft", sans-serif;
+  color: #fff;
+  opacity: 1;
+  transition: 0.15s;
+  pointer-events: none;
+  z-index: 3;
+  word-wrap: break-word;
+}
+
+/* Wrapper central */
+.centerWrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Loader */
+.loader {
+  text-align: center;
+  font-size: 18px;
+  padding: 20px;
+  color: #333;
+}
+
+/* Version mobile */
+@media (max-width: 768px) {
+  .mobileContainer {
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  .mobileTitle {
+    font-family: 'Bobby Jones Soft', sans-serif;
+    font-size: 32px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+    padding-top: 20px;
+  }
+
+  .mobileGallery {
+    width: 100% !important;
+    height: auto !important;
+    position: static !important;
+    transform: none !important;
+    padding: 0 !important;
+    font-family: 'Bobby Jones Soft', 'sans-serif';
+  }
+
+  .mobileList {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .mobileItem {
+    width: 360px;
+    height: 200px;
+    margin: 10px 0;
+    background-color: #f0f0f000;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .mobileItem.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .mobileItem::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(3px);
+    z-index: 1;
+  }
+
+  .mobileItemText {
+    color: rgb(255, 255, 255);
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+    z-index: 2;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  }
+}

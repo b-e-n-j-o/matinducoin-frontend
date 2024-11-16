@@ -1,0 +1,14 @@
+.animationWrapper {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: transform 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
+    background-color: transparent;
+  }
+  
+  .animationWrapper.visible {
+    opacity: 1;
+    transform: scale(1);
+    background-color: #f7eac100; /* Couleur douce à l'apparition */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  

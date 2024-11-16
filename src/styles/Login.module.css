@@ -1,0 +1,88 @@
+.loginContainer {
+    max-width: 100%; /* Pour qu'il prenne 100% de l'écran sur mobile */
+    width: 400px; /* Largeur fixe par défaut pour les écrans plus grands */
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ajoute une ombre */
+    font-family: 'Bobby Jones Soft', sans-serif; /* Applique la police */
+    padding-top: 40px;
+  }
+  
+  
+  .loginContainer h2 {
+    text-align: center;
+    margin-bottom: 20px;
+
+  }
+  
+  .formGroup {
+    margin-bottom: 15px;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .formGroup input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .errorMessage {
+    color: red;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* Nouveau style pour le lien d'inscription */
+  .signupLink {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  .signupLink span {
+    color: #0070f3; /* Bleu */
+    cursor: pointer;
+    text-decoration: none;
+    transition: text-decoration 0.3s ease;
+  }
+  
+  .signupLink span:hover {
+    text-decoration: underline; /* Soulignement lors du survol */
+  }
+  
+
+  
+  @media (max-width: 768px) {
+    .loginContainer {
+      width: 80%; /* Pour les tablettes et petits écrans */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .loginContainer {
+      width: 80%; /* Pour les très petits écrans */
+    }
+  }
+  

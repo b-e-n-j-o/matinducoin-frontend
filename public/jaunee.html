@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page avec Fond Jaune et Image PNG</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: yellow;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      position: relative;
+    }
+    .background-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* Ajustez à 'cover' si nécessaire */
+      z-index: -1;
+    }
+    h1 {
+      color: black;
+      z-index: 1;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mon Titre</h1>
+  <img id="background-image" class="background-image" alt="Description de l'image">
+  <script>
+    function setBackgroundImage() {
+      const bgImage = document.getElementById('background-image');
+      if (window.innerWidth >= 1200) {
+        bgImage.src = '/Users/benjaminbenoit/Documents/matinducoin_tailwind/matinducoin/frontend/public/images/cyclist_sans_fond.png';
+      } else if (window.innerWidth >= 768) {
+        bgImage.src = '/Users/benjaminbenoit/Documents/matinducoin_tailwind/matinducoin/frontend/public/images/cyclist_sans_fond.png';
+      } else {
+        bgImage.src = '/Users/benjaminbenoit/Documents/matinducoin_tailwind/matinducoin/frontend/public/images/cyclist_sans_fond.png';
+      }
+    }
+    window.addEventListener('resize', setBackgroundImage);
+    window.addEventListener('load', setBackgroundImage);
+  </script>
+</body>
+</html>

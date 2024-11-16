@@ -1,0 +1,284 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+
+.titleContainer {
+  padding-top: 50px;
+  padding-bottom: 50px;
+  color: rgb(255, 89, 0);
+
+}
+
+.title {
+  color: rgb(255, 89, 0);
+  text-transform: uppercase;
+  font-size: 4rem;
+  letter-spacing: 30px;
+  text-align: center;
+  margin-bottom: 5px;
+  font-family: 'Bobby Jones Soft', sans-serif;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.card__container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+
+}
+
+.card__article {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  width: 100%; /* Utilise toute la largeur disponible */
+  max-width: 1000px; /* Limite la largeur maximale */
+  max-height: 400px;
+  box-shadow: 0 4px 6px rgba(255, 191, 0, 0.201);
+  display: center;
+  flex-direction: column;
+}
+
+.card__article:hover {
+  box-shadow: 0 6px 12px rgba(255, 183, 0, 0.437);
+  transform: translateY(-5px);
+}
+
+.card__article:hover img {
+  transform: scale(1.2);
+}
+
+.card__img {
+  display: block;
+  width: 100%;
+  height: 400px;
+  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.card__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 150%;
+  background-color: rgba(255, 255, 255, 0.748);
+  border-radius: 45px;
+
+  
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.25, 0.25, 0.25, 0.25);
+}
+
+.card__article:hover .card__overlay {
+  opacity: 1;
+}
+
+.card__title,
+.card__description,
+.card__ingredients {
+  font-family: 'Bobby Jones Soft', sans-serif;
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 0.25em;
+}
+
+.card__description {
+  position: absolute;
+  top: 50%; /* Centré verticalement */
+  left: 50%;
+  transform: translate(-50%, -65%);
+  padding: 45px;
+  background-color: rgba(255, 255, 255, 0.661);
+  border-radius: 15px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, max-height 0.5s ease-in-out;
+  text-align: center;
+  font-size: 0.8rem;
+
+  font-family: 'Bobby Jones Soft', sans-serif;
+  max-height: 70%; /* Limite la hauteur à 80% de la carte */
+  width: 90%; /* Largeur de 90% de la carte */
+  max-width: 900px; /* Limite la largeur maximale */
+}
+
+.card__article:hover .card__description {
+  opacity: 1;
+  max-height: 60%; /* S'assure que la description peut s'étendre */
+}
+
+.card__article:hover .card__ingredients {
+  opacity: 1;
+  max-width: 100%; /* S'assure que la description peut s'étendre */
+  background-color: rgb(255, 227, 155);
+  transition: opacity 0.5s cubic-bezier(0.25, 0.25, 0.25, 0.25);
+
+
+}
+
+
+.card__title {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(10px);
+  opacity: 1;
+  text-align: center;
+  color: #000;
+  letter-spacing: 10px;
+  font-family: 'Bobby Jones Soft', sans-serif;
+  
+  /* Ajoutez ou modifiez ces propriétés */
+  text-shadow: 0 0 0 transparent; /* Ombre initiale transparente */
+  transition: 
+    opacity 1s ease-in-out, 
+    transform 0.5s ease-in-out, 
+    color 0.5s ease-in-out,
+    font-size 0.2s ease-in-out,
+    text-shadow 0.5s ease-in-out;
+}
+
+.card__article:hover .card__title {
+  opacity: 1;
+  transform: translateY(0);
+  color: #ffd97f;
+  text-shadow: 1px 1px 0 #ff3c00;
+  font-size: 133%;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.card__data {
+  padding: 20px;
+}
+
+.card__ingredients {
+  position: absolute;
+  top: 72%; /* Centré verticalement */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0);
+  border-radius: 15px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, max-height 0.5s ease-in-out;
+  text-align: center;
+  font-size: 1.1rem;
+  font-family: 'Bobby Jones Soft', sans-serif;
+  max-height: 90%; /* Limite la hauteur à 80% de la carte */
+  width: 70%; /* Largeur de 90% de la carte */
+  max-width: 700px; /* Limite la largeur maximale */
+}
+
+/* Media queries pour la responsivité */
+@media (max-width: 768px) {
+  .title {
+    font-size: 4rem;
+    letter-spacing: 15px;
+  }
+
+  .card__article {
+    width: 100%;
+    max-width: 420px;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card__img {
+    width: 100%;
+    height: auto;
+  }
+
+  .card__overlay {
+    position: static;
+    opacity: 1;
+    background-color: transparent;
+  }
+  .card__title,
+  .card__description {
+    font-family: 'Bobby Jones Soft', sans-serif;
+    height : auto;
+    position: static;
+    opacity: 1;
+    transform: none;
+    background: none;
+    backdrop-filter: none;
+    color: #333; /* ou la couleur que vous préférez pour le texte */
+  }
+
+  .card__title {
+    margin-top: -10px;
+    letter-spacing: 5px;
+    font-size: 2rem;
+
+  }
+
+  .card__description {
+    position: static;
+    padding: 15px;
+    opacity: 1;
+    max-height: none;
+    width: 100%;
+    background: transparent;
+    overflow-y: visible;
+    background-color: rgba(255, 235, 185, 0.611);
+
+  }
+
+  .card__article:hover .card__description {
+    max-height: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 3.5rem;
+    letter-spacing: 10px;
+  }
+
+  .card__container {
+    gap: 15px;
+  }
+
+  .card__title {
+    font-size: 5rem;
+    letter-spacing: 3px;
+  }
+
+  .card__description {
+    font-size: auto;
+    line-height: 150%;
+    height : auto;
+    position: static;
+  }
+
+  .card__ingredients {
+    position: static;
+    opacity: 1;
+    transform: none;
+    background-color: rgb(255, 227, 155);
+    padding: 10px;
+    margin-top: 10px;
+    width: 100%;
+    max-width: none;
+    border-radius: 5px;
+  }
+
+}

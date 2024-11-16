@@ -1,0 +1,301 @@
+.container {
+  min-height: 100vh;
+  padding: 30px;
+  padding-top: 100px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.detailedDescList {
+  list-style-type: none;
+  margin: 20px 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.listItem {
+  margin-bottom: 10px;
+}
+
+.keyword {
+  font-weight: bold;
+  color: #f39c12;
+}
+
+/* Nouvelle classe pour agrandir la taille des ingrédients */
+.ingredients {
+  font-size: 1.5em; /* Agrandissement de la police */
+  font-weight: bold;
+  color: #ff6600;
+  text-align: center; /* Centre le texte des ingrédients */
+
+}
+
+.title {
+  font-size: 2.9rem;
+  color: #ff6600;
+  margin-bottom: 20px;
+  font-family: "Bobby Jones Soft", sans-serif;
+}
+
+.descriptionBox {
+  background-color: rgba(255, 235, 185, 0.611);
+  border-radius: 25px;
+  padding: 16px;
+  margin: 16px 0;
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 200px; /* Ajuste la hauteur pour inclure le bouton "En savoir plus" */
+}
+
+.descriptionBox:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.description {
+  font-size: 1rem;
+  color: #666666;
+  margin-bottom: 20px;
+  font-family: "Bobby Jones Soft", sans-serif;
+  text-align: left;
+}
+
+.specialPhrase {
+  font-size: 1.5rem;
+  color: #ff6600;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.moreInfoLink {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #333;
+  font-size: 0.8em;
+  transition: all 0.3s ease;
+}
+
+.moreInfoLink:hover {
+  background-color: rgba(255, 255, 255, 1);
+  color: #000;
+}
+
+.packSelection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.quantitySelect {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.addToCartButton {
+  background-color: #ff6600;
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 45px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: block;
+}
+
+.addToCartButton:hover {
+  background-color: #FF7F50;
+}
+
+.carouselImageContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  overflow: hidden;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+.carouselImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carouselButton {
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #333;
+  padding: 15px;
+  z-index: 10;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.carouselButton:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #ff6600;
+}
+
+.carouselButton:first-child {
+  left: 20px;
+}
+
+.carouselButton:last-child {
+  right: 20px;
+}
+
+.relatedProductsSection {
+  width: 100%;
+  margin-top: 40px;
+}
+
+.relatedProductsTitle {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.relatedProductsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  justify-content: center;
+}
+
+.relatedProductCard {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.relatedProductCard:hover {
+  transform: translateY(-5px);
+}
+
+.productsWrapper {
+  width: 100%;
+  margin-top: 40px;
+}
+
+.randomProductTitle {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #2c3e50;
+  font-family: "Bobby Jones Soft", sans-serif;
+}
+
+.productCardsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Version Desktop (par défaut) */
+.productContent {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.detailsSection {
+  width: 50%;
+  padding: 20px 0;
+  max-width: 500px;
+  order: 1;
+  line-height: 1.6;
+  margin-bottom: 70px; /* Ajusté pour donner plus d'espace */
+}
+
+.carousel {
+  width: 45%;
+  padding-top: 75px;
+  height: auto;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  order: 2;
+}
+
+.articleTitle {
+  font-size: 1.5rem;
+  color: #ff6600;
+  margin-top: 10px;
+  font-family: "Bobby Jones Soft", sans-serif;
+}
+
+.specialPhrase {
+  font-size: 1.5rem;
+  color: #ff6600;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
+  font-family: "Bobby Jones Soft", sans-serif;
+  margin-bottom: 30px;
+  border-radius: 15px;
+
+}
+
+/* Version Mobile */
+@media (max-width: 767px) {
+  .productContent {
+    flex-direction: column;
+  }
+
+  .title {
+    order: 1;
+    text-align: center;
+  }
+
+  .carousel {
+    width: 100%;
+    order: 2;
+    padding-top: 5px;
+  }
+
+  .detailsSection {
+    width: 100%;
+    order: 3;
+  }
+}

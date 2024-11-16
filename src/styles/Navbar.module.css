@@ -1,0 +1,263 @@
+/* Styles de base pour le conteneur de la barre de navigation */
+.container {
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+  z-index: 1001; /* Au-dessus du menu déroulant */
+  position: relative;
+}
+
+/* Styles pour l'effet de texte */
+.textEffect {
+  text-decoration: none;
+  font-family: 'Bobby Jones Soft', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: rgb(255, 89, 0);
+  height: 24px;
+  overflow: hidden;
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: all 0.5s ease;
+  letter-spacing: 2px;
+}
+
+.textContent {
+  display: inline-block;
+}
+
+.block {
+  display: block;
+}
+
+.letter {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.76, 0, 0.24, 1), color 0.5s ease;
+}
+
+.textEffect:hover {
+  background-color: #ff590000;
+  color: rgb(255, 72, 0) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.079);
+  transform: translateY(2px);
+  padding: 5px;
+  letter-spacing: 3px;
+}
+
+.textEffect:hover .letter {
+  transform: translateY(-100%);
+}
+
+/* Délais de transition pour chaque lettre */
+.letter:nth-child(1) { transition-delay: 0s; }
+.letter:nth-child(2) { transition-delay: 0.015s; }
+.letter:nth-child(3) { transition-delay: 0.03s; }
+.letter:nth-child(4) { transition-delay: 0.045s; }
+.letter:nth-child(5) { transition-delay: 0.06s; }
+.letter:nth-child(6) { transition-delay: 0.075s; }
+.letter:nth-child(7) { transition-delay: 0.09s; }
+.letter:nth-child(8) { transition-delay: 0.105s; }
+.letter:nth-child(9) { transition-delay: 0.12s; }
+.letter:nth-child(10) { transition-delay: 0.135s; }
+.letter:nth-child(11) { transition-delay: 0.15s; }
+.letter:nth-child(12) { transition-delay: 0.165s; }
+
+/* Styles pour le menu mobile */
+.menuIcon {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 25px;
+}
+
+/* Nouvelle animation pour les barres du menu hamburger */
+.bar {
+  width: 100%;
+  height: 3px;
+  background-color: rgb(255, 89, 0);
+  transition: all 0.3s ease;
+}
+
+.bar.open:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.bar.open:nth-child(2) {
+  opacity: 0;
+}
+
+.bar.open:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Nouveau style pour le fond du menu */
+.menuItems {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 4rem 1rem 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-100%);
+  transition: all 0.45s ease;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.menuItems.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.menuItem {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition-delay: 0.1s;
+  margin: 1rem 0;
+  font-size: 24px;
+}
+
+.open .menuItem {
+  opacity: 1;
+  transform: translateY(-40px);
+}
+
+.open .menuItem:nth-child(1) { transition-delay: 0.25s; }
+.open .menuItem:nth-child(2) { transition-delay: 0.38s; }
+.open .menuItem:nth-child(3) { transition-delay: 0.47s; }
+.open .menuItem:nth-child(4) { transition-delay: 0.57s; }
+
+/* Ajoutez ces nouvelles classes pour l'animation de fermeture */
+.menuItems.closing {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+}
+
+.closing .menuItem {
+  opacity: 0;
+  transform: translateY(0);
+  transition: opacity 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .menuIcon {
+    display: none;
+  }
+
+  .menuItems {
+    flex-direction: row;
+    position: static;
+    background-color: transparent;
+    backdrop-filter: none;
+    padding: 0;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    justify-content: flex-end;
+  }
+
+  .menuItem {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    margin: 0 30px;
+    font-size: 16px;
+  }
+}
+
+
+
+/* Styles de base (mobile first) */
+.brandContainer {
+  position: relative;
+  padding-top: 20px;
+}
+
+.brandName {
+  position: relative;
+  z-index: 2;
+}
+
+.logoWrapper {
+  position: absolute;
+  top: -2px;
+  left: 73px;
+  width: 120%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none; /* Empêche le logo de recevoir les clics */
+
+}
+
+.brandLogo {
+  width: 80px;
+  height: auto;
+  filter: brightness(0) saturate(100%) invert(39%) sepia(95%) saturate(1858%) hue-rotate(1deg) brightness(103%) contrast(106%);
+}
+
+
+.userGreeting {
+  color: #ff6600;
+  margin-right: 15px;
+  font-size: 14px;
+}
+
+.cartIcon {
+  position: relative;
+}
+
+.cartCount {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff6600;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+
+
+/* Styles pour la version desktop */
+@media (min-width: 768px) {
+  .brandContainer {
+    position: relative;
+    padding-top: 20px;
+  }
+  
+  .brandName {
+    position: relative;
+    z-index: 2;
+  }
+
+  .logoWrapper {
+    position: absolute;
+    top: -2px;
+    left: 73px;
+    width: 120%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 1;
+  }
+
+  .brandLogo {
+    width: 80px;
+    height: auto;
+    filter: brightness(0) saturate(100%) invert(39%) sepia(95%) saturate(1858%) hue-rotate(1deg) brightness(103%) contrast(106%);
+  }
+}

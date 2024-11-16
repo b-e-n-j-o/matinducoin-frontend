@@ -1,0 +1,162 @@
+.container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px 0;
+  font-family: "Bobby Jones Soft", sans-serif;
+  color: #333;
+}
+
+.banner img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.title {
+  font-size: 1em;
+  margin-top: 20px;
+  text-align: center;
+  color: #2c3e50;
+  font-family: "Bobby Jones Soft", sans-serif;
+}
+
+.content {
+  margin-top: 40px;
+  font-family: "Bobby Jones Soft", sans-serif;
+}
+
+.header {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #e74c3c;
+}
+
+.paragraphContainer {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #fff8e1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.paragraph {
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.sentence {
+  display: block;
+}
+
+.subtitle {
+  font-size: 1.4em;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.imageBlock {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.imageBlock img {
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+.caption {
+  font-size: 0.9em;
+  color: #888;
+  margin-top: 5px;
+}
+
+.faqSection {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.faqTitle {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.faqItem {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.faqItem:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.faqQuestion {
+  font-size: 1.2rem;
+  color: #34495e;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.faqAnswer {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Nouveaux styles pour le bouton Voir plus / Voir moins */
+.toggleButton {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  display: block;
+  margin: 10px 0;
+  transition: background-color 0.3s ease;
+  text-align: center;
+}
+
+.toggleButton:hover {
+  background-color: #c0392b;
+}
+
+/* Masquer le contenu des sections par défaut */
+.hiddenContent {
+  display: none;
+}
+
+/* Afficher le contenu visible */
+.visibleContent {
+  display: block;
+}
+
+/* Ajustement pour responsive */
+@media (max-width: 768px) {
+  .container {
+    width: 90%;
+  }
+
+  .title {
+    font-size: 2em;
+  }
+
+  .paragraphContainer {
+    padding: 10px;
+  }
+
+  .toggleButton {
+    font-size: 0.9em;
+    padding: 8px 15px;
+  }
+}

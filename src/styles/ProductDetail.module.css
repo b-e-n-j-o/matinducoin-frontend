@@ -1,0 +1,58 @@
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 800px; /* Augmenté de 600px à 800px */
+  height: 500px; /* Augmenté de 400px à 500px */
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  border-radius: 10px; /* Ajouté pour adoucir les bords */
+}
+
+.carouselImageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  transition: transform 0.5s ease-in-out; /* Ajouté pour une transition fluide */
+}
+
+.carouselImage {
+  object-fit: cover;
+  transition: transform 0.5s ease-in-out; /* Ajouté pour une transition fluide */
+}
+
+.carouselButton {
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #333;
+  padding: 15px; /* Augmenté pour une meilleure visibilité */
+  z-index: 10;
+  border-radius: 50%; /* Pour des boutons circulaires */
+}
+
+.carouselButton:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #ff6600;
+}
+
+.carouselButton:first-child {
+  left: 20px;
+}
+
+.carouselButton:last-child {
+  right: 20px;
+}
+
+.carouselButton:active ~ .carouselImageContainer {
+  transform: translateX(-100%); /* Ajouté pour animer le changement d'image */
+  transition: transform 0.5s ease-in-out; /* Ajouté pour une transition fluide */
+}

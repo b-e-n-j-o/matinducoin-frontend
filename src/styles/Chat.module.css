@@ -1,0 +1,44 @@
+/* styles/Chat.module.css */
+.chatContainer {
+    position: fixed;
+    bottom: 5rem;
+    right: 1rem;
+    width: 24rem;
+    height: 600px;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transform-origin: bottom right;
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .chatContainer.closing {
+    animation: slideOut 0.3s ease-in forwards;
+  }
+  
+  @keyframes slideOut {
+    from {
+      transform: scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+  }
+  
+  /* Ajoutez ici les autres styles du chat que je vous ai fournis précédemment */

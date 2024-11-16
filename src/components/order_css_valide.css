@@ -1,0 +1,381 @@
+.formContainer {
+    background: hsl(57, 60%, 50%);
+    font-family: sans-serif;
+  }
+  
+  .formContainer fieldset {
+    box-shadow: 0 8px 10px hsl(45, 63%, 41%);
+  }
+  
+  .error {
+    background: hsl(16, 100%, 47%);
+  }
+  
+  .error fieldset {
+    box-shadow: 0 8px 10px hsl(16, 100%, 37%);
+  }
+  
+  .title, .subtitle {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  
+  .title {
+    top: 24px;
+    color: hsl(0, 0%, 100%);
+    font-size: 12px;
+  }
+  
+  .subtitle {
+    top: 44px;
+    color: hsl(0, 0%, 100%);
+    font-size: 10px;
+    opacity: 0.7;
+  }
+  
+  .itemList {
+    position: absolute;
+    width: 30px;
+    height: auto;
+    top: 50%;
+    left: -60px;
+    transform: translateY(-50%);
+  }
+  
+  .itemList li {
+    width: 8px;
+    height: 8px;
+    margin: 10px 0;
+    background: hsl(0, 0%, 100%);
+    border-radius: 50%;
+    opacity: 0.4;
+    cursor: pointer;
+  }
+  
+  .itemList li.active {
+    opacity: 1;
+  }
+  
+  .form {
+    position: absolute;
+    width: 300px;
+    height: 60px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .fieldset {
+    position: absolute;
+    width: 300px;
+    height: 60px;
+    background: hsl(0, 0%, 100%);
+    border-radius: 3px;
+    opacity: 0;
+    transform: scale(0.2);
+    transition: all 0.4s ease-in-out;
+  }
+  
+  .fieldset input,
+  .fieldset p {
+    display: inline-block;
+    width: 200px;
+    margin-left: 50px;
+    color: hsl(0, 0%, 20%);
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+  
+  .fieldset p {
+    margin-top: 22px;
+    text-align: center;
+  }
+  
+  .fieldset input {
+    height: 40px;
+    margin-top: 8px;
+    border: none;
+    outline: none;
+  }
+  
+  .icon {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: 15px;
+    transition: all 0.4s ease;
+  }
+  
+  .icon i {
+    position: absolute;
+    display: block;
+  }
+  
+  .icon i::before,
+  .icon i::after {
+    position: absolute;
+    content: '';
+  }
+  
+  .iconLeft {
+    left: 10px;
+  }
+  
+  .iconRight {
+    right: 10px;
+    cursor: pointer;
+  }
+  
+  .iconButton:hover {
+    background: hsl(0, 0%, 95%);
+    border-radius: 3px;
+    transition: all 0.4s ease;
+  }
+  
+  .fieldsetEnable {
+    z-index: 1;
+    opacity: 1;
+    transition: all 0.5s ease-out 0.2s;
+    transform: scale(1);
+    animation: enable 0.5s ease-out 0.2s;
+  }
+  
+  .fieldsetDisable {
+    opacity: 0;
+    transition: all 0.3s ease-in;
+    transform: translateY(120px) scale(0.9);
+  }
+  
+  .error .fieldset {
+    transform-origin: 50% 100%;
+    animation: error 0.3s ease-out;
+  }
+  
+  @keyframes enable {
+    0% {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+    60% {
+      transform: scale(1.1);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes error {
+    0%, 50%, 100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-3deg);
+    }
+    75% {
+      transform: rotate(3deg);
+    }
+  }
+  
+  .iconArrow {
+    width: 2px;
+    height: 17px;
+    top: 5px;
+    left: 14px;
+    background: hsl(0, 0%, 20%);
+  }
+  
+  .iconArrow::before {
+    width: 6px;
+    height: 6px;
+    bottom: -1px;
+    left: -3px;
+    border-color: hsl(0, 0%, 20%);
+    border-right: 2px solid;
+    border-bottom: 2px solid;
+    transform: rotate(45deg);
+  }
+  
+  .iconUser {
+    width: 20px;
+    height: 10px;
+    bottom: 5px;
+    left: 5px;
+    box-shadow: 0 0 0 2px hsl(0, 0%, 20%) inset;
+    border-radius: 6px 6px 3px 3px;
+  }
+  
+  .iconUser::before {
+    width: 10px;
+    height: 10px;
+    top: -9px;
+    left: 5px;
+    box-shadow: 0 0 0 2px hsl(0, 0%, 20%) inset;
+    border-radius: 50%;
+  }
+  
+  .iconLetter {
+    width: 20px;
+    height: 12px;
+    top: 9px;
+    left: 5px;
+    box-shadow: 0 0 0 2px hsl(0, 0%, 20%) inset;
+    border-radius: 3px;
+  }
+  
+  .iconLetter::before,
+  .iconLetter::after {
+    width: 11px;
+    height: 2px;
+    top: 4px;
+    background: hsl(0, 0%, 20%);
+  }
+  
+  .iconLetter::before {
+    left: 0;
+    transform: rotate(30deg);
+  }
+  
+  .iconLetter::after {
+    right: 0;
+    transform: rotate(-30deg);
+  }
+  
+  .iconLock {
+    width: 20px;
+    height: 16px;
+    top: 9px;
+    left: 5px;
+    box-shadow: 0 0 0 2px hsl(0, 0%, 20%) inset;
+    border-radius: 3px;
+  }
+  
+  .iconLock::before {
+    width: 8px;
+    height: 8px;
+    top: -4px;
+    left: 4px;
+    border: 2px solid transparent;
+    border-top: 2px solid hsl(0, 0%, 20%);
+    border-right: 2px solid hsl(0, 0%, 20%);
+    border-radius: 50%;
+    transform: rotate(-45deg);
+  }
+  
+  .iconLock::after {
+    width: 6px;
+    height: 7px;
+    top: 4px;
+    left: 7px;
+    box-shadow: 0 0 0 2px hsl(0, 0%, 100%) inset;
+  }
+  
+  .iconHeart {
+    width: 10px;
+    height: 10px;
+    top: 11px;
+    left: 7px;
+    background: hsl(9, 100%, 60%);
+    transform: rotate(45deg);
+  }
+  
+  .iconHeart::before,
+  .iconHeart::after {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: hsl(9, 100%, 60%);
+  }
+  
+  .iconHeart::before {
+    left: -6px;
+  }
+  
+  .iconHeart::after {
+    top: -6px;
+  }
+
+
+  .submitButton {
+    width: 300px;
+    height: 40px;
+    margin-left: 10px;
+    background: hsl(0, 0, 100%);
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: hsl(0, 0, 20%);
+    font-size: 15px;
+    letter-spacing: 1px;
+    display: inline-block;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.4s ease;
+  }
+  
+
+
+  .summaryFieldset {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    box-shadow: none;
+    background: none;
+  }
+  
+  
+  .summaryField label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .summaryField input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+  }
+
+  .summaryContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .summary {
+    width: 100%;
+    max-width: 500px; /* Ajustez selon vos préférences */
+  }
+  
+  .summaryFieldset {
+    box-shadow: none !important;
+    background: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+
+  .confirmButton {
+    position: absolute;
+    bottom: -250px;
+    right: -380px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 45px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .confirmButton:hover {
+    background-color: #45a049;
+  }

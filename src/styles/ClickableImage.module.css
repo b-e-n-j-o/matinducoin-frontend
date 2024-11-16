@@ -1,0 +1,95 @@
+.imageContainer {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden; /* Cache les parties de l'image qui dépassent */
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  width: 100%; /* Largeur du conteneur */
+  height: 400px; /* Hauteur fixe pour rogner l'image (ajuste selon tes besoins) */
+}
+
+.imageContainer:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.image {
+  width: 100%; /* L'image occupe toute la largeur du conteneur */
+  height: auto; /* Maintient le ratio d'aspect */
+  position: absolute;
+  top: 50%; /* Centre l'image verticalement */
+  left: 50%; /* Centre l'image horizontalement */
+  transform: translate(-50%, -50%); /* Assure que l'image est bien centrée dans le conteneur */
+  transition: all 0.3s ease;
+  border-radius: 25px;
+}
+
+
+/* Styles pour les images sur grand écran */
+/* Styles pour les images sur grand écran (desktop) */
+@media (min-width: 769px) {
+  .image {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    top: 50%; /* Centre l'image verticalement */
+    left: 50%; /* Centre l'image horizontalement */
+    transform: translate(-50%, -50%); /* Assure que l'image est bien centrée */
+    transition: all 0.3s ease;
+    border-radius: 25px;
+  }
+}
+
+/* Styles pour les images sur petits écrans (mobile) */
+@media (max-width: 768px) {
+  .image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;  /* Le rognage est géré ici */
+    position: relative; /* Maintient le centrage sans positionnement absolu */
+    transition: all 0.3s ease;
+    border-radius: 25px;
+  }
+}
+
+
+
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 25px;
+}
+
+.imageContainer:hover .overlay {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.overlayText {
+  color: white;
+  font-size: 14px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.imageContainer:hover .overlayText {
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .overlayText {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,148 @@
+.pageContainer {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .formWrapper {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    padding-top: 30px;
+
+  }
+  
+  .form {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+  }
+  
+  .summaryFieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .summaryTitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+  }
+  
+  .summaryContent {
+    margin-bottom: 2rem;
+  }
+  
+  .summaryRow {
+    margin-bottom: 1rem;
+  }
+  
+  .summaryLabel {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .summaryInput {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .cartSummary {
+    margin-top: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+  }
+  
+  .cartSummary h4 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .cartItem {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
+  
+  .totalPrice {
+    margin-top: 1rem;
+    font-weight: bold;
+    text-align: right;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
+  .bottomSection {
+    margin-top: 2rem;
+  }
+  
+  .promoCodeField {
+    margin-bottom: 1rem;
+  }
+  
+  .promoCodeField label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .promoCodeField input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .validPromo {
+    color: green;
+    margin-top: 0.5rem;
+  }
+  
+  .invalidPromo {
+    color: red;
+    margin-top: 0.5rem;
+  }
+  
+  .confirmButton {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .confirmButton:hover {
+    background-color: #45a049;
+  }
+  
+  @media (max-width: 768px) {
+    .formWrapper {
+      padding: 1rem;
+    }
+  
+    .form {
+      padding: 1.5rem;
+    }
+  }

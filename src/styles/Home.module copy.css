@@ -1,0 +1,46 @@
+.gradient-scroll {
+  height: 500vh;
+  background: 
+    linear-gradient(to bottom, #febe27, #f7b827, #7fcb78, #3E885B, #276a41);
+  background-size: cover, 100% 100%;
+  transition: background-position 1s ease-in-out;
+
+}
+
+
+.customTextColor {
+  color: #ff5900;
+  font-family: 'Bobby Jones Soft';
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+
+}
+
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+.custom-tracking-extra-wide {
+  letter-spacing: 6px;
+}
+
+.fadeInUp {
+  opacity: 0;
+}
+
+.animated {
+  animation: fadeInUp 0.7s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

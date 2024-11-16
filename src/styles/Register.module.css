@@ -1,0 +1,167 @@
+/* Conteneur du formulaire */
+.registerContainer {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-family: "Bobby Jones Soft", 'sans-serif';
+  }
+  
+  /* Titre du formulaire */
+  .registerContainer h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+  
+  /* Groupe de formulaire */
+  .formGroup {
+    margin-bottom: 15px;
+  }
+  
+  /* Style des labels */
+  .formGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 16px;
+  }
+  
+  /* Style des champs d'entrée */
+  .input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  /* Message d'erreur */
+  .errorMessage {
+    color: red;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  /* Bouton d'inscription */
+  .button {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  /* Bouton désactivé */
+  .button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* Lien vers la connexion */
+  .loginLink {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  
+  /* Span cliquable pour le lien */
+  .linkSpan {
+    color: #0070f3;
+    cursor: pointer;
+    text-decoration: none;
+    transition: text-decoration 0.3s ease;
+  }
+  
+  .linkSpan:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsivité : ajustement pour les petits écrans */
+  @media (max-width: 768px) {
+    .registerContainer {
+      max-width: 90%;
+      margin: 20px auto;
+      padding: 15px;
+      border-radius: 8px;
+    }
+  
+    .registerContainer h2 {
+      font-size: 20px;
+    }
+  
+    .input {
+      padding: 8px;
+      font-size: 14px;
+    }
+  
+    .button {
+      padding: 10px;
+      font-size: 14px;
+    }
+  
+    .loginLink {
+      font-size: 13px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .registerContainer {
+      padding: 10px;
+    }
+  
+    .registerContainer h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+  
+    .input {
+      padding: 8px;
+      font-size: 14px;
+    }
+  
+    .button {
+      padding: 10px;
+      font-size: 14px;
+    }
+  
+    .loginLink {
+      margin-top: 15px;
+      font-size: 12px;
+    }
+  }
+  
+@media (max-height: 768px) {
+    .registerContainer {
+      max-width: 90%;
+      margin: 20px auto;
+      padding: 15px;
+      border-radius: 8px;
+      padding-top : 40px
+    }
+  
+    .registerContainer h2 {
+      font-size: 20px;
+    }
+  
+    .input {
+      padding: 8px;
+      font-size: 14px;
+    }
+  
+    .button {
+      padding: 10px;
+      font-size: 14px;
+    }
+  
+    .loginLink {
+      font-size: 13px;
+    }
+  }
+  
+  

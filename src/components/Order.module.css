@@ -1,0 +1,190 @@
+.pageContainer {
+  --primary-color: #ff6600;
+  --secondary-color: #1aa408;
+  --input-bg: #f9f9f9;
+  --input-border: #ddd;
+  --error-color: #dc3545;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.formWrapper {
+  width: 100%;
+  max-width: 600px;
+  background-color: #fff;
+  border-radius: 0.625rem;
+  box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
+  padding: 1.875rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryFieldset {
+  width: 100%;
+  background: transparent;
+}
+
+.summaryTitle {
+  text-align: center;
+  color: var(--primary-color);
+  font-size: clamp(1.25rem, 5vw, 1.5rem);
+  margin-bottom: 1.25rem;
+}
+
+.summaryContent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.summaryRow {
+  margin-bottom: 1.25rem;
+}
+
+.summaryLabel {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.3125rem;
+  display: block;
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.summaryInput {
+  width: 100%;
+  border-radius: 0.3125rem;
+  padding: 0.625rem 0.9375rem;
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  border: 1px solid var(--input-border);
+  box-shadow: 0 2px 4px rgba(255, 179, 0, 0.1);
+  transition: all 0.3s ease;
+  background-color: var(--input-bg);
+}
+
+.summaryInput:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 2px 4px rgba(255, 179, 0, 0.2);
+}
+
+.summaryInput:hover {
+  background-color: #fff5e6;
+}
+
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-top: 1.25rem;
+}
+
+.promoCodeField {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25rem;
+}
+
+.promoCodeField label {
+  margin-bottom: 0.3125rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.promoCodeField input {
+  padding: 0.625rem 0.9375rem;
+  border: 1px solid var(--input-border);
+  border-radius: 0.3125rem;
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  box-shadow: 0 2px 4px rgba(255, 179, 0, 0.1);
+}
+
+.confirmButton {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.3125rem;
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.confirmButton:hover {
+  background-color: var(--secondary-color);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.promoMessage {
+  margin-top: 0.625rem;
+  padding: 0.625rem;
+  border-radius: 0.3125rem;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+}
+
+.validPromo {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.invalidPromo {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.error .summaryInput {
+  border-color: var(--error-color);
+}
+
+.error .summaryLabel {
+  color: var(--error-color);
+}
+
+@media (max-width: 768px) {
+  .formWrapper {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 0.625rem;
+  }
+
+  .formWrapper {
+    padding: 0.9375rem;
+  }
+}

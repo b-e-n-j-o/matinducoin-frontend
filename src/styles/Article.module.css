@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css?family=Playfair+Display');
+
+.blogArticle {
+  font-size: 22px;
+  line-height: 32px;
+  color: #333333;
+  font-family: 'Playfair Display', Serif;
+}
+
+.nav {
+  background: #ffffff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+  border-bottom: 1px solid #333333;
+}
+
+.inner {
+  width: 60%;
+  margin: 0 auto;
+}
+
+.navList {
+  float: right;
+}
+
+.navItem {
+  display: inline;
+  margin: 0 0 0 50px;
+}
+
+.title {
+  font-size: 8vw;
+  line-height: 1.2;
+  text-align: center;
+  font-family: helvetica, sans-serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: #FBD461;
+  margin: 0;
+  padding: 15vh 5vw;
+  word-spacing: 100vw; /* Force each word to a new line */
+}
+
+.label-text {
+  color: black;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #FBD461; /* Ta couleur de fond */
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #FF5900; /* Bordure optionnelle */
+}
+
+
+.link {
+  text-decoration: none;
+  color: #34495e;
+  transition: all 0.6s ease-in;
+}
+
+.link:hover {
+  color: #2c3e50;
+  text-decoration: underline;
+}
+
+.image {
+  width: 100%;
+}
+
+.wrapper {
+  background: #ffffff;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  position: relative;
+}
+
+.contentWrapper {
+  width: 80%;
+  margin: auto;
+  padding: 10%;
+}
+
+.contentWrapper::first-letter {
+  font-size: 80px;
+}
+
+.imageRight {
+  padding: 5% 0 5% 5%;
+  width: 50%;
+  float: right;
+  opacity: 0.8;
+  transition: all 0.6s ease-in;
+  font-size: 80%;
+  font-style: italic;
+  line-height: 20px;
+}
+
+.imageLeft {
+  padding: 5% 5% 5% 0;
+  width: 50%;
+  float: left;
+  opacity: 0.8;
+  transition: all 0.6s ease-in;
+  font-size: 80%;
+  font-style: italic;
+  line-height: 20px;
+}
+
+.imageCenter {
+  padding: 5% 0;
+  width: 169%;
+  position: relative;
+  margin-left: -35%;
+}
+
+.imageRight:hover,
+.imageLeft:hover {
+  opacity: 1;
+}
+
+.imageRight img,
+.imageLeft img {
+  margin: 0 0 10px 0;
+}
+
+@media (max-width: 900px) {
+  .title {
+    font-size: 7vw;
+    padding: 10vh 3vw;
+  }
+
+  .imageRight,
+  .imageLeft {
+    width: 100%;
+    float: none;
+    padding: 0 0 5% 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 6vw;
+    padding: 8vh 2vw;
+  }
+
+  .contentWrapper {
+    width: 100%;
+    padding: 10% 2%;
+  }
+
+  .imageCenter {
+    width: 127%;
+    margin-left: -13%;
+  }
+}
