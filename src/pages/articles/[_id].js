@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '../api/utils/dbConnect.js';
 import BlogArticle from '../../components/BlogArticle';
 import Navbar from '../../components/Navbar';
-import styles from './ArticlePage.module.css';
+import styles from '../../styles/Article.module.css';
 
 export default function Article({ article, error }) {
   if (error) {
