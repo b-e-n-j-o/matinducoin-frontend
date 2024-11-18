@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Navbar from '../components/Navbar';
-import styles from '../styles/Products.module.css';
-import 'tailwindcss/tailwind.css';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -44,20 +42,20 @@ const Products = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-custom-yellow">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-custom-orange"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500 text-center">
-          <p>{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-custom-yellow">
+        <div className="text-custom-orange text-center">
+          <p className="font-bobby text-xl">{error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+            className="mt-4 px-6 py-2 bg-custom-orange text-white rounded-lg hover:bg-orange-600 transition-colors"
           >
             Réessayer
           </button>
@@ -67,49 +65,75 @@ const Products = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col font-roboto">
+    // Conteneur principal avec fond jaune et police Roboto
+    <div className="min-h-screen flex flex-col font-roboto bg-[#ffd97f]">
+      {/* Barre de navigation */}
       <Navbar />
+      {/* Conteneur du contenu principal avec padding pour l'espacement */}
       <div className="pt-16 px-4 sm:px-6 lg:px-8">
-        <div className={`${styles.titleContainer} text-center`}>
-          <h1 className={`${styles.title} text-3xl sm:text-4xl font-fungroovy text-orange-600`}>
+        {/* Section titre */}
+        <div className="py-12 text-center">
+          <h1 className="font-['Bobby_Jones_Soft'] text-[rgb(255,89,0)] text-4xl md:text-5xl lg:text-6xl tracking-[30px] uppercase transform transition-all duration-300">
             Nos Recettes
           </h1>
         </div>
         
-        <div className={`${styles.container} mt-8`}>
-          <div className={`${styles.card__container} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`}>
+        {/* Grille des produits */}
+        <div className="max-w-7xl mx-auto px-4">
+          {/* Grille responsive: 1 colonne sur mobile, 2 sur tablette, 3 sur desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product, index) => (
-              <Link href={`/products/${product._id}`} key={product._id} passHref>
-                <article 
-                  className={`${styles.card__article} bg-white rounded-lg shadow-md overflow-hidden 
-                    transition-all duration-300 transform hover:scale-105 hover:shadow-lg`}
-                  style={{ 
-                    transitionDelay: `${index * 100}ms`,
-                    opacity: visible ? 1 : 0,
-                    transform: visible ? 'translateY(0)' : 'translateY(20px)'
-                  }}
-                >
-                  <div className="relative w-full h-0 pb-[80%]">
+              // Lien vers la page détaillée du produit avec animation d'apparition
+              <Link 
+                href={`/products/${product._id}`} 
+                key={product._id}
+                className="group h-full"
+                style={{
+                  transitionDelay: `${index * 100}ms`,
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'translateY(0)' : 'translateY(20px)',
+                }}
+              >
+                {/* Carte du produit avec effets de hover */}
+                <article className="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl h-full flex flex-col">
+                  {/* Conteneur de l'image avec ratio 4:3 */}
+                  <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0">
                     <Image 
                       src={product.imageUrl} 
-                      alt={product.name} 
-                      layout="fill"
-                      objectFit="cover"
-                      className={`${styles.card__img}`}
-                      loading="lazy"
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      priority={index === 0}
                       onError={(e) => {
                         e.target.src = '/placeholder-image.jpg';
                       }}
                     />
+                    
+                    {/* Overlay pour effet de hover */}
+                    <div className="absolute inset-0" />
                   </div>
 
-                  <div className={`${styles.card__data} p-4`}>
-                    <h3 className={`${styles.card__title} text-xl font-semibold text-orange-500 mb-2`}>
+                  {/* Contenu textuel de la carte */}
+                  <div className="relative p-6 flex flex-col flex-grow">
+                    {/* Titre du produit */}
+                    <h3 className="font-['Bobby_Jones_Soft'] text-[rgb(255,89,0)] text-xl sm:text-2xl tracking-[10px] uppercase text-center mb-4 transition-all duration-300 group-hover:scale-110">
                       {product.name}
                     </h3>
-                    <p className={`${styles.card__ingredients} text-gray-700 text-sm line-clamp-2`}>
-                      {product.ingredients}
-                    </p>
+                    
+                    {/* Section des ingrédients avec fond semi-transparent */}
+                    <div className="bg-[#ffd97f]/20 rounded-lg p-4 flex-grow">
+                      <p className="font-['Bobby_Jones_Soft'] text-gray-700 text-sm tracking-wide text-center line-clamp-3">
+                        {product.ingredients}
+                      </p>
+                    </div>
+
+                    {/* Affichage conditionnel du prix */}
+                    {product.price && (
+                      <p className="mt-4 text-[#22C55E] text-xl font-bold text-center">
+                        {product.price.toFixed(2)} €
+                      </p>
+                    )}
                   </div>
                 </article>
               </Link>
@@ -117,9 +141,12 @@ const Products = () => {
           </div>
         </div>
 
+        {/* Message d'état vide si aucun produit n'est disponible */}
         {products.length === 0 && !loading && !error && (
           <div className="text-center mt-8">
-            <p className="text-gray-500">Aucune recette disponible pour le moment.</p>
+            <p className="text-gray-500 font-bobby text-xl">
+              Aucune recette disponible pour le moment.
+            </p>
           </div>
         )}
       </div>
