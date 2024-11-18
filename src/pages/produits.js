@@ -1,11 +1,11 @@
-import Products from '../components/Products';
-import Footer from '../components/Footer'; // Assure-toi que le chemin est correct
-
+import ProductList from '../components/ProductList';
+import Footer from '../components/Footer';
 
 export default function ProductsPage() {
   return (
     <>
-      <Products />
+      <ProductList />
+      <Footer />
     </>
   );
 }
