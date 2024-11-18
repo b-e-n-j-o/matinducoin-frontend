@@ -85,31 +85,36 @@ const Products = () => {
               <Link href={`/products/${product._id}`} key={product._id} passHref>
                 <article 
                   className={`${styles.card__article} bg-white rounded-lg shadow-md overflow-hidden 
-                    transition-all duration-300 transform hover:scale-105 hover:shadow-lg h-[500px]`}
+                    w-full max-w-[400px] h-[500px] relative`}
                   style={{ 
                     transitionDelay: `${index * 100}ms`,
                     opacity: visible ? 1 : 0,
                     transform: visible ? 'translateY(0)' : 'translateY(20px)'
                   }}
                 >
-                  <div className="relative w-full h-[400px]">
+                  <div className="relative w-full h-[300px]">
                     <Image 
                       src={product.imageUrl} 
                       alt={product.name} 
                       layout="fill"
                       objectFit="cover"
-                      className={`${styles.card__img}`}
                       priority={true}
+                      className="transition-transform duration-300 hover:scale-110"
                     />
                   </div>
 
-                  <div className={`${styles.card__data} p-4`}>
-                    <h3 className={`${styles.card__title} text-xl font-semibold text-orange-500 mb-2`}>
+                  <div className="p-4 flex flex-col h-[200px]">
+                    <h3 className="text-2xl font-fungroovy text-orange-500 text-center mb-4 uppercase tracking-wider">
                       {product.name}
                     </h3>
-                    <p className={`${styles.card__ingredients} text-gray-700 text-sm line-clamp-2`}>
+                    <p className="text-gray-700 text-sm flex-grow">
                       {product.ingredients}
                     </p>
+                    <div className="mt-4 flex justify-center">
+                      <span className="text-lg font-bold text-green-600">
+                        {product.price?.toFixed(2)} €
+                      </span>
+                    </div>
                   </div>
                 </article>
               </Link>
