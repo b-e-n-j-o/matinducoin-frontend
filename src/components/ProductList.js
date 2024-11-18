@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -53,7 +52,9 @@ const ProductList = () => {
               <p className="font-bold mt-2 text-green-700">{product.price.toFixed(2)} €</p>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-orange-500 hover:bg-orange-600">Ajouter au panier</Button>
+              <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded">
+                Ajouter au panier
+              </button>
             </CardFooter>
           </Card>
         ))}
