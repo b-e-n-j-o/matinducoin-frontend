@@ -92,7 +92,7 @@ const Products = () => {
                     transform: visible ? 'translateY(0)' : 'translateY(20px)'
                   }}
                 >
-                  <div className="relative w-full h-0 pb-[80%]">
+                  <div className="relative w-full min-h-[300px]">
                     <Image 
                       src={product.imageUrl} 
                       alt={product.name} 
