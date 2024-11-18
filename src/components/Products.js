@@ -13,12 +13,9 @@ const Products = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
-      console.log('Tentative de fetch vers:', apiUrl); // Pour voir l'URL complète
       try {
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
         const response = await fetch(apiUrl);
-        console.log('Status de la réponse:', response.status);
-
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -80,41 +77,39 @@ const Products = () => {
         </div>
         
         <div className={`${styles.container} mt-8`}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={`${styles.card__container} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`}>
             {products.map((product, index) => (
               <Link href={`/products/${product._id}`} key={product._id} passHref>
                 <article 
                   className={`${styles.card__article} bg-white rounded-lg shadow-md overflow-hidden 
-                    w-full max-w-[400px] h-[500px] relative`}
+                    transition-all duration-300 transform hover:scale-105 hover:shadow-lg`}
                   style={{ 
                     transitionDelay: `${index * 100}ms`,
                     opacity: visible ? 1 : 0,
                     transform: visible ? 'translateY(0)' : 'translateY(20px)'
                   }}
                 >
-                  <div className="relative w-full h-[300px]">
+                  <div className="relative w-full h-0 pb-[80%]">
                     <Image 
                       src={product.imageUrl} 
                       alt={product.name} 
                       layout="fill"
                       objectFit="cover"
-                      priority={true}
-                      className="transition-transform duration-300 hover:scale-110"
+                      className={`${styles.card__img}`}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.src = '/placeholder-image.jpg';
+                      }}
                     />
                   </div>
 
-                  <div className="p-4 flex flex-col h-[200px]">
-                    <h3 className="text-2xl font-fungroovy text-orange-500 text-center mb-4 uppercase tracking-wider">
+                  <div className={`${styles.card__data} p-4`}>
+                    <h3 className={`${styles.card__title} text-xl font-semibold text-orange-500 mb-2`}>
                       {product.name}
                     </h3>
-                    <p className="text-gray-700 text-sm flex-grow">
+                    <p className={`${styles.card__ingredients} text-gray-700 text-sm line-clamp-2`}>
                       {product.ingredients}
                     </p>
-                    <div className="mt-4 flex justify-center">
-                      <span className="text-lg font-bold text-green-600">
-                        {product.price?.toFixed(2)} €
-                      </span>
-                    </div>
                   </div>
                 </article>
               </Link>
