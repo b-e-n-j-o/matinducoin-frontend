@@ -13,9 +13,12 @@ const Products = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
+      console.log('Tentative de fetch vers:', apiUrl); // Pour voir l'URL complète
       try {
-        // Utilisation de l'endpoint API local
-        const response = await fetch('/api/products');
+        const response = await fetch(apiUrl);
+        console.log('Status de la réponse:', response.status);
+
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

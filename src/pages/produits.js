@@ -1,11 +1,9 @@
-import ProductList from '../components/ProductList';
-import Footer from '../components/Footer';
+import Products from '../components/Products';
 
 export default function ProductsPage() {
   return (
     <>
-      <ProductList />
-      <Footer />
+      <Products />
     </>
   );
 }
