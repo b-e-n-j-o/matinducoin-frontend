@@ -1,6 +1,8 @@
-// components/ChatInterface.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+
+const CHAT_DURATION = 90000; // 90 secondes
+const HEARTBEAT_INTERVAL = 30000; // 30 secondes pour le heartbeat
 
 const TypingMessage = ({ text, onComplete }) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -11,7 +13,7 @@ const TypingMessage = ({ text, onComplete }) => {
       const timer = setTimeout(() => {
         setDisplayedText(prevText => prevText + text[currentIndex]);
         setCurrentIndex(prevIndex => prevIndex + 1);
-      }, 15); // Vitesse ajustée à 15ms
+      }, 15);
 
       return () => clearTimeout(timer);
     } else if (onComplete) {
@@ -27,8 +29,13 @@ const Chat = ({ isOpen, onClose }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef(null);
-  const ws = useRef(null); // Référence WebSocket
+  const ws = useRef(null);
+  const chatTimeout = useRef(null);
+  const heartbeatInterval = useRef(null);
+  const reconnectAttempts = useRef(0);
+  const MAX_RECONNECT_ATTEMPTS = 3;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -38,70 +45,147 @@ const Chat = ({ isOpen, onClose }) => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  useEffect(() => {
-    // Initialiser WebSocket lorsque le composant est monté
-    ws.current = new WebSocket(process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:5001');
-
-    ws.current.onopen = () => {
-      console.log('✅ WebSocket connecté');
-    };
-
-    ws.current.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'chat_response') {
-        setIsTyping(true);
-        setMessages(prev => [...prev, {
-          text: data.message,
-          sender: 'assistant',
-          id: Date.now(),
-          typing: true
-        }]);
-      } else if (data.type === 'error') {
-        setMessages(prev => [...prev, {
-          text: "Désolé, une erreur est survenue.",
-          sender: 'assistant',
-          id: Date.now()
-        }]);
-      }
-    };
-
-    ws.current.onclose = () => {
-      console.log('❌ WebSocket déconnecté');
-    };
-
-    return () => {
-      // Fermer WebSocket lorsque le composant est démonté
+  const cleanupConnection = () => {
+    if (heartbeatInterval.current) {
+      clearInterval(heartbeatInterval.current);
+      heartbeatInterval.current = null;
+    }
+    if (chatTimeout.current) {
+      clearTimeout(chatTimeout.current);
+      chatTimeout.current = null;
+    }
+    if (ws.current) {
       ws.current.close();
+      ws.current = null;
+    }
+    setIsConnected(false);
+  };
+
+  const connectWebSocket = () => {
+    if (reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
+      console.log('Maximum reconnection attempts reached');
+      return;
+    }
+
+    try {
+      ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
+
+      ws.current.onopen = () => {
+        console.log('✅ WebSocket connecté');
+        setIsConnected(true);
+        reconnectAttempts.current = 0;
+        
+        // Envoyer le message d'initialisation
+        ws.current.send(JSON.stringify({
+          type: 'welcome',
+          content: 'init'
+        }));
+
+        // Configurer le heartbeat
+        heartbeatInterval.current = setInterval(() => {
+          if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            ws.current.send(JSON.stringify({ type: 'ping' }));
+          }
+        }, HEARTBEAT_INTERVAL);
+
+        // Configurer le timeout de session
+        chatTimeout.current = setTimeout(() => {
+          cleanupConnection();
+          setMessages(prev => [...prev, {
+            text: "La session de chat a expiré. Veuillez rafraîchir la page pour continuer.",
+            sender: 'assistant',
+            id: Date.now()
+          }]);
+        }, CHAT_DURATION);
+      };
+
+      ws.current.onmessage = (event) => {
+        try {
+          let message = event.data;
+          if (typeof message === 'string') {
+            const parsed = JSON.parse(message);
+            if (parsed.type === 'pong') return; // Ignorer les réponses heartbeat
+            
+            const content = parsed.content || parsed.message || message;
+            if (content && content !== '[object Object]') {
+              setIsTyping(true);
+              setMessages(prev => [...prev, {
+                text: content,
+                sender: 'assistant',
+                id: Date.now(),
+                typing: true
+              }]);
+            }
+          }
+        } catch (error) {
+          console.error('Erreur de traitement du message:', error);
+        }
+      };
+
+      ws.current.onclose = (event) => {
+        console.log('WebSocket fermé avec code:', event.code);
+        setIsConnected(false);
+        cleanupConnection();
+        
+        // Tentative de reconnexion si ce n'était pas une fermeture volontaire
+        if (!event.wasClean && reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+          console.log(`Tentative de reconnexion ${reconnectAttempts.current + 1}/${MAX_RECONNECT_ATTEMPTS}`);
+          reconnectAttempts.current += 1;
+          setTimeout(connectWebSocket, 3000); // Attendre 3 secondes avant de reconnecter
+        }
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('Erreur WebSocket:', error);
+      };
+
+    } catch (error) {
+      console.error('Erreur lors de la création du WebSocket:', error);
+    }
+  };
+
+  useEffect(() => {
+    connectWebSocket();
+    return () => {
+      cleanupConnection();
     };
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || !ws.current) return;
+    if (!input.trim() || isLoading || !ws.current || ws.current.readyState !== WebSocket.OPEN) return;
 
     const userMessage = input.trim();
     setInput('');
     setIsLoading(true);
 
-    // Ajouter le message de l'utilisateur immédiatement
     setMessages(prev => [...prev, {
       text: userMessage,
       sender: 'user',
       id: Date.now()
     }]);
 
-    // Envoyer le message via WebSocket
-    ws.current.send(JSON.stringify({
-      message: userMessage
-    }));
-
-    setIsLoading(false);
+    try {
+      ws.current.send(JSON.stringify({
+        type: 'message',
+        content: userMessage
+      }));
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du message:', error);
+      setMessages(prev => [...prev, {
+        text: "Erreur lors de l'envoi du message. Veuillez réessayer.",
+        sender: 'assistant',
+        id: Date.now()
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="fixed bottom-4 right-4 w-[350px] bg-white rounded-lg shadow-xl flex flex-col h-[600px]">
       <div className="p-4 bg-[#ff5900] text-[#ffd97f] flex justify-between items-center font-['Bobby_Jones_Soft',_sans-serif]">
-        <h3 className="text-lg">Chat avec notre assistant</h3>
+        <h3 className="text-lg">Chat avec notre assistant {isConnected ? '🟢' : '🔴'}</h3>
         <button 
           onClick={onClose} 
           className="hover:text-white transition-colors text-2xl"

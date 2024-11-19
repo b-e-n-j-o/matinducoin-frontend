@@ -1,4 +1,3 @@
-// Products.js
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -25,24 +24,29 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Utilisation d'une fonction pour obtenir l'URL de l'API
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/products`, {
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
+        console.log('1. Tentative de connexion à:', apiUrl); // Debug log
+        
+        const response = await fetch(apiUrl, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            // Ajoutez d'autres headers si nécessaire
           },
+          credentials: 'include'
         });
+        
+        console.log('2. Statut de la réponse:', response.status); // Debug log
+        console.log('3. Headers de la réponse:', Object.fromEntries(response.headers)); // Debug log
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('Données produits récupérées :', data);
+        console.log('4. Données produits récupérées :', data); // Debug log
         
         if (!Array.isArray(data)) {
+          console.log('5. Erreur: données non conformes:', typeof data); // Debug log
           throw new Error('Les données reçues ne sont pas au format attendu');
         }
         
@@ -50,13 +54,15 @@ const Products = () => {
         setVisible(true);
         setError(null);
       } catch (error) {
-        console.error('Échec de la récupération des produits :', error);
+        console.error('6. Erreur détaillée:', error); // Debug log
+        console.error('7. Message d\'erreur:', error.message); // Debug log
         setError('Impossible de charger les produits. Veuillez réessayer plus tard.');
       } finally {
         setLoading(false);
       }
     };
 
+    console.log('0. Variable d\'environnement API_URL:', process.env.NEXT_PUBLIC_API_URL); // Debug log
     fetchProducts();
   }, []);
 
@@ -120,7 +126,6 @@ const Products = () => {
                         e.target.src = '/placeholder-image.jpg';
                       }}
                     />
-                    
                     <div className="absolute inset-0" />
                   </div>
 
