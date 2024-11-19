@@ -1,6 +1,76 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
+// Fonction pour nettoyer et formater les messages système
+const formatBotMessage = (message) => {
+  if (!message) return '';
+
+  if (typeof message === 'string' && !message.includes('{')) {
+    return message.trim();
+  }
+
+  try {
+    if (typeof message === 'object') {
+      return message.content || message.message || JSON.stringify(message);
+    }
+
+    const messageObj = typeof message === 'string' ? JSON.parse(message) : message;
+    return messageObj.content || messageObj.message || cleanMessageContent(message.toString());
+
+  } catch (e) {
+    console.log('Erreur de parsing:', e);
+    return typeof message === 'string' ? cleanMessageContent(message) : '';
+  }
+};
+
+const cleanMessageContent = (content) => {
+  if (!content) return '';
+
+  return content
+    .replace(/\\u[0-9a-fA-F]{4}/g, '')
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '')
+    .replace(/\\/g, '')
+    .replace(/\u001b\[[0-9;]*[a-zA-Z]/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/^["']|["']$/g, '')
+    .trim();
+};
+
+const isValidMessage = (message) => {
+  if (!message) return false;
+
+  const invalidPatterns = [
+    'Erreur interne du chatbot',
+    'Entering new LLMChain chain',
+    'Prompt after formatting:',
+    '[0m', '[1m', '[32;1m',
+    'DEBUG',
+    'INFO',
+    'WARNING',
+    'ERROR',
+    'CRITICAL',
+    'Using key for embeddings',
+    'RAG initialized with key',
+    'SYSTEM:',
+    /^[A-Z]+: .*/,
+    /^\d{4}-\d{2}-\d{2}/,
+    /^[[\]0-9;]+m/
+  ];
+
+  const isInvalid = invalidPatterns.some(pattern => {
+    if (typeof pattern === 'string') {
+      return message.includes(pattern);
+    } else if (pattern instanceof RegExp) {
+      return pattern.test(message);
+    }
+    return false;
+  });
+
+  if (isInvalid) return false;
+  return message.trim().length > 0 && message.length < 1000;
+};
+
 const TypingMessage = ({ text, onComplete }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -38,12 +108,10 @@ const Chat = ({ isOpen, onClose }) => {
   }, [messages, isTyping]);
 
   useEffect(() => {
-    // Établir la connexion WebSocket
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
       console.log('WebSocket connecté');
-      // Message initial pour établir la connexion
       ws.current.send(JSON.stringify({
         type: 'welcome',
         content: 'init'
@@ -55,9 +123,9 @@ const Chat = ({ isOpen, onClose }) => {
         let message = event.data;
         if (typeof message === 'string') {
           const parsed = JSON.parse(message);
-          const content = parsed.content || parsed.message || message;
+          const content = formatBotMessage(parsed.content || parsed.message || message);
           
-          if (content && content !== '[object Object]') {
+          if (content && content !== '[object Object]' && isValidMessage(content)) {
             setIsTyping(true);
             setMessages(prev => [...prev, {
               text: content,
@@ -81,7 +149,6 @@ const Chat = ({ isOpen, onClose }) => {
       }]);
     };
 
-    // Nettoyage à la fermeture
     return () => {
       if (ws.current) {
         ws.current.close();
@@ -97,14 +164,12 @@ const Chat = ({ isOpen, onClose }) => {
     setInput('');
     setIsLoading(true);
 
-    // Ajouter le message de l'utilisateur
     setMessages(prev => [...prev, {
       text: userMessage,
       sender: 'user',
       id: Date.now()
     }]);
 
-    // Envoyer le message via WebSocket
     ws.current.send(JSON.stringify({
       type: 'message',
       content: userMessage
