@@ -123,7 +123,7 @@ const Chat = ({ isOpen, onClose }) => {
           const parsed = JSON.parse(message);
           const content = parsed.content || parsed.message || message;
           
-          if (content && content !== '[object Object]') {
+          if (content && content !== '[object Object]' && isValidMessage(content)) {
             setIsTyping(true);
             setMessages(prev => [...prev, {
               text: content,
