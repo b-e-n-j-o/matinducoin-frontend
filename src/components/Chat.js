@@ -89,6 +89,7 @@ const Chat = ({ isOpen, onClose }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
 
@@ -102,6 +103,14 @@ const Chat = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
+
+    ws.current.onopen = () => {
+      setIsConnected(true);
+    };
+
+    ws.current.onclose = () => {
+      setIsConnected(false);
+    };
 
     ws.current.onmessage = (event) => {
       try {
@@ -154,6 +163,15 @@ const Chat = ({ isOpen, onClose }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading || !ws.current) return;
+
+    if (!isConnected) {
+      setMessages(prev => [...prev, {
+        text: "La connexion au chatbot a été perdue. Veuillez rafraîchir la page pour continuer la conversation.",
+        sender: 'assistant',
+        id: Date.now()
+      }]);
+      return;
+    }
 
     const userMessage = input.trim();
     setInput('');
