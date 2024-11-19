@@ -359,7 +359,7 @@ const HomeContent = ({ sections = [] }) => {
           ${isChatOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}
         `}
       >
-        Posez vos questions!
+        {!isChatOpen && 'Posez vos questions!'}
       </button>
       
       {isChatVisible && (
