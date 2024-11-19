@@ -1,23 +1,120 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
+// Fonction pour estimer le nombre de tokens (approximation simple)
+const estimateTokens = (text) => {
+  // Approximation basée sur les règles GPT :
+  // - environ 4 caractères par token pour les langues occidentales
+  // - les espaces comptent comme des caractères
+  // Cette estimation est conservatrice pour éviter les dépassements
+  return Math.ceil(text.length / 3);
+};
+
+// Fonction pour valider les messages entrants et sortants
+const validateInput = (input) => {
+  // Limites et contraintes
+  const MAX_MESSAGE_LENGTH = 500;           // Limite en caractères
+  const MIN_MESSAGE_LENGTH = 1;
+  const MAX_TOKENS = 150;                   // Limite en tokens (~450-500 caractères pour GPT)
+  const MAX_MESSAGES_PER_MINUTE = 20;
+  
+  // Vérification de la longueur en caractères
+  if (input.length > MAX_MESSAGE_LENGTH || input.length < MIN_MESSAGE_LENGTH) {
+    return {
+      isValid: false,
+      error: `Le message doit faire entre ${MIN_MESSAGE_LENGTH} et ${MAX_MESSAGE_LENGTH} caractères.`
+    };
+  }
+
+  // Vérification des tokens
+  const estimatedTokens = estimateTokens(input);
+  if (estimatedTokens > MAX_TOKENS) {
+    return {
+      isValid: false,
+      error: `Votre message est trop long. Merci de le raccourcir.`
+    };
+  }
+
+  // Expression régulière pour détecter les caractères et patterns malveillants
+  const MALICIOUS_PATTERNS = [
+    /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
+    /javascript:/gi,
+    /data:/gi,
+    /&lt;script&gt;/gi,
+    /onclick/gi,
+    /onerror/gi,
+    /onload/gi,
+    /<iframe/gi,
+    /eval\(/gi,
+    /alert\(/gi,
+    /document\./gi,
+    /window\./gi,
+    /\[\s*?\$\s*?\{.*?\}\s*?\]/g,
+    /{{.*?}}/g,
+  ];
+
+  // Vérification des patterns malveillants
+  for (const pattern of MALICIOUS_PATTERNS) {
+    if (pattern.test(input)) {
+      return {
+        isValid: false,
+        error: "Le message contient du contenu non autorisé."
+      };
+    }
+  }
+
+  return { 
+    isValid: true,
+    tokens: estimatedTokens 
+  };
+};
+
+// Classe pour limiter le nombre de requêtes
+class RateLimiter {
+  constructor(maxRequests, timeWindow) {
+    this.maxRequests = maxRequests;
+    this.timeWindow = timeWindow;
+    this.requests = [];
+  }
+
+  tryRequest() {
+    const now = Date.now();
+    this.requests = this.requests.filter(time => now - time < this.timeWindow);
+    
+    if (this.requests.length >= this.maxRequests) {
+      return false;
+    }
+    
+    this.requests.push(now);
+    return true;
+  }
+}
+
+// Fonction pour nettoyer le texte des caractères dangereux
+const sanitizeText = (text) => {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .trim();
+};
+
 // Fonction pour nettoyer et formater les messages système
 const formatBotMessage = (message) => {
   if (!message) return '';
 
   try {
-    // Si c'est une chaîne JSON, essayer de la parser
     if (typeof message === 'string') {
       try {
         const parsed = JSON.parse(message);
         return cleanMessageContent(parsed.content || parsed.message || message);
       } catch {
-        // Si ce n'est pas du JSON valide, retourner la chaîne nettoyée
         return cleanMessageContent(message);
       }
     }
 
-    // Si c'est déjà un objet
     if (typeof message === 'object') {
       return cleanMessageContent(message.content || message.message || JSON.stringify(message));
     }
@@ -44,7 +141,6 @@ const cleanMessageContent = (content) => {
 const isValidMessage = (message) => {
   if (!message) return false;
 
-  // Liste minimale des patterns à filtrer
   const invalidPatterns = [
     'Erreur interne du chatbot',
     'SYSTEM:',
@@ -53,12 +149,10 @@ const isValidMessage = (message) => {
     '[object Object]'
   ];
 
-  // Vérifie si le message contient un des patterns invalides
   const containsInvalidPattern = invalidPatterns.some(pattern => 
     message.toString().includes(pattern)
   );
 
-  // Vérifie la longueur et la validité basique du message
   return !containsInvalidPattern && 
          message.toString().trim().length > 0 && 
          message.toString().length < 5000;
@@ -90,8 +184,11 @@ const Chat = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState(null);
+  const [tokenCount, setTokenCount] = useState(0);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
+  const rateLimiter = useRef(new RateLimiter(20, 60000)); // 20 messages/minute
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -102,20 +199,25 @@ const Chat = ({ isOpen, onClose }) => {
   }, [messages, isTyping]);
 
   useEffect(() => {
+    const tokens = estimateTokens(input);
+    setTokenCount(tokens);
+  }, [input]);
+
+  useEffect(() => {
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
       setIsConnected(true);
+      setError(null);
     };
 
     ws.current.onclose = () => {
       setIsConnected(false);
+      setError("La connexion a été perdue");
     };
 
     ws.current.onmessage = (event) => {
       try {
-        console.log('Message reçu:', event.data); // Debug log
-
         let message = event.data;
         let formattedMessage;
 
@@ -126,31 +228,24 @@ const Chat = ({ isOpen, onClose }) => {
           formattedMessage = formatBotMessage(message);
         }
 
-        console.log('Message formaté:', formattedMessage); // Debug log
-
         if (formattedMessage && isValidMessage(formattedMessage)) {
           setIsTyping(true);
           setMessages(prev => [...prev, {
-            text: formattedMessage,
+            text: sanitizeText(formattedMessage),
             sender: 'assistant',
             id: Date.now(),
             typing: true
           }]);
-        } else {
-          console.log('Message filtré:', formattedMessage); // Debug log
         }
       } catch (error) {
-        console.error('Erreur de traitement du message:', error);
+        console.error('Erreur de traitement:', error);
+        setError("Erreur lors du traitement du message");
       }
     };
 
     ws.current.onerror = (error) => {
       console.error('Erreur WebSocket:', error);
-      setMessages(prev => [...prev, {
-        text: "Une erreur est survenue. Veuillez rafraîchir la page.",
-        sender: 'assistant',
-        id: Date.now()
-      }]);
+      setError("Une erreur de connexion est survenue");
     };
 
     return () => {
@@ -162,23 +257,30 @@ const Chat = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError(null);
+
     if (!input.trim() || isLoading || !ws.current) return;
 
     if (!isConnected) {
-      setMessages(prev => [...prev, {
-        text: "La connexion au chatbot a été perdue. Veuillez rafraîchir la page pour continuer la conversation.",
-        sender: 'assistant',
-        id: Date.now()
-      }]);
+      setError("La connexion au chatbot a été perdue. Veuillez rafraîchir la page.");
       return;
     }
 
-    const userMessage = input.trim();
+    // Validation avec vérification des tokens
+    const sanitizedInput = sanitizeText(input.trim());
+    const validationResult = validateInput(sanitizedInput);
+
+    if (!validationResult.isValid) {
+      setError(validationResult.error);
+      return;
+    }
+
     setInput('');
     setIsLoading(true);
+    setTokenCount(0);
 
     setMessages(prev => [...prev, {
-      text: userMessage,
+      text: sanitizedInput,
       sender: 'user',
       id: Date.now()
     }]);
@@ -186,10 +288,12 @@ const Chat = ({ isOpen, onClose }) => {
     try {
       ws.current.send(JSON.stringify({
         type: 'message',
-        content: userMessage
+        content: sanitizedInput,
+        tokenCount: validationResult.tokens
       }));
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);
+      setError("Erreur lors de l'envoi du message. Veuillez réessayer.");
     }
 
     setIsLoading(false);
@@ -198,7 +302,7 @@ const Chat = ({ isOpen, onClose }) => {
   return (
     <div className="fixed bottom-4 right-4 w-[350px] bg-white rounded-lg shadow-xl flex flex-col h-[600px]">
       <div className="p-4 bg-[#ff5900] text-[#ffd97f] flex justify-between items-center font-['Bobby_Jones_Soft',_sans-serif]">
-        <h3 className="text-lg">Chat avec notre assistant</h3>
+        <h3 className="text-lg">Discutez ou passez commande</h3>
         <button 
           onClick={onClose} 
           className="hover:text-white transition-colors text-2xl"
@@ -209,6 +313,12 @@ const Chat = ({ isOpen, onClose }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            {error}
+          </div>
+        )}
+
         {messages.map((message) => (
           <div
             key={message.id}
@@ -256,29 +366,41 @@ const Chat = ({ isOpen, onClose }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="p-4 border-t">
-        <div className="flex space-x-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Posez votre question..."
-            className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5900]"
-            disabled={isLoading || isTyping}
-          />
-          <button
-            type="submit"
-            className={`
-              px-6 py-3 rounded-lg
-              bg-[#ff5900] text-[#ffd97f]
-              hover:bg-[#ffd97f] hover:text-[#ff5900]
-              transition-colors
-              disabled:opacity-50
-              font-['Bobby_Jones_Soft',_sans-serif]
-            `}
-            disabled={isLoading || isTyping}
-          >
-            Envoyer
-          </button>
+        <div className="flex flex-col space-y-2">
+          {tokenCount > 0 && (
+            <div className={`text-xs ${tokenCount > 130 ? 'text-orange-500' : 'text-gray-500'}`}>
+              {`${tokenCount}/150 tokens estimés`}
+            </div>
+          )}
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Posez votre question..."
+              className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5900]"
+              disabled={isLoading || isTyping}
+            />
+            <button
+              type="submit"
+              className={`
+                px-6 py-3 rounded-lg
+                bg-[#ff5900] text-[#ffd97f]
+                hover:bg-[#ffd97f] hover:text-[#ff5900]
+                transition-colors
+                disabled:opacity-50
+                font-['Bobby_Jones_Soft',_sans-serif]
+              `}
+              disabled={isLoading || isTyping || tokenCount > 150}
+            >
+              Envoyer
+            </button>
+          </div>
+          {error && (
+            <div className="text-red-500 text-sm mt-1">
+              {error}
+            </div>
+          )}
         </div>
       </form>
     </div>
