@@ -108,14 +108,12 @@ const Chat = ({ isOpen, onClose }) => {
   }, [messages, isTyping]);
 
   useEffect(() => {
+    // Établir la connexion WebSocket
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
       console.log('WebSocket connecté');
-      ws.current.send(JSON.stringify({
-        type: 'welcome',
-        content: 'init'
-      }));
+      // On ne fait qu'établir la connexion, sans envoyer de message initial
     };
 
     ws.current.onmessage = (event) => {
@@ -123,9 +121,9 @@ const Chat = ({ isOpen, onClose }) => {
         let message = event.data;
         if (typeof message === 'string') {
           const parsed = JSON.parse(message);
-          const content = formatBotMessage(parsed.content || parsed.message || message);
+          const content = parsed.content || parsed.message || message;
           
-          if (content && content !== '[object Object]' && isValidMessage(content)) {
+          if (content && content !== '[object Object]') {
             setIsTyping(true);
             setMessages(prev => [...prev, {
               text: content,
