@@ -2,50 +2,30 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 // Fonction pour nettoyer et formater les messages système
-const isValidMessage = (message) => {
-  if (!message) return false;
-
-  // Liste minimale des patterns à filtrer
-  const invalidPatterns = [
-    // Ne gardons que les patterns vraiment problématiques
-    'Erreur interne du chatbot',
-    'SYSTEM:',
-    '[0m', '[1m', '[32;1m'
-  ];
-
-  // Vérifie si le message contient un des patterns invalides
-  const isInvalid = invalidPatterns.some(pattern => {
-    if (typeof pattern === 'string') {
-      return message.includes(pattern);
-    }
-    return false;
-  });
-
-  // Vérifie uniquement la présence de contenu et une longueur maximale raisonnable
-  return !isInvalid && message.trim().length > 0 && message.length < 5000;
-};
-
 const formatBotMessage = (message) => {
   if (!message) return '';
 
-  // Si c'est déjà une chaîne simple, la retourner nettoyée
-  if (typeof message === 'string') {
-    return cleanMessageContent(message);
-  }
-
   try {
-    // Si c'est un objet, extraire le contenu
-    if (typeof message === 'object') {
-      const content = message.content || message.message || JSON.stringify(message);
-      return cleanMessageContent(content);
+    // Si c'est une chaîne JSON, essayer de la parser
+    if (typeof message === 'string') {
+      try {
+        const parsed = JSON.parse(message);
+        return cleanMessageContent(parsed.content || parsed.message || message);
+      } catch {
+        // Si ce n'est pas du JSON valide, retourner la chaîne nettoyée
+        return cleanMessageContent(message);
+      }
     }
 
-    // Tenter de parser si c'est une chaîne JSON
-    const parsed = JSON.parse(message);
-    return cleanMessageContent(parsed.content || parsed.message || message);
-  } catch (e) {
-    // En cas d'erreur, retourner la chaîne originale nettoyée
+    // Si c'est déjà un objet
+    if (typeof message === 'object') {
+      return cleanMessageContent(message.content || message.message || JSON.stringify(message));
+    }
+
     return cleanMessageContent(message.toString());
+  } catch (e) {
+    console.log('Erreur de parsing:', e);
+    return '';
   }
 };
 
@@ -53,37 +33,35 @@ const cleanMessageContent = (content) => {
   if (!content) return '';
 
   return content
-    .replace(/\\n/g, '\n')  // Conserver les sauts de ligne intentionnels
+    .replace(/\\n/g, '\n')
     .replace(/\\r/g, '')
-    .replace(/\\"/g, '"')   // Préserver les guillemets
+    .replace(/\\"/g, '"')
     .replace(/\u001b\[[0-9;]*[a-zA-Z]/g, '')
     .replace(/^["']|["']$/g, '')
     .trim();
 };
 
-// Dans le composant Chat, modifier le traitement des messages :
-ws.current.onmessage = (event) => {
-  try {
-    let message = event.data;
-    console.log('Message reçu:', message); // Debug
+const isValidMessage = (message) => {
+  if (!message) return false;
 
-    const formattedMessage = formatBotMessage(message);
-    console.log('Message formaté:', formattedMessage); // Debug
-    
-    if (formattedMessage && isValidMessage(formattedMessage)) {
-      setIsTyping(true);
-      setMessages(prev => [...prev, {
-        text: formattedMessage,
-        sender: 'assistant',
-        id: Date.now(),
-        typing: true
-      }]);
-    } else {
-      console.log('Message filtré:', formattedMessage); // Debug
-    }
-  } catch (error) {
-    console.error('Erreur de traitement du message:', error);
-  }
+  // Liste minimale des patterns à filtrer
+  const invalidPatterns = [
+    'Erreur interne du chatbot',
+    'SYSTEM:',
+    'None',
+    'undefined',
+    '[object Object]'
+  ];
+
+  // Vérifie si le message contient un des patterns invalides
+  const containsInvalidPattern = invalidPatterns.some(pattern => 
+    message.toString().includes(pattern)
+  );
+
+  // Vérifie la longueur et la validité basique du message
+  return !containsInvalidPattern && 
+         message.toString().trim().length > 0 && 
+         message.toString().length < 5000;
 };
 
 const TypingMessage = ({ text, onComplete }) => {
@@ -127,21 +105,30 @@ const Chat = ({ isOpen, onClose }) => {
 
     ws.current.onmessage = (event) => {
       try {
+        console.log('Message reçu:', event.data); // Debug log
+
         let message = event.data;
-        if (typeof message === 'string') {
+        let formattedMessage;
+
+        try {
           const parsed = JSON.parse(message);
-          const content = parsed.content || parsed.message || message;
-          
-          // Vérifie si le message est valide avant de l'afficher
-          if (content && content !== '[object Object]' && isValidMessage(content)) {
-            setIsTyping(true);
-            setMessages(prev => [...prev, {
-              text: formatBotMessage(content),
-              sender: 'assistant',
-              id: Date.now(),
-              typing: true
-            }]);
-          }
+          formattedMessage = formatBotMessage(parsed);
+        } catch {
+          formattedMessage = formatBotMessage(message);
+        }
+
+        console.log('Message formaté:', formattedMessage); // Debug log
+
+        if (formattedMessage && isValidMessage(formattedMessage)) {
+          setIsTyping(true);
+          setMessages(prev => [...prev, {
+            text: formattedMessage,
+            sender: 'assistant',
+            id: Date.now(),
+            typing: true
+          }]);
+        } else {
+          console.log('Message filtré:', formattedMessage); // Debug log
         }
       } catch (error) {
         console.error('Erreur de traitement du message:', error);
@@ -178,10 +165,14 @@ const Chat = ({ isOpen, onClose }) => {
       id: Date.now()
     }]);
 
-    ws.current.send(JSON.stringify({
-      type: 'message',
-      content: userMessage
-    }));
+    try {
+      ws.current.send(JSON.stringify({
+        type: 'message',
+        content: userMessage
+      }));
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du message:', error);
+    }
 
     setIsLoading(false);
   };
