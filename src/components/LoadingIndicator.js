@@ -24,7 +24,18 @@ const LoadingIndicator = ({ onComplete }) => {
   }
 
   return (
-    <div className="loading-container fade-out">
+    <div className="loading-container fade-out" style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: '100vh',
+      zIndex: 9999
+    }}>
       <div className="bottle-fade-out">
         <svg xmlns="http://www.w3.org/2000/svg" width="275" height="325" viewBox="0 0 200 800">
           <defs>

@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 3rem;
   will-change: transform, opacity;
 }
 
@@ -40,6 +40,7 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
+  gap: 2rem; /* Augmenté l'espacement entre les éléments */
 }
 
 .heroText {
@@ -49,7 +50,7 @@
 }
 
 .heroTitle {
-  font-size: clamp(2rem, 4vw, 3.2rem); /* Réduction des valeurs */
+  font-size: clamp(2rem, 4vw, 3.2rem);
   color: #FF5900;
   text-transform: uppercase;
   line-height: 1.2;
@@ -64,6 +65,7 @@
   font-size: clamp(1rem, 2vw, 1.5rem);
   color: #FF5900;
   margin-top: 1rem;
+  padding-top: 10px;
 }
 
 .heroImageContainer {
@@ -80,11 +82,16 @@
 /* Style pour les sections inversées */
 .invertedSection .heroContent {
   flex-direction: row-reverse;
+  gap: 2rem; /* Même espacement pour les sections inversées */
 }
 
 .invertedSection .heroText {
-  padding-right: 0;
-  padding-left: 2rem;
+  flex: 1;
+  padding: 2rem;
+  text-align: center;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: #FF5900;
+  margin-top: 1rem;
 }
 
 /* Styles d'input email */
@@ -104,78 +111,85 @@
 }
 
 #map {
-  height: 400px; /* Assurez-vous qu'une hauteur est définie */
-  width: 100%; /* Assurez-vous qu'une largeur est définie */
+  height: 400px;
+  width: 100%;
 }
 
 /* Styles spécifiques pour la section de la carte */
 .mapSectionTitle {
-  font-size: clamp(2rem, 4vw, 3rem); /* Taille réactive */
+  font-size: clamp(2rem, 4vw, 3rem);
   color: #FF5900;
   margin-bottom: 1.5rem;
-  text-align: left; /* Aligne le texte à gauche */
+  text-align: left;
   line-height: 1.3;
-  font-weight: bold; /* Accentue le titre */
+  font-weight: bold;
 }
 
 .mapSectionSubtitle {
-  font-size: clamp(1rem, 2vw, 1.2rem); /* Taille réactive du sous-titre */
+  font-size: clamp(1rem, 2vw, 1.2rem);
   color: #333;
   margin-bottom: 2.5rem;
-  text-align: left; /* Aligne le texte à gauche */
-  max-width: 600px; /* Limite la largeur du texte */
+  text-align: left;
+  max-width: 600px;
   line-height: 1.6;
   font-weight: normal;
 }
 
 .mapSectionContent {
-  padding: 3rem 1.5rem; /* Ajoute plus d'espace autour du texte */
+  padding: 3rem 1.5rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Aligne les éléments à gauche */
-  justify-content: center; /* Centre verticalement */
+  align-items: flex-start;
+  justify-content: center;
   border-radius: 25px;
-
 }
 
 /* Media queries pour la responsivité */
 @media (max-width: 768px) {
   .section {
     padding: 1.5rem;
-    padding-top: 20px;
     min-height: auto; /* Supprime la hauteur minimale pour les mobiles */
   }
   
   .heroContent, .invertedSection .heroContent {
     flex-direction: column;
+    width: 100%; /* Prend toute la largeur disponible */
   }
 
   .heroText, .heroImageContainer {
     max-width: 100%;
-    padding-right: 0;
-    padding-left: 0;
-    margin-bottom: 2rem; /* Réduit la marge inférieure */
+    width: 100%; /* Force la pleine largeur */
+    padding: 2rem 1.5rem; /* Plus de padding intérieur */
+    margin-bottom: 2rem;
+  }
+
+  .heroText {
+    width: 100%; /* Même largeur que mapSectionContent */
+    margin: 0 auto 2rem auto;
   }
 
   .heroImageContainer {
-    max-width: 95%; /* Augmente la taille maximale des images sur mobile */
+    max-width: 100%;
+    height: auto;
+    overflow: hidden;
   }
 
   .heroImage {
-    height: auto; /* Permet à l'image de s'ajuster en hauteur */
-    max-height: 500px; /* Définit une hauteur maximale pour l'image */
-    width: 100%; /* Assure que l'image prend toute la largeur du conteneur */
-    object-fit: cover; /* Maintient les proportions de l'image */
+    height: auto;
+    max-height: 500px;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
   }
 
   .pageContainer {
-    padding-bottom: 200px; /* Ajuste la valeur selon tes besoins */
+    padding-bottom: 200px;
   }
 
   /* Ajustement pour les sections inversées en responsive */
   .invertedSection .heroText {
-    padding-left: 0;
-    padding-right: 0;
+    padding: 2rem 1.5rem; /* Plus de padding intérieur */
+    width: 100%;
   }
 
   .heroTitle {
@@ -183,20 +197,17 @@
     color: #FF5900;
     text-transform: uppercase;
     line-height: 1.2;
-    margin-bottom: 1rem;
-    margin-top: 1rem;
-    padding-top: 30px;
+    margin-bottom: 0.5rem; /* Réduit l'espace entre titre et paragraphe */
   }
 
   .heroSubtitle {
     font-size: 1.1rem;
-    padding-top: 70px;
-    margin-top: 1rem; /* Réduit la marge au-dessus du sous-titre */
+    padding-top: 10px; /* Réduit l'espace après le titre */
   }
 
   /* Réduire l'espacement entre les sections */
   .section + .section {
-    margin-top: -1rem; /* Crée un chevauchement négatif entre les sections */
+    margin-top: -2rem;
   }
 
   /* Ajuster le z-index pour assurer que le contenu reste visible */
@@ -215,11 +226,17 @@
 
 @media (max-width: 480px) {
   .pageContainer {
-    padding-bottom: 400px; /* Ajuste la valeur selon tes besoins */
+    padding-bottom: 400px;
   }
 
   .heroContent {
-    padding: 1rem;
+    padding: 0.5rem;
+    width: 100%;
+  }
+
+  .heroText {
+    width: 100%;
+    padding: 2rem 1.5rem; /* Plus de padding intérieur */
   }
 
   .heroTitle {
@@ -236,21 +253,27 @@
   }
 
   .heroImageContainer {
-    max-width: 110%; /* Increase max-width to allow images to expand */
-    width: 100vw;
-    margin-left: -5%; /* Adjust margins to prevent overflow */
-    margin-right: -5%;
+    max-width: 100%;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    height: auto;
+    overflow: hidden;
   }
 
   .mapSectionContent {
-    max-width: 110%; /* Increase max-width to allow images to expand */
-    width: 100vw;
-    margin-left: -5%; /* Adjust margins to prevent overflow */
-    margin-right: -5%;
+    max-width: 100%;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
     border-radius: 15px;
+    padding: 2rem 1.5rem; /* Plus de padding intérieur */
   }
 
   .heroImage {
-    max-height: 400px; /* Ajuste la hauteur maximale pour les très petits écrans */
+    max-height: 400px;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
   }
 }

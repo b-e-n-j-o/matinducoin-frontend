@@ -70,10 +70,6 @@
   border-radius: 25px;
 }
 
-.imageContainer:hover .overlay {
-  opacity: 1;
-  background-color: rgba(0, 0, 0, 0.3);
-}
 
 .overlayText {
   color: white;
@@ -84,9 +80,6 @@
   transition: all 0.3s ease;
 }
 
-.imageContainer:hover .overlayText {
-  transform: scale(1.1);
-}
 
 @media (max-width: 768px) {
   .overlayText {
