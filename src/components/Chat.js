@@ -40,24 +40,40 @@ const cleanMessageContent = (content) => {
 const isValidMessage = (message) => {
   if (!message) return false;
 
+  // Liste des patterns à filtrer
   const invalidPatterns = [
+    // Messages système et logs
+    'WebSocket connecté',
+    'WebSocket déconnecté',
+    'Connexion établie',
     'Erreur interne du chatbot',
     'Entering new LLMChain chain',
     'Prompt after formatting:',
-    '[0m', '[1m', '[32;1m',
-    'DEBUG',
-    'INFO',
-    'WARNING',
-    'ERROR',
-    'CRITICAL',
     'Using key for embeddings',
     'RAG initialized with key',
     'SYSTEM:',
-    /^[A-Z]+: .*/,
+    
+    // Codes ANSI et logs formatés
+    '[0m', '[1m', '[32;1m',
+    /^[[\]0-9;]+m/,
     /^\d{4}-\d{2}-\d{2}/,
-    /^[[\]0-9;]+m/
+    /^[A-Z]+: .*/,
+
+    // Niveaux de log
+    'DEBUG:',
+    'INFO:',
+    'WARNING:',
+    'ERROR:',
+    'CRITICAL:',
+
+    // Messages d'initialisation
+    'Initializing chatbot...',
+    'Loading models...',
+    'Models loaded successfully',
+    'Starting conversation...'
   ];
 
+  // Vérifie si le message contient un des patterns invalides
   const isInvalid = invalidPatterns.some(pattern => {
     if (typeof pattern === 'string') {
       return message.includes(pattern);
@@ -67,6 +83,7 @@ const isValidMessage = (message) => {
     return false;
   });
 
+  // Vérifie la longueur et le contenu du message
   if (isInvalid) return false;
   return message.trim().length > 0 && message.length < 1000;
 };
@@ -108,13 +125,7 @@ const Chat = ({ isOpen, onClose }) => {
   }, [messages, isTyping]);
 
   useEffect(() => {
-    // Établir la connexion WebSocket
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
-
-    ws.current.onopen = () => {
-      console.log('WebSocket connecté');
-      // On ne fait qu'établir la connexion, sans envoyer de message initial
-    };
 
     ws.current.onmessage = (event) => {
       try {
@@ -123,10 +134,11 @@ const Chat = ({ isOpen, onClose }) => {
           const parsed = JSON.parse(message);
           const content = parsed.content || parsed.message || message;
           
-          if (content && content !== '[object Object]') {
+          // Vérifie si le message est valide avant de l'afficher
+          if (content && content !== '[object Object]' && isValidMessage(content)) {
             setIsTyping(true);
             setMessages(prev => [...prev, {
-              text: content,
+              text: formatBotMessage(content),
               sender: 'assistant',
               id: Date.now(),
               typing: true
@@ -213,7 +225,14 @@ const Chat = ({ isOpen, onClose }) => {
                   }}
                 />
               ) : (
-                <div className="whitespace-pre-wrap">{message.text}</div>
+                <div className="whitespace-pre-wrap">
+                  {message.text.split(/(\*\*.*?\*\*)/).map((part, index) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                      return <strong key={index}>{part.slice(2, -2)}</strong>;
+                    }
+                    return part;
+                  })}
+                </div>
               )}
             </div>
           </div>
