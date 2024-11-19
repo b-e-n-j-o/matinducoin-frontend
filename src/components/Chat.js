@@ -2,24 +2,50 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 // Fonction pour nettoyer et formater les messages système
+const isValidMessage = (message) => {
+  if (!message) return false;
+
+  // Liste minimale des patterns à filtrer
+  const invalidPatterns = [
+    // Ne gardons que les patterns vraiment problématiques
+    'Erreur interne du chatbot',
+    'SYSTEM:',
+    '[0m', '[1m', '[32;1m'
+  ];
+
+  // Vérifie si le message contient un des patterns invalides
+  const isInvalid = invalidPatterns.some(pattern => {
+    if (typeof pattern === 'string') {
+      return message.includes(pattern);
+    }
+    return false;
+  });
+
+  // Vérifie uniquement la présence de contenu et une longueur maximale raisonnable
+  return !isInvalid && message.trim().length > 0 && message.length < 5000;
+};
+
 const formatBotMessage = (message) => {
   if (!message) return '';
 
-  if (typeof message === 'string' && !message.includes('{')) {
-    return message.trim();
+  // Si c'est déjà une chaîne simple, la retourner nettoyée
+  if (typeof message === 'string') {
+    return cleanMessageContent(message);
   }
 
   try {
+    // Si c'est un objet, extraire le contenu
     if (typeof message === 'object') {
-      return message.content || message.message || JSON.stringify(message);
+      const content = message.content || message.message || JSON.stringify(message);
+      return cleanMessageContent(content);
     }
 
-    const messageObj = typeof message === 'string' ? JSON.parse(message) : message;
-    return messageObj.content || messageObj.message || cleanMessageContent(message.toString());
-
+    // Tenter de parser si c'est une chaîne JSON
+    const parsed = JSON.parse(message);
+    return cleanMessageContent(parsed.content || parsed.message || message);
   } catch (e) {
-    console.log('Erreur de parsing:', e);
-    return typeof message === 'string' ? cleanMessageContent(message) : '';
+    // En cas d'erreur, retourner la chaîne originale nettoyée
+    return cleanMessageContent(message.toString());
   }
 };
 
@@ -27,59 +53,37 @@ const cleanMessageContent = (content) => {
   if (!content) return '';
 
   return content
-    .replace(/\\u[0-9a-fA-F]{4}/g, '')
-    .replace(/\\n/g, '\n')
+    .replace(/\\n/g, '\n')  // Conserver les sauts de ligne intentionnels
     .replace(/\\r/g, '')
-    .replace(/\\/g, '')
+    .replace(/\\"/g, '"')   // Préserver les guillemets
     .replace(/\u001b\[[0-9;]*[a-zA-Z]/g, '')
-    .replace(/\s+/g, ' ')
     .replace(/^["']|["']$/g, '')
     .trim();
 };
 
-const isValidMessage = (message) => {
-  if (!message) return false;
+// Dans le composant Chat, modifier le traitement des messages :
+ws.current.onmessage = (event) => {
+  try {
+    let message = event.data;
+    console.log('Message reçu:', message); // Debug
 
-  // Liste des patterns à filtrer
-  const invalidPatterns = [
-    // Messages système et logs
-    // 'WebSocket connecté',
-    // 'WebSocket déconnecté',
-    // 'Connexion établie',
-    // 'Erreur interne du chatbot',
-    // 'Entering new LLMChain chain',
-    // 'Prompt after formatting:',
-    // 'Using key for embeddings',
-    // 'RAG initialized with key',
-    // 'SYSTEM:',
+    const formattedMessage = formatBotMessage(message);
+    console.log('Message formaté:', formattedMessage); // Debug
     
-    // // Codes ANSI et logs formatés
-    // '[0m', '[1m', '[32;1m',
-    // /^[[\]0-9;]+m/,
-    // /^\d{4}-\d{2}-\d{2}/,
-    // /^[A-Z]+: .*/,
-
-    // // Niveaux de log
-    // 'DEBUG:',
-    // 'WARNING:',
-    // 'ERROR:',
-    // 'CRITICAL:',
-
-  ];
-
-  // Vérifie si le message contient un des patterns invalides
-  const isInvalid = invalidPatterns.some(pattern => {
-    if (typeof pattern === 'string') {
-      return message.includes(pattern);
-    } else if (pattern instanceof RegExp) {
-      return pattern.test(message);
+    if (formattedMessage && isValidMessage(formattedMessage)) {
+      setIsTyping(true);
+      setMessages(prev => [...prev, {
+        text: formattedMessage,
+        sender: 'assistant',
+        id: Date.now(),
+        typing: true
+      }]);
+    } else {
+      console.log('Message filtré:', formattedMessage); // Debug
     }
-    return false;
-  });
-
-  // Vérifie la longueur et le contenu du message
-  if (isInvalid) return false;
-  return message.trim().length > 0 && message.length < 1000;
+  } catch (error) {
+    console.error('Erreur de traitement du message:', error);
+  }
 };
 
 const TypingMessage = ({ text, onComplete }) => {
