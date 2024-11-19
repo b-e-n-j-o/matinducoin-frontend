@@ -1,3 +1,4 @@
+// Products.js
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -24,8 +25,15 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
-        const response = await fetch(apiUrl);
+        // Utilisation d'une fonction pour obtenir l'URL de l'API
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/products`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            // Ajoutez d'autres headers si nécessaire
+          },
+        });
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -77,25 +85,18 @@ const Products = () => {
   }
 
   return (
-    // Conteneur principal avec fond jaune et police Roboto
     <div className="min-h-screen flex flex-col font-roboto bg-[#ffd97f]">
-      {/* Barre de navigation */}
       <Navbar />
-      {/* Conteneur du contenu principal avec padding pour l'espacement */}
       <div className="pt-16 px-4 sm:px-6 lg:px-8 pb-12">
-        {/* Section titre */}
         <div className="py-12 text-center w-full">
           <h1 className="font-['Bobby_Jones_Soft'] text-[rgb(255,89,0)] text-4xl md:text-5xl lg:text-6xl tracking-[30px] uppercase transform transition-all duration-300 text-center mx-auto px-4">
             Nos Recettes
           </h1>
         </div>
         
-        {/* Grille des produits */}
         <div className="max-w-7xl mx-auto px-4">
-          {/* Grille responsive: 1 colonne sur mobile, 2 sur tablette, 3 sur desktop */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product, index) => (
-              // Lien vers la page détaillée du produit avec animation d'apparition
               <Link 
                 href={`/products/${product._id}`} 
                 key={product._id}
@@ -106,9 +107,7 @@ const Products = () => {
                   transform: visible ? 'translateY(0)' : 'translateY(20px)',
                 }}
               >
-                {/* Carte du produit avec effets de hover */}
                 <article className={`bg-white/20 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 ${!isMobile ? 'hover:scale-105 hover:shadow-xl' : ''} h-full flex flex-col`}>
-                  {/* Conteneur de l'image avec ratio 4:3 */}
                   <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0">
                     <Image 
                       src={product.imageUrl} 
@@ -122,25 +121,20 @@ const Products = () => {
                       }}
                     />
                     
-                    {/* Overlay pour effet de hover */}
                     <div className="absolute inset-0" />
                   </div>
 
-                  {/* Contenu textuel de la carte */}
                   <div className="relative p-6 flex flex-col flex-grow">
-                    {/* Titre du produit */}
                     <h3 className={`font-['Bobby_Jones_Soft'] text-[rgb(255,89,0)] text-xl sm:text-2xl tracking-[10px] uppercase text-center mb-4 transition-all duration-300 ${!isMobile ? 'group-hover:scale-110' : ''}`}>
                       {product.name}
                     </h3>
                     
-                    {/* Section des ingrédients avec fond semi-transparent */}
                     <div className="bg-white/40 rounded-lg p-4 flex-grow">
                       <p className="font-['Bobby_Jones_Soft'] text-gray-700 text-sm tracking-wide text-center line-clamp-3">
                         {product.ingredients}
                       </p>
                     </div>
 
-                    {/* Affichage conditionnel du prix */}
                     {product.price && (
                       <p className="mt-4 text-[rgb(255,89,0)] text-xl font-bold text-center">
                         {product.price.toFixed(2)} €
@@ -153,7 +147,6 @@ const Products = () => {
           </div>
         </div>
 
-        {/* Message d'état vide si aucun produit n'est disponible */}
         {products.length === 0 && !loading && !error && (
           <div className="text-center mt-8">
             <p className="text-gray-500 font-bobby text-xl">
