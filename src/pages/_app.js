@@ -121,7 +121,7 @@ const AppContent = ({ Component, pageProps }) => {
         ${isChatOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}
       `}
     >
-      Discuter avec notre AI
+      Posez vos questions!
     </button>
     
     <div
