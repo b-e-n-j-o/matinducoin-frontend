@@ -43,27 +43,27 @@ const isValidMessage = (message) => {
   // Liste des patterns à filtrer
   const invalidPatterns = [
     // Messages système et logs
-    'WebSocket connecté',
-    'WebSocket déconnecté',
-    'Connexion établie',
-    'Erreur interne du chatbot',
-    'Entering new LLMChain chain',
-    'Prompt after formatting:',
-    'Using key for embeddings',
-    'RAG initialized with key',
-    'SYSTEM:',
+    // 'WebSocket connecté',
+    // 'WebSocket déconnecté',
+    // 'Connexion établie',
+    // 'Erreur interne du chatbot',
+    // 'Entering new LLMChain chain',
+    // 'Prompt after formatting:',
+    // 'Using key for embeddings',
+    // 'RAG initialized with key',
+    // 'SYSTEM:',
     
-    // Codes ANSI et logs formatés
-    '[0m', '[1m', '[32;1m',
-    /^[[\]0-9;]+m/,
-    /^\d{4}-\d{2}-\d{2}/,
-    /^[A-Z]+: .*/,
+    // // Codes ANSI et logs formatés
+    // '[0m', '[1m', '[32;1m',
+    // /^[[\]0-9;]+m/,
+    // /^\d{4}-\d{2}-\d{2}/,
+    // /^[A-Z]+: .*/,
 
-    // Niveaux de log
-    'DEBUG:',
-    'WARNING:',
-    'ERROR:',
-    'CRITICAL:',
+    // // Niveaux de log
+    // 'DEBUG:',
+    // 'WARNING:',
+    // 'ERROR:',
+    // 'CRITICAL:',
 
   ];
 
