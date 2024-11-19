@@ -61,16 +61,10 @@ const isValidMessage = (message) => {
 
     // Niveaux de log
     'DEBUG:',
-    'INFO:',
     'WARNING:',
     'ERROR:',
     'CRITICAL:',
 
-    // Messages d'initialisation
-    'Initializing chatbot...',
-    'Loading models...',
-    'Models loaded successfully',
-    'Starting conversation...'
   ];
 
   // Vérifie si le message contient un des patterns invalides
