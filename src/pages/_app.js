@@ -121,7 +121,7 @@ const AppContent = ({ Component, pageProps }) => {
         ${isChatOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}
       `}
     >
-      Posez vos questions!
+      Questions & Commandes!
     </button>
     
     <div
