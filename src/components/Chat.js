@@ -275,7 +275,7 @@ const Chat = ({ isOpen, onClose }) => {
         if (formattedMessage && isValidMessage(formattedMessage)) {
           setIsTyping(true);
           setMessages(prev => [...prev, {
-            text: sanitizeText(formattedMessage),
+            text: decodeHTMLEntities(sanitizeText(formattedMessage)),
             sender: 'assistant',
             id: Date.now(),
             typing: true
