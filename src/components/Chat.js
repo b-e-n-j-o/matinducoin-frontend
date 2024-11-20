@@ -13,10 +13,10 @@ const estimateTokens = (text) => {
 // Fonction pour valider les messages entrants et sortants
 const validateInput = (input) => {
   // Limites et contraintes
-  const MAX_MESSAGE_LENGTH = 500;           // Limite en caractères
+  const MAX_MESSAGE_LENGTH = 1000;           // Limite en caractères
   const MIN_MESSAGE_LENGTH = 1;
-  const MAX_TOKENS = 150;                   // Limite en tokens (~450-500 caractères pour GPT)
-  const MAX_MESSAGES_PER_MINUTE = 20;
+  const MAX_TOKENS = 250;                   // Limite en tokens (~450-500 caractères pour GPT)
+  const MAX_MESSAGES_PER_MINUTE = 10;
   
   // Vérification de la longueur en caractères
   if (input.length > MAX_MESSAGE_LENGTH || input.length < MIN_MESSAGE_LENGTH) {
@@ -101,7 +101,50 @@ const sanitizeText = (text) => {
     .trim();
 };
 
-// Fonction pour nettoyer et formater les messages système
+const decodeHTMLEntities = (text) => {
+  const decoder = {
+    '&#039;': "'",
+    '&quot;': '"',
+    '&lt;': '<', 
+    '&gt;': '>',
+    '&amp;': '&',
+    '&apos;': "'",
+    '&#39;': "'",
+    '&nbsp;': ' ',
+    '&copy;': '©',
+    '&reg;': '®',
+    '&deg;': '°',
+    '&plusmn;': '±',
+    '&para;': '¶',
+    '&sect;': '§',
+    '&cent;': '¢',
+    '&euro;': '€',
+    '&pound;': '£',
+    '&laquo;': '«',
+    '&raquo;': '»',
+    '&bull;': '•',
+    '&trade;': '™',
+    '&times;': '×',
+    '&divide;': '÷',
+    '&mdash;': '—',
+    '&ndash;': '–',
+    '&hellip;': '…',
+    '&agrave;': 'à',
+    '&aacute;': 'á',
+    '&egrave;': 'è',
+    '&eacute;': 'é',
+    '&ecirc;': 'ê',
+    '&icirc;': 'î',
+    '&iuml;': 'ï',
+    '&ocirc;': 'ô',
+    '&ugrave;': 'ù',
+    '&ucirc;': 'û',
+    '&ccedil;': 'ç'
+  };
+
+  return text.replace(/&[#\w]+;/g, match => decoder[match] || match);
+};
+
 const formatBotMessage = (message) => {
   if (!message) return '';
 
@@ -109,17 +152,19 @@ const formatBotMessage = (message) => {
     if (typeof message === 'string') {
       try {
         const parsed = JSON.parse(message);
-        return cleanMessageContent(parsed.content || parsed.message || message);
+        return decodeHTMLEntities(cleanMessageContent(parsed.content || parsed.message || message));
       } catch {
-        return cleanMessageContent(message);
+        return decodeHTMLEntities(cleanMessageContent(message));
       }
     }
 
     if (typeof message === 'object') {
-      return cleanMessageContent(message.content || message.message || JSON.stringify(message));
+      return decodeHTMLEntities(cleanMessageContent(
+        message.content || message.message || JSON.stringify(message)
+      ));
     }
 
-    return cleanMessageContent(message.toString());
+    return decodeHTMLEntities(cleanMessageContent(message.toString()));
   } catch (e) {
     console.log('Erreur de parsing:', e);
     return '';
@@ -134,7 +179,6 @@ const cleanMessageContent = (content) => {
     .replace(/\\r/g, '')
     .replace(/\\"/g, '"')
     .replace(/\u001b\[[0-9;]*[a-zA-Z]/g, '')
-    .replace(/^["']|["']$/g, '')
     .trim();
 };
 
@@ -366,12 +410,15 @@ const Chat = ({ isOpen, onClose }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="p-4 border-t">
+        {/* Ce formulaire gère la saisie et l'envoi des messages dans le chat */}
         <div className="flex flex-col space-y-2">
+          {/* Affiche le nombre de tokens utilisés avec un avertissement visuel si > 240 */}
           {tokenCount > 0 && (
-            <div className={`text-xs ${tokenCount > 130 ? 'text-orange-500' : 'text-gray-500'}`}>
-              {`${tokenCount}/150 tokens estimés`}
+            <div className={`text-xs ${tokenCount > 240 ? 'text-orange-500' : 'text-gray-500'}`}>
+              {/* Commenté: Affichage du compte de tokens */}
             </div>
           )}
+          {/* Conteneur pour le champ de saisie et le bouton d'envoi */}
           <div className="flex space-x-2">
             <input
               type="text"
