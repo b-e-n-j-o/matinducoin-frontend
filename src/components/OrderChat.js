@@ -39,67 +39,82 @@ const OrderChat = ({ className = "" }) => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const simulateUserMessage = async (content) => {
-    return new Promise(resolve => {
-      setMessages(prev => [...prev, {
-        text: content,
-        sender: 'user',
-        id: Date.now()
-      }]);
-      resolve();
-    });
-  };
-
   const waitForBotResponse = async () => {
-    return new Promise(resolve => {
-      const checkResponse = (event) => {
+    return new Promise((resolve) => {
+      let messageHandler = (event) => {
         try {
           const message = JSON.parse(event.data);
-          if (message && message.text) {
-            ws.current.removeEventListener('message', checkResponse);
-            resolve(message.text);
+          console.log("Message reçu:", message); // Debug
+          
+          if (message && message.content) {
+            ws.current.removeEventListener('message', messageHandler);
+            resolve(message.content);
           }
         } catch (error) {
-          console.error('Erreur:', error);
+          console.error('Erreur parsing réponse:', error);
         }
       };
-      ws.current.addEventListener('message', checkResponse);
+      
+      ws.current.addEventListener('message', messageHandler);
     });
   };
 
   const initializeOrderChat = async () => {
     if (isInitialized) return;
 
-    while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    try {
+      // Attendre que la connexion soit établie
+      while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      console.log("WebSocket connecté, envoi du premier message"); // Debug
+
+      // Premier message : "passer commande"
+      ws.current.send(JSON.stringify({
+        type: 'message',
+        content: 'passer commande'
+      }));
+      const firstResponse = await waitForBotResponse();
+      console.log("Première réponse reçue:", firstResponse); // Debug
+
+      // Deuxième message : "oui"
+      ws.current.send(JSON.stringify({
+        type: 'message',
+        content: 'oui'
+      }));
+      const secondResponse = await waitForBotResponse();
+      console.log("Deuxième réponse reçue:", secondResponse); // Debug
+
+      // Afficher uniquement le message de bienvenue
+      setMessages([{
+        text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
+        sender: 'assistant',
+        id: Date.now(),
+        typing: true
+      }]);
+
+      setIsInitialized(true);
+    } catch (error) {
+      console.error("Erreur lors de l'initialisation:", error);
+      setError("Erreur lors de l'initialisation du chat");
     }
-
-    await simulateUserMessage("passer commande");
-    await waitForBotResponse();
-    
-    await simulateUserMessage("oui");
-    await waitForBotResponse();
-
-    setMessages([{
-      text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
-      sender: 'assistant',
-      id: Date.now(),
-      typing: true
-    }]);
-
-    setIsInitialized(true);
   };
 
   useEffect(() => {
+    // Initialisation WebSocket
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
+      console.log("WebSocket connection opened"); // Debug
       initializeOrderChat();
     };
 
     ws.current.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
+        console.log("Message général reçu:", message); // Debug
+
         if (message && message.text && isInitialized) {
           setIsTyping(true);
           setMessages(prev => [...prev, {
@@ -110,13 +125,18 @@ const OrderChat = ({ className = "" }) => {
           }]);
         }
       } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Erreur de traitement du message:', error);
         setError("Une erreur est survenue");
       }
     };
 
-    ws.current.onerror = () => {
+    ws.current.onerror = (error) => {
+      console.error("WebSocket error:", error); // Debug
       setError("Erreur de connexion");
+    };
+
+    ws.current.onclose = () => {
+      console.log("WebSocket connection closed"); // Debug
     };
 
     return () => {
