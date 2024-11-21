@@ -6,9 +6,10 @@ const OrderForm = () => {
   const router = useRouter();
   const { flavor: initialFlavor } = router.query;
   const [error, setError] = useState(false);
+  const [orderMethod, setOrderMethod] = useState('form'); // Ajout de l'état pour la méthode de commande
   const [formData, setFormData] = useState({
     reveilSoleil: '0',
-    matchaMatin: '0',
+    matchaMatin: '0', 
     berryBalance: '0',
     deliveryDate: '',
     name: '',
@@ -138,150 +139,172 @@ const OrderForm = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* En-tête avec titre principal */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Commander</h1>
-          <p className="mt-2 text-gray-600">Choisissez votre méthode de commande préférée</p>
-        </div>
-
-        {/* Container pour le formulaire et le chat */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Colonne de gauche - Formulaire */}
-          <div className="bg-white shadow-lg rounded-lg">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-center text-gray-900">
-                Commander par formulaire
-              </h2>
-            </div>
-            
-            <div className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Sélectionnez vos produits</h3>
-                  <div className="space-y-4">
-                    {products.map((product) => (
-                      <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{product.name}</h4>
-                          <p className="text-sm text-gray-500">{product.description}</p>
-                        </div>
-                        <div className="w-24">
-                          <select
-                            value={formData[product.id]}
-                            onChange={(e) => handleQuantityChange(e, product.id)}
-                            className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            {quantities.map((qty) => (
-                              <option key={qty} value={qty}>
-                                {qty}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Informations de livraison</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700">
-                        Date de livraison
-                      </label>
-                      <input
-                        type="date"
-                        id="deliveryDate"
-                        name="deliveryDate"
-                        required
-                        value={formData.deliveryDate}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                        Nom complet
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                        Adresse de livraison
-                      </label>
-                      <textarea
-                        id="address"
-                        name="address"
-                        required
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        rows={3}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="promoCode" className="block text-sm font-medium text-gray-700">
-                        Code Promo
-                      </label>
-                      <input
-                        type="text"
-                        id="promoCode"
-                        name="promoCode"
-                        value={formData.promoCode}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                >
-                  Confirmer ma commande
-                </button>
-              </form>
-            </div>
+      <div className="max-w-3xl mx-auto">
+        {/* En-tête avec choix de méthode */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">Commander</h1>
+          
+          {/* Toggle buttons */}
+          <div className="flex border border-gray-200 rounded-lg p-1 bg-white shadow-sm mb-6">
+            <button
+              onClick={() => setOrderMethod('form')}
+              className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                orderMethod === 'form'
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Commander par formulaire
+            </button>
+            <button
+              onClick={() => setOrderMethod('chat')}
+              className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                orderMethod === 'chat'
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Commander par chat
+            </button>
           </div>
 
-          {/* Colonne de droite - Chat */}
-          <div className="bg-white shadow-lg rounded-lg">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-center text-gray-900">
-                Commander par chat
-              </h2>
+          {/* Container avec animation pour le formulaire et le chat */}
+          <div className="relative overflow-hidden bg-white shadow-lg rounded-lg">
+            {/* Formulaire */}
+            <div
+              className={`transition-all duration-500 ${
+                orderMethod === 'form'
+                  ? 'translate-x-0 opacity-100'
+                  : '-translate-x-full opacity-0 absolute inset-0'
+              }`}
+            >
+              <div className="p-6">
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium text-gray-900">Sélectionnez vos produits</h3>
+                    <div className="space-y-4">
+                      {products.map((product) => (
+                        <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">{product.name}</h4>
+                            <p className="text-sm text-gray-500">{product.description}</p>
+                          </div>
+                          <div className="w-24">
+                            <select
+                              value={formData[product.id]}
+                              onChange={(e) => handleQuantityChange(e, product.id)}
+                              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              {quantities.map((qty) => (
+                                <option key={qty} value={qty}>
+                                  {qty}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium text-gray-900">Informations de livraison</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700">
+                          Date de livraison
+                        </label>
+                        <input
+                          type="date"
+                          id="deliveryDate"
+                          name="deliveryDate"
+                          required
+                          value={formData.deliveryDate}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                          Nom complet
+                        </label>
+                        <input
+                          type="text"
+                          id="name"
+                          name="name"
+                          required
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                          Adresse de livraison
+                        </label>
+                        <textarea
+                          id="address"
+                          name="address"
+                          required
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          rows={3}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          required
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="promoCode" className="block text-sm font-medium text-gray-700">
+                          Code Promo
+                        </label>
+                        <input
+                          type="text"
+                          id="promoCode"
+                          name="promoCode"
+                          value={formData.promoCode}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                  >
+                    Confirmer ma commande
+                  </button>
+                </form>
+              </div>
             </div>
-            <div className="h-full">
-              <OrderChat />
+
+            {/* Chat */}
+            <div
+              className={`transition-all duration-500 ${
+                orderMethod === 'chat'
+                  ? 'translate-x-0 opacity-100'
+                  : 'translate-x-full opacity-0 absolute inset-0'
+              }`}
+            >
+              <OrderChat typingSpeed={20} />
             </div>
           </div>
         </div>

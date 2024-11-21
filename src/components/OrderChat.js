@@ -3,9 +3,8 @@ import { Send } from 'lucide-react';
 
 // Enum pour les étapes de commande
 const OrderStep = {
-  INIT: 'INIT',
   FLAVOR: 'FLAVOR',
-  NAME: 'NAME',
+  NAME: 'NAME', 
   ADDRESS: 'ADDRESS',
   DELIVERY_DATE: 'DELIVERY_DATE',
   EMAIL: 'EMAIL',
@@ -23,11 +22,15 @@ const ProductInfo = {
 
 const OrderChat = () => {
   const [messages, setMessages] = useState([
-    { type: 'bot', content: 'Bonjour! Je peux vous aider à passer commande. Souhaitez-vous commencer?' }
+    { type: 'bot', content: "Bonjour! Voici nos produits disponibles:\n" +
+      "- Reveil Soleil (2.99€) : Shot énergisant au gingembre\n" +
+      "- Matcha Matin (3.49€) : Shot au matcha et gingembre\n" +
+      "- Berry Balance (3.49€) : Shot aux baies et gingembre\n\n" +
+      "Quels produits souhaitez-vous commander et en quelle quantité?" }
   ]);
   const [userInput, setUserInput] = useState('');
   const [orderState, setOrderState] = useState({
-    step: OrderStep.INIT,
+    step: OrderStep.FLAVOR,
     currentOrder: {}
   });
   const chatEndRef = useRef(null);
@@ -263,21 +266,6 @@ const OrderChat = () => {
     setUserInput('');
 
     switch (orderState.step) {
-      case OrderStep.INIT:
-        if (currentInput.toLowerCase().includes('oui')) {
-          setOrderState(prev => ({ ...prev, step: OrderStep.FLAVOR }));
-          addMessage(
-            "Parfait! Voici nos produits disponibles:\n" +
-            "- Reveil Soleil (2.99€) : Shot énergisant au gingembre\n" +
-            "- Matcha Matin (3.49€) : Shot au matcha et gingembre\n" +
-            "- Berry Balance (3.49€) : Shot aux baies et gingembre\n\n" +
-            "Quels produits souhaitez-vous commander et en quelle quantité?"
-          );
-        } else {
-          addMessage("D'accord, n'hésitez pas à me le dire quand vous voudrez commander!");
-        }
-        break;
-
       case OrderStep.FLAVOR:
         const flavorResult = parseFlavorInput(currentInput);
         if (flavorResult.status === "success") {
@@ -348,11 +336,15 @@ const OrderChat = () => {
           const submitResult = await submitOrder(orderState.currentOrder);
           addMessage(submitResult.message);
           if (submitResult.status === 'success') {
-            setOrderState({ step: OrderStep.INIT, currentOrder: {} });
+            setOrderState({ step: OrderStep.FLAVOR, currentOrder: {} });
           }
         } else {
-          setOrderState({ step: OrderStep.INIT, currentOrder: {} });
-          addMessage("D'accord, reprenons depuis le début. Souhaitez-vous passer une nouvelle commande?");
+          setOrderState({ step: OrderStep.FLAVOR, currentOrder: {} });
+          addMessage("D'accord, reprenons depuis le début. Voici nos produits disponibles:\n" +
+            "- Reveil Soleil (2.99€) : Shot énergisant au gingembre\n" +
+            "- Matcha Matin (3.49€) : Shot au matcha et gingembre\n" +
+            "- Berry Balance (3.49€) : Shot aux baies et gingembre\n\n" +
+            "Quels produits souhaitez-vous commander et en quelle quantité?");
         }
         break;
     }
