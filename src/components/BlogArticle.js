@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './BlogArticle.module.css';
-import { fetchProduct } from '../api/utils/api'; // Utilitaire pour récupérer les produits associés
+import { fetchProduct } from '../../pages/api/utils/api'; // Chemin correct
 
 const BlogArticle = ({ article }) => {
   const [associatedProducts, setAssociatedProducts] = useState([]);

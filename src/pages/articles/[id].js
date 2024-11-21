@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import BlogArticle from '../../components/BlogArticle';
 import Navbar from '../../components/Navbar';
 import styles from '../../styles/Article.module.css';
-import { fetchArticle } from '../../api/utils/api'; // Utilitaire pour récupérer un article
+import { fetchArticle } from '../../../pages/api/utils/api'; // Chemin correct
 
 export default function Article({ article, error }) {
   const router = useRouter();
