@@ -29,6 +29,7 @@ const HomeContent = ({ sections = [] }) => {
         const text = content.querySelector(`.${homeStyles.heroText}`);
         const image = content.querySelector(`.${homeStyles.heroImageContainer}`);
         
+        // Animation fluide au survol avec courbe de Bézier uniquement pour le texte
         if (text) {
           text.addEventListener('mouseenter', () => {
             gsap.to(text, {
@@ -148,34 +149,34 @@ const HomeContent = ({ sections = [] }) => {
     }
   }, [isChatOpen]);
 
+  const handleClick = (id) => {
+    router.push(`/articles/${id}`);
+  };
+
   const HeroSection = ({ id, title, subtitle, imageSrc, imageAlt, isInverted = false }) => {
-    console.log('URL de l\'article:', `/articles/${id}`); // Ajoutez ce log dans HeroSection
     return (
       <section className={`${homeStyles.section} ${isInverted ? homeStyles.invertedSection : ''}`}>
         <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-          <Link href={`/articles/${id}`} passHref>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-            >
-              <div className="h-full">
-                {title}
-                {subtitle}
-                <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">
-                  voir plus
-                </span>
-              </div>
+          <div 
+            className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
+            onClick={() => handleClick(id)}
+          >
+            <div className="h-full">
+              {title}
+              {subtitle}
+              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">
+                voir plus
+              </span>
             </div>
-          </Link>
+          </div>
           <div className={homeStyles.heroImageContainer}>
-            <Link href={`/articles/${id}`} passHref>
-              <div className="cursor-pointer">
-                <ClickableImage
-                  _id={id}
-                  src={imageSrc}
-                  alt={imageAlt}
-                />
-              </div>
-            </Link>
+            <div onClick={() => handleClick(id)} className="cursor-pointer">
+              <ClickableImage
+                _id={id}
+                src={imageSrc}
+                alt={imageAlt}
+              />
+            </div>
           </div>
         </div>
       </section>
