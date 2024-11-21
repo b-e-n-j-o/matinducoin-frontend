@@ -1,28 +1,31 @@
 // pages/api/utils/dbConnect.js
 
-import mongoose from 'mongoose';
+import { MongoClient } from 'mongodb';
 
-let isConnected = false; // Suivi de l'état de connexion
-
-export async function connectToDatabase() {
-  if (isConnected) {
-    return { db: mongoose.connection };
-  }
-
-  try {
-    const db = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
-    isConnected = true;
-    console.log('Connexion réussie à MongoDB');
-
-    return { db: mongoose.connection };
-  } catch (error) {
-    console.error('Erreur de connexion à MongoDB :', error);
-    throw new Error('Erreur de connexion à MongoDB');
-  }
+if (!process.env.MONGODB_URI) {
+  throw new Error('Veuillez définir la variable MONGODB_URI');
 }
 
-export default connectToDatabase; // Assurez-vous que cette ligne est présente
+const uri = process.env.MONGODB_URI;
+let cachedClient = null;
+let cachedDb = null;
+
+export async function connectToDatabase() {
+  if (cachedClient && cachedDb) {
+    return { client: cachedClient, db: cachedDb };
+  }
+
+  const client = await MongoClient.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+
+  const db = client.db(); // Utilisera la base de données spécifiée dans l'URI
+
+  cachedClient = client;
+  cachedDb = db;
+
+  return { client, db };
+}
+
+export default connectToDatabase;
