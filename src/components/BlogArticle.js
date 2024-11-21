@@ -7,87 +7,88 @@ import ProductCard from './ProductCard';
 import styles from './BlogArticle.module.css';
 
 const BlogArticle = ({ article }) => {
+  // Log initial pour voir l'article reçu
+  console.log('Article reçu dans BlogArticle:', article);
+
   if (!article) {
     return <div className={styles.error}>Article non trouvé</div>;
   }
 
-  const { title, image_banner, content, faq, product_ids } = article;
-
+  const { title, image_banner, content = [], faq = [], product_ids = [] } = article;
   const [associatedProducts, setAssociatedProducts] = useState([]);
 
+  // Mise à jour des produits associés
   useEffect(() => {
     const fetchAssociatedProducts = async () => {
-      if (product_ids && product_ids.length > 0) {
+      if (product_ids?.length > 0) {
         try {
-          // Log pour vérifier les IDs reçus
-          console.log('IDs des produits à récupérer:', product_ids);
-  
+          console.log('Récupération des produits associés:', product_ids);
+          
           const productRequests = product_ids.map(async (productId) => {
             const response = await fetch(
               `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId}`
             );
-  
-            // Log pour vérifier la réponse de chaque requête
-            console.log(`Réponse pour le produit ${productId}:`, response.status);
-  
+            
             if (!response.ok) {
-              throw new Error(`Erreur lors de la récupération du produit ${productId}`);
+              console.error(`Erreur pour le produit ${productId}: ${response.status}`);
+              return null;
             }
-  
+            
             const data = await response.json();
-            console.log(`Données reçues pour le produit ${productId}:`, data);
+            console.log(`Données du produit ${productId}:`, data);
             return data;
           });
-  
-          const productsData = await Promise.all(productRequests);
-          console.log('Tous les produits récupérés:', productsData);
+
+          const productsData = (await Promise.all(productRequests)).filter(Boolean);
+          console.log('Produits associés récupérés:', productsData);
           setAssociatedProducts(productsData);
         } catch (error) {
-          console.error("Erreur détaillée:", error);
-          console.error("Erreur lors de la récupération des produits associés:", error.message);
+          console.error("Erreur lors de la récupération des produits associés:", error);
         }
-      } else {
-        console.log("Pas de product_ids disponibles dans l'article:", article);
       }
     };
-  
-    // Log initial pour voir les données de l'article
-    console.log('Article reçu dans BlogArticle:', article);
-    
+
     fetchAssociatedProducts();
-  }, [product_ids, article]);
+  }, [product_ids]);
 
   const sectionRefs = useRef(content.map(() => React.createRef()));
 
   const scrollToSection = (index) => {
-    const section = sectionRefs.current[index].current;
-    
+    const section = sectionRefs.current[index]?.current;
     if (section) {
       const yOffset = -150;
       const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
-  const renderTableOfContents = () => (
-    <div className={styles.tableOfContents}>
-      <h2 className={styles.tocTitle}>Sommaire</h2>
-      <ul className={styles.tocList}>
-        {content.map((item, index) => {
-          // On inclut maintenant les headers de tous les niveaux (par exemple, level 1 et level 2)
-          if (item.type === 'header' && (item.level === 1 || item.level === 2)) {
-            return (
-              <li key={index} className={styles.tocItem}>
-                <button onClick={() => scrollToSection(index)}>
-                  {item.data}
-                </button>
-              </li>
-            );
-          }
-          return null;
-        })}
-      </ul>
-    </div>
-  );
+
+  const renderTableOfContents = () => {
+    if (!Array.isArray(content) || content.length === 0) {
+      console.log('Pas de contenu pour la table des matières');
+      return null;
+    }
+
+    const headers = content.filter(item => 
+      item.type === 'header' && (item.level === 1 || item.level === 2)
+    );
+
+    if (headers.length === 0) return null;
+
+    return (
+      <div className={styles.tableOfContents}>
+        <h2 className={styles.tocTitle}>Sommaire</h2>
+        <ul className={styles.tocList}>
+          {headers.map((header, index) => (
+            <li key={index} className={styles.tocItem}>
+              <button onClick={() => scrollToSection(index)}>
+                {header.data}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
   
   const ScrollAnimationWrapper = ({ children }) => {
     const ref = useRef(null);
@@ -103,100 +104,114 @@ const BlogArticle = ({ article }) => {
   const renderContent = (contentItems) => {
     if (!Array.isArray(contentItems)) {
       console.error("Le contenu de l'article n'est pas un tableau:", contentItems);
-      return <p className={styles.error}>Erreur: Le contenu de l'article n'est pas dans le format attendu.</p>;
+      return <p className={styles.error}>Le contenu de l'article n'est pas dans le format attendu</p>;
     }
 
     return contentItems.map((item, index) => {
-      switch (item.type) {
-        case 'header':
-          const HeaderTag = `h${item.level}`;
-          return (
-            <div key={index} ref={sectionRefs.current[index]} className={styles.sectionHeaderWrapper}>
-              <ScrollAnimationWrapper>
-                <HeaderTag className={`${styles.sectionHeader} ${styles[`h${item.level}`]}`}>
-                  {item.data}
-                </HeaderTag>
-              </ScrollAnimationWrapper>
-            </div>
-          );
-        case 'text':
-          return (
-            <div key={index} className={styles.textContent}>
-              {item.data.content.map((contentItem, contentIndex) => {
-                switch (contentItem.type) {
-                  case 'subtitle':
-                    return (
-                      <ScrollAnimationWrapper key={contentIndex}>
-                        <h3 className={styles.subtitle}>
-                          <ReactMarkdown>{contentItem.text}</ReactMarkdown>
-                        </h3>
-                      </ScrollAnimationWrapper>
-                    );
-                  case 'paragraph':
-                    return (
-                      <ScrollAnimationWrapper key={contentIndex}>
-                        <div className={styles.paragraphBox}>
-                          {contentItem.sentences.map((sentence, sentenceIndex) => (
-                            <ReactMarkdown key={sentenceIndex} className={styles.sentence}>
-                              {sentence}
-                            </ReactMarkdown>
-                          ))}
-                        </div>
-                      </ScrollAnimationWrapper>
-                    );
-                  case 'list':
-                    return (
-                      <ScrollAnimationWrapper key={contentIndex}>
-                        <div className={styles.paragraphBox}>
-                          <ul className={styles.list}>
-                            {contentItem.items.map((listItem, itemIndex) => (
-                              <li key={itemIndex} className={styles.listItem}>
-                                <ReactMarkdown>{listItem}</ReactMarkdown>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </ScrollAnimationWrapper>
-                    );
-                  default:
-                    return null;
-                }
-              })}
-            </div>
-          );
-        case 'image':
-          return (
-            <ScrollAnimationWrapper key={index}>
-              <div className={styles.imageContainer}>
-                <Image
-                  src={item.data}
-                  alt={item.caption || 'Image de l\'article'}
-                  width={800}
-                  height={600}
-                  layout="responsive"
-                  className={styles.image}
-                />
-                {item.caption && <figcaption className={styles.imageCaption}>{item.caption}</figcaption>}
+      try {
+        switch (item.type) {
+          case 'header':
+            const HeaderTag = `h${item.level}`;
+            return (
+              <div key={index} ref={sectionRefs.current[index]} className={styles.sectionHeaderWrapper}>
+                <ScrollAnimationWrapper>
+                  <HeaderTag className={`${styles.sectionHeader} ${styles[`h${item.level}`]}`}>
+                    {item.data}
+                  </HeaderTag>
+                </ScrollAnimationWrapper>
               </div>
-            </ScrollAnimationWrapper>
-          );
-        default:
-          return null;
+            );
+          case 'text':
+            return (
+              <div key={index} className={styles.textContent}>
+                {item.data.content.map((contentItem, contentIndex) => {
+                  switch (contentItem.type) {
+                    case 'subtitle':
+                      return (
+                        <ScrollAnimationWrapper key={contentIndex}>
+                          <h3 className={styles.subtitle}>
+                            <ReactMarkdown>{contentItem.text}</ReactMarkdown>
+                          </h3>
+                        </ScrollAnimationWrapper>
+                      );
+                    case 'paragraph':
+                      return (
+                        <ScrollAnimationWrapper key={contentIndex}>
+                          <div className={styles.paragraphBox}>
+                            {contentItem.sentences.map((sentence, sentenceIndex) => (
+                              <ReactMarkdown key={sentenceIndex} className={styles.sentence}>
+                                {sentence}
+                              </ReactMarkdown>
+                            ))}
+                          </div>
+                        </ScrollAnimationWrapper>
+                      );
+                    case 'list':
+                      return (
+                        <ScrollAnimationWrapper key={contentIndex}>
+                          <div className={styles.paragraphBox}>
+                            <ul className={styles.list}>
+                              {contentItem.items.map((listItem, itemIndex) => (
+                                <li key={itemIndex} className={styles.listItem}>
+                                  <ReactMarkdown>{listItem}</ReactMarkdown>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </ScrollAnimationWrapper>
+                      );
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
+            );
+          case 'image':
+            return (
+              <ScrollAnimationWrapper key={index}>
+                <div className={styles.imageContainer}>
+                  <Image
+                    src={item.data}
+                    alt={item.caption || 'Image de l\'article'}
+                    width={800}
+                    height={600}
+                    layout="responsive"
+                    className={styles.image}
+                  />
+                  {item.caption && (
+                    <figcaption className={styles.imageCaption}>{item.caption}</figcaption>
+                  )}
+                </div>
+              </ScrollAnimationWrapper>
+            );
+          default:
+            console.warn(`Type de contenu non géré: ${item.type}`);
+            return null;
+        }
+      } catch (error) {
+        console.error(`Erreur lors du rendu de l'élément ${index}:`, error);
+        return (
+          <div key={index} className={styles.error}>
+            Erreur lors du rendu de cet élément
+          </div>
+        );
       }
     });
   };
 
   const renderAssociatedProducts = () => {
-    if (associatedProducts.length === 0) return null;
+    if (!associatedProducts?.length) return null;
 
     return (
       <ScrollAnimationWrapper>
         <div className={styles.productsWrapper}>
           <h2 className={styles.randomProductTitle}>Produits associés :</h2>
           <div className={styles.productCardsContainer}>
-            {associatedProducts.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
+            {associatedProducts.map((product) => 
+              product ? (
+                <ProductCard key={product._id} product={product} />
+              ) : null
+            )}
           </div>
         </div>
       </ScrollAnimationWrapper>
@@ -204,7 +219,7 @@ const BlogArticle = ({ article }) => {
   };
 
   const renderFAQ = () => {
-    if (!faq || faq.length === 0) return null;
+    if (!Array.isArray(faq) || faq.length === 0) return null;
 
     return (
       <section className={styles.faqSection}>
