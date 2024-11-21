@@ -5,19 +5,25 @@ import styles from '../../styles/Article.module.css';
 
 export default function Article({ article, error }) {
   const router = useRouter();
+  const { _id } = router.query;
 
-  // Debug logs
-  console.log('Page Article rendue:', {
-    article, 
-    error,
-    query: router.query
+  // Logs détaillés
+  console.log('=== Rendu de la page Article ===');
+  console.log('ID dans l\'URL:', _id);
+  console.log('État du router:', {
+    isReady: router.isReady,
+    query: router.query,
+    path: router.asPath
   });
+  console.log('Props reçues:', { article, error });
 
   if (!router.isReady) {
+    console.log('Router pas encore prêt');
     return <div>Chargement...</div>;
   }
 
   if (error) {
+    console.error('Erreur reçue:', error);
     return (
       <div className={styles.articleContainer}>
         <Navbar />
@@ -29,6 +35,7 @@ export default function Article({ article, error }) {
   }
 
   if (!article) {
+    console.error('Pas d\'article reçu');
     return (
       <div className={styles.articleContainer}>
         <Navbar />
@@ -39,6 +46,7 @@ export default function Article({ article, error }) {
     );
   }
 
+  console.log('Article trouvé, rendu du composant BlogArticle');
   return (
     <div className={styles.articleContainer}>
       <Navbar />
@@ -49,27 +57,35 @@ export default function Article({ article, error }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
+export async function getServerSideProps({ params, req }) {
+  console.log('=== getServerSideProps démarré ===');
+  console.log('Params reçus:', params);
+  console.log('URL demandée:', req.url);
+
   const { _id } = params;
-  
+
   try {
-    // Appel direct à l'API backend
-    const response = await fetch(
-      `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${_id}`
-    );
+    const apiUrl = `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${_id}`;
+    console.log('Appel API vers:', apiUrl);
 
-    // Log pour debug
-    console.log(`Fetching article ${_id}, status:`, response.status);
+    const response = await fetch(apiUrl);
+    console.log('Status réponse:', response.status);
 
-    // Si la réponse n'est pas ok, récupérer le message d'erreur
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'Erreur lors de la récupération de l\'article');
+      throw new Error(errorData.error || `Erreur ${response.status}`);
     }
 
-    // Récupérer l'article
     const article = await response.json();
-    console.log('Article récupéré:', article.title);
+    console.log('Article récupéré:', {
+      id: article._id,
+      title: article.title
+    });
+
+    // Vérification des données
+    if (!article || !article.title) {
+      throw new Error('Format d\'article invalide');
+    }
 
     return {
       props: {
@@ -77,10 +93,10 @@ export async function getServerSideProps({ params }) {
       }
     };
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'article:', error);
+    console.error('Erreur complète:', error);
     return {
       props: {
-        error: error.message
+        error: `Erreur: ${error.message}`
       }
     };
   }
