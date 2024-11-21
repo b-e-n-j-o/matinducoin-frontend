@@ -5,13 +5,13 @@ import styles from '../../styles/Article.module.css';
 
 export default function Article({ article, error }) {
   const router = useRouter();
-  const { _id } = router.query;
+  const { id } = router.query; // Utilisation correcte de `id`
 
   console.log('Article page render', {
-    id: _id,
+    id: id,
     articleReceived: !!article,
     articleContent: article,
-    error
+    error,
   });
 
   if (!router.isReady) {
@@ -32,7 +32,7 @@ export default function Article({ article, error }) {
   }
 
   if (!article) {
-    console.error('No article received for ID:', _id);
+    console.error('No article received for ID:', id);
     return (
       <div className={styles.articleContainer}>
         <Navbar />
@@ -45,7 +45,7 @@ export default function Article({ article, error }) {
 
   console.log('Rendering article:', {
     id: article._id,
-    title: article.title
+    title: article.title,
   });
 
   return (
@@ -61,11 +61,11 @@ export default function Article({ article, error }) {
 export async function getServerSideProps({ params }) {
   console.log('getServerSideProps starting with params:', params);
 
-  const { id } = params;
+  const { id } = params; // Utilisation correcte de `id`
 
   try {
-    // Construction de l'URL
-    const apiUrl = `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${_id}`;
+    // Construction de l'URL pour l'API backend déployée
+    const apiUrl = `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${id}`;
     console.log('Fetching from:', apiUrl);
 
     // Appel à l'API
@@ -77,7 +77,7 @@ export async function getServerSideProps({ params }) {
       const text = await response.text();
       console.error('API error:', {
         status: response.status,
-        text: text
+        text: text,
       });
       throw new Error(`Erreur ${response.status}: ${text}`);
     }
@@ -87,7 +87,7 @@ export async function getServerSideProps({ params }) {
     console.log('Article data received:', {
       id: data._id,
       title: data.title,
-      hasContent: !!data.content
+      hasContent: !!data.content,
     });
 
     // Vérification des données
@@ -96,18 +96,18 @@ export async function getServerSideProps({ params }) {
       throw new Error('Article invalide');
     }
 
-    // Retour des données
+    // Retour des données au composant
     return {
       props: {
-        article: data
-      }
+        article: data,
+      },
     };
   } catch (error) {
     console.error('Full error:', error);
     return {
       props: {
-        error: error.message || 'Erreur inconnue'
-      }
+        error: error.message || 'Erreur inconnue',
+      },
     };
   }
 }
