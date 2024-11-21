@@ -1,6 +1,4 @@
-// src/pages/articles/[_id].js
 import { ObjectId } from 'mongodb';
-import { connectToDatabase } from '../api/utils/dbConnect';
 import BlogArticle from '../../components/BlogArticle';
 import Navbar from '../../components/Navbar';
 import styles from '../../styles/Article.module.css';
@@ -28,32 +26,27 @@ export default function Article({ article, error }) {
 }
 
 export async function getServerSideProps({ params }) {
-  const { id } = params;
+  const { _id } = params;
 
   try {
-    const { db } = await connectToDatabase();
-    
-    if (!ObjectId.isValid(id)) {
-      return { notFound: true };
+    // Utiliser votre API backend au lieu de connectToDatabase
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${_id}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Article non trouvé');
     }
 
-    const article = await db.collection('articles_divers').findOne({ 
-      _id: new ObjectId(id) 
-    });
+    const article = await response.json();
 
     if (!article) {
       return { notFound: true };
     }
 
-    // Convertir l'ObjectId en string pour la sérialisation
-    const serializedArticle = {
-      ...article,
-      _id: article._id.toString()
-    };
-
     return {
       props: {
-        article: serializedArticle
+        article
       },
     };
   } catch (error) {
