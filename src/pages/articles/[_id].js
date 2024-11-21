@@ -59,44 +59,71 @@ export default function Article({ article, error }) {
 
 export async function getServerSideProps({ params, req }) {
   console.log('=== getServerSideProps démarré ===');
-  console.log('Params reçus:', params);
-  console.log('URL demandée:', req.url);
+  console.log('Params complets:', JSON.stringify(params));
+  console.log('URL complète:', req.url);
 
-  const { _id } = params;
+  if (!params?._id) {
+    console.error('ID manquant dans les params');
+    return {
+      props: {
+        error: 'ID article manquant'
+      }
+    };
+  }
+
+  const apiUrl = `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${params._id}`;
+  console.log('URL API construite:', apiUrl);
 
   try {
-    const apiUrl = `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${_id}`;
-    console.log('Appel API vers:', apiUrl);
-
-    const response = await fetch(apiUrl);
-    console.log('Status réponse:', response.status);
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Erreur ${response.status}`);
-    }
-
-    const article = await response.json();
-    console.log('Article récupéré:', {
-      id: article._id,
-      title: article.title
+    console.log('Début appel fetch');
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
     });
+
+    console.log('Réponse reçue:', {
+      status: response.status,
+      ok: response.ok,
+      statusText: response.statusText
+    });
+
+    const data = await response.text(); // D'abord en texte pour voir le contenu brut
+    console.log('Données brutes reçues:', data);
+
+    // Essayer de parser en JSON
+    let article;
+    try {
+      article = JSON.parse(data);
+      console.log('Données parsées:', {
+        id: article._id,
+        title: article.title
+      });
+    } catch (parseError) {
+      console.error('Erreur parsing JSON:', parseError);
+      throw new Error('Réponse invalide de l\'API');
+    }
 
     // Vérification des données
     if (!article || !article.title) {
+      console.error('Article invalide:', article);
       throw new Error('Format d\'article invalide');
     }
 
+    console.log('getServerSideProps terminé avec succès');
     return {
       props: {
         article
       }
     };
   } catch (error) {
-    console.error('Erreur complète:', error);
+    console.error('Erreur complète dans getServerSideProps:', error);
+    console.error('Stack trace:', error.stack);
     return {
       props: {
-        error: `Erreur: ${error.message}`
+        error: `Erreur lors de la récupération: ${error.message}`
       }
     };
   }
