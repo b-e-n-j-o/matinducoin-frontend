@@ -3,12 +3,14 @@ import Navbar from '../../components/Navbar';
 import styles from '../../styles/Article.module.css';
 
 export default function Article({ article, error }) {
+  console.log("Article reçu dans la page :", article); // Debug
+
   if (error) {
     return (
       <div className={styles.articleContainer}>
         <Navbar />
         <main>
-          <div className={styles.error}>Une erreur s'est produite : {error}</div>
+          <div className={styles.error}>Erreur: {error}</div>
         </main>
       </div>
     );
@@ -26,25 +28,23 @@ export default function Article({ article, error }) {
 
 export async function getServerSideProps({ params }) {
   const { _id } = params;
+  console.log("ID reçu:", _id); // Debug
+
+  const backendUrl = 'https://matinducoin-backend-b2f47bd8118b.herokuapp.com';
+  const articleUrl = `${backendUrl}/api/articles/${_id}`;
+  
+  console.log("URL appelée:", articleUrl); // Debug
 
   try {
-    // Utiliser l'URL du backend directement
-    const response = await fetch(
-      `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${_id}`
-    );
+    const response = await fetch(articleUrl);
+    console.log("Status de la réponse:", response.status); // Debug
 
     if (!response.ok) {
-      throw new Error(`Article non trouvé (${response.status})`);
+      throw new Error(`Erreur HTTP: ${response.status}`);
     }
 
     const article = await response.json();
-
-    // Vérifier si l'article existe
-    if (!article) {
-      return {
-        notFound: true
-      };
-    }
+    console.log("Données reçues:", article); // Debug
 
     return {
       props: {
@@ -52,7 +52,7 @@ export async function getServerSideProps({ params }) {
       }
     };
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'article:', error);
+    console.error("Erreur complète:", error);
     return {
       props: {
         error: error.message
