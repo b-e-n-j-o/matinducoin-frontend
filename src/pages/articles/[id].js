@@ -1,5 +1,5 @@
 // frontend/src/pages/articles/[id].js
-import BlogArticle from '@/components/BlogArticle';
+import BlogArticle from '../../components/BlogArticle';  // Chemin relatif
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
