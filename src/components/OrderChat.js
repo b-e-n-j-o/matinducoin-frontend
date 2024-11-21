@@ -20,7 +20,7 @@ const TypingMessage = ({ text, onComplete }) => {
   return <div className="whitespace-pre-wrap">{displayedText}</div>;
 };
 
-const OrderChat = ({ isOpen, onClose }) => {
+const OrderChat = ({ isOpen, onClose, className = "" }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -160,16 +160,18 @@ const OrderChat = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 w-[350px] bg-white rounded-lg shadow-xl flex flex-col h-[600px]">
-      <div className="p-4 bg-[#ff5900] text-[#ffd97f] flex justify-between items-center font-['Bobby_Jones_Soft',_sans-serif]">
+    <div className={`bg-white rounded-lg shadow-xl flex flex-col h-[600px] ${className}`}>
+      <div className="p-4 bg-[#ff5900] text-[#ffd97f] flex justify-between items-center font-['Bobby_Jones_Soft',_sans-serif] rounded-t-lg">
         <h3 className="text-lg">Passez votre commande</h3>
-        <button 
-          onClick={onClose}
-          className="hover:text-white transition-colors text-2xl"
-          aria-label="Fermer le chat"
-        >
-          ×
-        </button>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="hover:text-white transition-colors text-2xl"
+            aria-label="Fermer le chat"
+          >
+            ×
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -212,7 +214,7 @@ const OrderChat = ({ isOpen, onClose }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t">
+      <form onSubmit={handleSubmit} className="p-4 border-t mt-auto">
         <div className="flex flex-col space-y-2">
           <div className="flex space-x-2">
             <input

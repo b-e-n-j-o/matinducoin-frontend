@@ -298,13 +298,18 @@ const OrderForm = () => {
 
             {/* Chat */}
             <div
-              className={`transition-all duration-500 ${
+              className={`transition-all duration-500 h-full ${
                 orderMethod === 'chat'
                   ? 'translate-x-0 opacity-100'
                   : 'translate-x-full opacity-0 absolute inset-0'
               }`}
             >
-              <OrderChat typingSpeed={20} />
+              <div className="p-6">
+                <OrderChat 
+                  className="w-full max-w-3xl mx-auto" 
+                  isOpen={orderMethod === 'chat'} 
+                />
+              </div>
             </div>
           </div>
         </div>
