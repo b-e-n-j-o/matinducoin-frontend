@@ -20,7 +20,7 @@ const TypingMessage = ({ text, onComplete }) => {
   return <div className="whitespace-pre-wrap">{displayedText}</div>;
 };
 
-const OrderChat = ({ isOpen = true, className = "" }) => {
+const OrderChat = ({ className = "" }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -163,18 +163,9 @@ const OrderChat = ({ isOpen = true, className = "" }) => {
     <div className={`bg-white rounded-lg shadow-xl flex flex-col ${className}`}>
       <div className="p-4 bg-[#ff5900] text-[#ffd97f] flex justify-between items-center font-['Bobby_Jones_Soft',_sans-serif] rounded-t-lg">
         <h3 className="text-lg">Passez votre commande</h3>
-        {onClose && (
-          <button 
-            onClick={onClose}
-            className="hover:text-white transition-colors text-2xl"
-            aria-label="Fermer le chat"
-          >
-            ×
-          </button>
-        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[500px]">
         {messages.map((message) => (
           <div
             key={message.id}

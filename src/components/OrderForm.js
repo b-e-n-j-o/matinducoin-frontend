@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import OrderChat from './OrderChat';  // Import du composant de chat
+import OrderChat from './OrderChat';
 
 const OrderForm = () => {
   const router = useRouter();
   const { flavor: initialFlavor } = router.query;
-  const [orderMethod, setOrderMethod] = useState('form'); // Par défaut on affiche le formulaire
+  const [orderMethod, setOrderMethod] = useState('form');
   const [formData, setFormData] = useState({
     reveilSoleil: '0',
     matchaMatin: '0', 
@@ -18,9 +18,9 @@ const OrderForm = () => {
   });
 
   const products = [
-    { id: 'reveilSoleil', name: 'Réveil Soleil', description: 'Jus énergisant pour bien commencer la journée' },
-    { id: 'matchaMatin', name: 'Matcha Matin', description: 'Boost naturel au matcha' },
-    { id: 'berryBalance', name: 'Berry Balance', description: 'Mélange équilibré de baies antioxydantes' }
+    { id: 'reveilSoleil', name: 'Réveil Soleil', description: 'Shot énergisant au gingembre' },
+    { id: 'matchaMatin', name: 'Matcha Matin', description: 'Shot au matcha et gingembre' },
+    { id: 'berryBalance', name: 'Berry Balance', description: 'Shot aux baies et gingembre' }
   ];
 
   const quantities = Array.from({ length: 11 }, (_, i) => i.toString());
@@ -77,7 +77,6 @@ const OrderForm = () => {
     }
 
     const flavorString = generateFlavorString();
-    console.log('Résumé de la commande:', flavorString);
 
     const apiData = {
       name: formData.name,
@@ -137,45 +136,50 @@ const OrderForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">Commander</h1>
         
         {/* Toggles de sélection */}
-        <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-6">
+        <div className="flex bg-white rounded-lg overflow-hidden border border-[#ff5900] mb-8">
           <button
             onClick={() => setOrderMethod('form')}
-            className={`flex-1 py-3 px-4 text-center transition-all duration-200 ${
+            className={`flex-1 py-4 px-6 text-center transition-all duration-200 font-semibold ${
               orderMethod === 'form'
                 ? 'bg-[#ff5900] text-[#ffd97f]'
-                : 'bg-white text-gray-500 hover:bg-gray-50'
+                : 'bg-white text-[#ff5900] hover:bg-[#fff5e6]'
             }`}
           >
             Commander par formulaire
           </button>
           <button
             onClick={() => setOrderMethod('chat')}
-            className={`flex-1 py-3 px-4 text-center transition-all duration-200 ${
+            className={`flex-1 py-4 px-6 text-center transition-all duration-200 font-semibold ${
               orderMethod === 'chat'
                 ? 'bg-[#ff5900] text-[#ffd97f]'
-                : 'bg-white text-gray-500 hover:bg-gray-50'
+                : 'bg-white text-[#ff5900] hover:bg-[#fff5e6]'
             }`}
           >
             Commander par chat
           </button>
         </div>
 
-        {/* Conteneur principal */}
-        <div className="bg-white shadow-lg rounded-lg">
+        {/* Conteneur principal avec effet de transition */}
+        <div className="relative bg-white rounded-xl shadow-lg overflow-hidden min-h-[700px]">
           {/* Formulaire */}
-          {orderMethod === 'form' && (
-            <div className="p-6">
+          <div
+            className={`absolute inset-0 transition-all duration-500 transform ${
+              orderMethod === 'form' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'
+            }`}
+          >
+            <div className="p-8">
               <form onSubmit={handleSubmit} className="space-y-8">
+                {/* ... Contenu du formulaire existant ... */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Sélectionnez vos produits</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">Sélectionnez vos produits</h3>
                   <div className="space-y-4">
                     {products.map((product) => (
-                      <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-900">{product.name}</h4>
                           <p className="text-sm text-gray-500">{product.description}</p>
@@ -184,7 +188,7 @@ const OrderForm = () => {
                           <select
                             value={formData[product.id]}
                             onChange={(e) => handleQuantityChange(e, product.id)}
-                            className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
                           >
                             {quantities.map((qty) => (
                               <option key={qty} value={qty}>
@@ -199,8 +203,8 @@ const OrderForm = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Informations de livraison</h3>
-                  <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-gray-900">Informations de livraison</h3>
+                  <div className="grid grid-cols-1 gap-6">
                     <div>
                       <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700">
                         Date de livraison
@@ -212,7 +216,7 @@ const OrderForm = () => {
                         required
                         value={formData.deliveryDate}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
                       />
                     </div>
 
@@ -227,7 +231,7 @@ const OrderForm = () => {
                         required
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
                       />
                     </div>
 
@@ -242,7 +246,7 @@ const OrderForm = () => {
                         value={formData.address}
                         onChange={handleInputChange}
                         rows={3}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
                       />
                     </div>
 
@@ -257,7 +261,7 @@ const OrderForm = () => {
                         required
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
                       />
                     </div>
 
@@ -271,7 +275,7 @@ const OrderForm = () => {
                         name="promoCode"
                         value={formData.promoCode}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
                       />
                     </div>
                   </div>
@@ -279,23 +283,24 @@ const OrderForm = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                  className="w-full bg-[#ff5900] text-[#ffd97f] py-4 px-6 rounded-lg hover:bg-[#ff7a33] focus:outline-none focus:ring-2 focus:ring-[#ff5900] focus:ring-offset-2 transition-colors font-semibold text-lg"
                 >
                   Confirmer ma commande
                 </button>
               </form>
             </div>
-          )}
+          </div>
 
           {/* Chat */}
-          {orderMethod === 'chat' && (
-            <div className="p-6 min-h-[600px]">
-              <OrderChat 
-                isOpen={true}
-                className="h-full" 
-              />
+          <div
+            className={`absolute inset-0 transition-all duration-500 transform ${
+              orderMethod === 'chat' ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
+            }`}
+          >
+            <div className="h-full">
+              <OrderChat className="h-full rounded-none" />
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
