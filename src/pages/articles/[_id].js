@@ -1,5 +1,6 @@
+// pages/articles/[id].js
 import { ObjectId } from 'mongodb';
-import { connectToDatabase } from '../api/utils/dbConnect.js';
+import { connectToDatabase } from '../../utils/dbConnect';
 import BlogArticle from '../../components/BlogArticle';
 import Navbar from '../../components/Navbar';
 import styles from '../../styles/Article.module.css';
@@ -27,7 +28,7 @@ export default function Article({ article, error }) {
 }
 
 export async function getServerSideProps({ params }) {
-  const { id } = params; // Changé de _id à id pour correspondre au paramètre de route Next.js
+  const { id } = params;
 
   try {
     const { db } = await connectToDatabase();
@@ -36,18 +37,27 @@ export async function getServerSideProps({ params }) {
       return { notFound: true };
     }
 
-    const article = await db.collection('articles_divers').findOne({ _id: new ObjectId(id) });
+    const article = await db.collection('articles_divers').findOne({ 
+      _id: new ObjectId(id) 
+    });
 
     if (!article) {
       return { notFound: true };
     }
 
+    // Convertir l'ObjectId en string pour la sérialisation
+    const serializedArticle = {
+      ...article,
+      _id: article._id.toString()
+    };
+
     return {
       props: {
-        article: JSON.parse(JSON.stringify(article)),
+        article: serializedArticle
       },
     };
   } catch (error) {
+    console.error('Erreur:', error);
     return { 
       props: { 
         error: `Une erreur s'est produite : ${error.message}` 

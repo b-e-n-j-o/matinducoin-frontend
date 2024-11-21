@@ -38,22 +38,31 @@ const OrderChat = ({ className = "" }) => {
     scrollToBottom();
   }, [messages, isTyping]);
 
+  const handleNewMessage = (messageText) => {
+    if (messageText && isInitialized) {
+      setIsTyping(true);
+      setMessages(prev => [...prev, {
+        text: messageText,
+        sender: 'assistant',
+        id: Date.now(),
+        typing: true
+      }]);
+    }
+  };
+
   const waitForBotResponse = async () => {
     return new Promise((resolve) => {
       let messageHandler = (event) => {
         try {
           const message = JSON.parse(event.data);
-          console.log("Message reçu:", message);
-          
-          if (message && message.content) {
+          if (message && (message.content || message.text)) {
             ws.current.removeEventListener('message', messageHandler);
-            resolve(message.content);
+            resolve(message.content || message.text);
           }
         } catch (error) {
           console.error('Erreur parsing réponse:', error);
         }
       };
-      
       ws.current.addEventListener('message', messageHandler);
     });
   };
@@ -70,13 +79,13 @@ const OrderChat = ({ className = "" }) => {
         type: 'message',
         content: 'passer commande'
       }));
-      const firstResponse = await waitForBotResponse();
+      await waitForBotResponse();
 
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
-      const secondResponse = await waitForBotResponse();
+      await waitForBotResponse();
 
       setMessages([{
         text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
@@ -103,23 +112,14 @@ const OrderChat = ({ className = "" }) => {
     ws.current.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        console.log("Message général reçu:", message);
-
-        // Check if the message has text property or content property
-        const messageText = message.text || message.content;
-
-        if (messageText && isInitialized) {
-          setIsTyping(true);
-          setMessages(prev => [...prev, {
-            text: messageText,
-            sender: 'assistant',
-            id: Date.now(),
-            typing: true
-          }]);
+        const messageText = message.text || message.content || message.response;
+        console.log("Message reçu:", message, "Text extrait:", messageText);
+        
+        if (messageText && isInitialized && !message.type) {
+          handleNewMessage(messageText);
         }
       } catch (error) {
         console.error('Erreur de traitement du message:', error);
-        setError("Une erreur est survenue");
       }
     };
 
