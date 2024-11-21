@@ -12,11 +12,11 @@ const estimateTokens = (text) => {
 
 // Messages de bienvenue
 const WELCOME_MESSAGES = [
-  "Bonjour et bienvenue chez Matin du Coin ! Nous sommes ravis de vous accueillir. Je suis ici pour répondre à toutes vos questions ou vous aider à passer commande. N'hésitez pas à demander ce que vous souhaitez !",
-  "Salut et bienvenue chez Matin du Coin ! Vous avez des questions ou souhaitez passer commande ? Je suis là pour vous aider avec plaisir !",
+  "Bonjour et bienvenue chez Matin du Coin ! 🌞 Nous sommes ravis de vous accueillir. Je suis ici pour répondre à toutes vos questions ou vous aider à passer commande. N'hésitez pas à demander ce que vous souhaitez !",
+  "Salut et bienvenue chez Matin du Coin ! 🌞 Vous avez des questions ou souhaitez passer commande ? Je suis là pour vous aider avec plaisir !",
   "Bienvenue chez Matin du Coin ! 🌞 Je suis là pour répondre à vos questions et vous accompagner pour passer commande. Dites-moi ce que je peux faire pour vous aider !",
-  "Bonjour chez Matin du Coin ! Je suis ravi(e) de pouvoir vous aider à explorer nos produits ou à passer une commande. N'hésitez pas à poser vos questions !",
-  "Salut et merci de choisir Matin du Coin ! Vous pouvez me poser vos questions ou passer une commande directement ici. Je suis là pour vous !"
+  "Bonjour chez Matin du Coin ! 🌞 Je suis ravi(e) de pouvoir vous aider à explorer nos produits ou à passer une commande. N'hésitez pas à poser vos questions !",
+  "Salut et merci de choisir Matin du Coin ! 🌞 Vous pouvez me poser vos questions ou passer une commande directement ici. Je suis là pour vous !"
 ];
 
 // Fonction pour valider les messages entrants et sortants
