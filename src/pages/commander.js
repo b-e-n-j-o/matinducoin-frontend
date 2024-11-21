@@ -1,10 +1,16 @@
 // pages/order.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import OrderForm from '../components/OrderForm';
 import OrderChat from '../components/OrderChat';
 
 const OrderPage = () => {
   const [orderMethod, setOrderMethod] = useState('form');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Assurer que le rendu initial est côté client et afficher le formulaire immédiatement
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white py-12">
@@ -40,20 +46,28 @@ const OrderPage = () => {
 
           {/* Zone de contenu avec transition */}
           <div className="relative min-h-[700px]">
-            <div
-              className={`absolute inset-0 transition-opacity duration-300 ${
-                orderMethod === 'form' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-              }`}
-            >
-              <OrderForm />
-            </div>
-            <div
-              className={`absolute inset-0 transition-opacity duration-300 ${
-                orderMethod === 'chat' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-              }`}
-            >
-              <OrderChat className="h-full" />
-            </div>
+            {isLoaded && (
+              <>
+                <div
+                  className={`transition-all duration-300 ${
+                    orderMethod === 'form' 
+                      ? 'opacity-100 z-10 relative'
+                      : 'opacity-0 z-0 absolute inset-0'
+                  }`}
+                >
+                  <OrderForm />
+                </div>
+                <div
+                  className={`transition-all duration-300 ${
+                    orderMethod === 'chat'
+                      ? 'opacity-100 z-10 relative'
+                      : 'opacity-0 z-0 absolute inset-0'
+                  }`}
+                >
+                  <OrderChat className="h-full" />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

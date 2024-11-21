@@ -142,7 +142,7 @@ const Products = () => {
 
                     {product.price && (
                       <p className="mt-4 text-[rgb(255,89,0)] text-xl font-bold text-center">
-                        {product.price.toFixed(2)} €
+                        {product.price.toFixed(2)} $
                       </p>
                     )}
                   </div>
