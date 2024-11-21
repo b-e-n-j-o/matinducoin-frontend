@@ -1,3 +1,4 @@
+// components/OrderChat.js
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
@@ -38,7 +39,6 @@ const OrderChat = ({ className = "" }) => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Fonction pour simuler l'envoi d'un message utilisateur
   const simulateUserMessage = async (content) => {
     return new Promise(resolve => {
       setMessages(prev => [...prev, {
@@ -50,7 +50,6 @@ const OrderChat = ({ className = "" }) => {
     });
   };
 
-  // Fonction pour attendre une réponse du bot
   const waitForBotResponse = async () => {
     return new Promise(resolve => {
       const checkResponse = (event) => {
@@ -64,28 +63,23 @@ const OrderChat = ({ className = "" }) => {
           console.error('Erreur:', error);
         }
       };
-      
       ws.current.addEventListener('message', checkResponse);
     });
   };
 
-  // Initialisation du chat avec simulation des premières étapes
   const initializeOrderChat = async () => {
     if (isInitialized) return;
 
-    // Attendre que la connexion WebSocket soit établie
     while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // Simuler les messages initiaux de manière invisible
     await simulateUserMessage("passer commande");
-    await waitForBotResponse(); // Attendre la réponse de classification
+    await waitForBotResponse();
     
     await simulateUserMessage("oui");
-    await waitForBotResponse(); // Attendre la confirmation
+    await waitForBotResponse();
 
-    // Afficher uniquement le message de bienvenue pour les commandes
     setMessages([{
       text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
       sender: 'assistant',
@@ -97,11 +91,9 @@ const OrderChat = ({ className = "" }) => {
   };
 
   useEffect(() => {
-    // Initialiser WebSocket
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
-      // Démarrer l'initialisation une fois la connexion établie
       initializeOrderChat();
     };
 
@@ -160,8 +152,8 @@ const OrderChat = ({ className = "" }) => {
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-xl flex flex-col ${className}`}>
-      <div className="p-4 bg-[#ff5900] text-[#ffd97f] flex justify-between items-center font-['Bobby_Jones_Soft',_sans-serif] rounded-t-lg">
+    <div className={`w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg flex flex-col ${className}`}>
+      <div className="p-4 bg-[#ff5900] text-[#ffd97f] font-['Bobby_Jones_Soft',_sans-serif] rounded-t-xl">
         <h3 className="text-lg">Passez votre commande</h3>
       </div>
 
@@ -218,7 +210,7 @@ const OrderChat = ({ className = "" }) => {
             />
             <button
               type="submit"
-              className="px-6 py-3 rounded-lg bg-[#ff5900] text-[#ffd97f] hover:bg-[#ffd97f] hover:text-[#ff5900] transition-colors disabled:opacity-50 font-['Bobby_Jones_Soft',_sans-serif]"
+              className="px-6 py-3 rounded-lg bg-[#ff5900] text-[#ffd97f] hover:bg-[#ff7a33] transition-colors disabled:opacity-50 font-['Bobby_Jones_Soft',_sans-serif]"
               disabled={isLoading || isTyping || !isInitialized}
             >
               Envoyer
