@@ -53,6 +53,7 @@ const OrderForm = () => {
     e.preventDefault();
     console.log('Données du formulaire:', formData);
 
+    // Vérification des produits sélectionnés
     const hasProducts = Object.entries(formData)
       .filter(([key]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key))
       .some(([_, value]) => value !== '0');
@@ -62,6 +63,7 @@ const OrderForm = () => {
       return;
     }
 
+    // Vérification des champs requis
     const requiredFields = ['name', 'address', 'deliveryDate', 'email'];
     const missingFields = requiredFields.filter(field => !formData[field]);
 
@@ -76,14 +78,20 @@ const OrderForm = () => {
       .filter(([key, value]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key) && value !== '0')
       .sort((a, b) => parseInt(b[1]) - parseInt(a[1]));
 
+    // Préparation des données pour l'API
     const apiData = {
       name: formData.name,
       address: formData.address,
       deliveryDate: new Date(formData.deliveryDate).toISOString(),
       email: formData.email,
-      flavor: selectedProducts[0][0],
+      flavor: selectedProducts[0][0], // Produit principal
       promoCode: formData.promoCode || undefined,
-      orderTime: new Date().toISOString()
+      orderTime: new Date().toISOString(),
+      orderDetails: {
+        reveilSoleil: parseInt(formData.reveilSoleil),
+        matchaMatin: parseInt(formData.matchaMatin),
+        berryBalance: parseInt(formData.berryBalance)
+      }
     };
 
     try {
