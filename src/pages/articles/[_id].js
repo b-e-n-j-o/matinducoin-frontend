@@ -1,34 +1,33 @@
-import { useRouter } from 'next/router';  // Ajout de l'import manquant
+import { useRouter } from 'next/router';
 import BlogArticle from '../../components/BlogArticle';
 import Navbar from '../../components/Navbar';
 import styles from '../../styles/Article.module.css';
 
 export default function Article({ article, error }) {
   const router = useRouter();
-  
-  console.log('Article component - initial props:', { article, error });
-  console.log('Router state:', {
-    query: router.query,
-    path: router.asPath,
-    isReady: router.isReady
+  const { _id } = router.query;
+
+  console.log('Article component - démarrage', { 
+    article, 
+    error,
+    routerQuery: router.query,
+    _id 
   });
 
-  // Si le router n'est pas prêt, montrons un loader
   if (!router.isReady) {
     return <div>Chargement...</div>;
   }
 
-  const { _id } = router.query;
-  console.log('ID from query:', _id);
-
-  // Si on n'a ni article ni erreur, quelque chose ne va pas
+  // Erreur spécifique si pas de données
   if (!article && !error) {
-    console.error('Ni article ni erreur n\'ont été reçus');
+    console.error('Données manquantes:', { article, error, _id });
     return (
       <div className={styles.articleContainer}>
         <Navbar />
         <main>
-          <div className={styles.error}>Une erreur inattendue s'est produite</div>
+          <div className={styles.error}>
+            {`Impossible de charger l'article (ID: ${_id})`}
+          </div>
         </main>
       </div>
     );
@@ -69,55 +68,66 @@ export default function Article({ article, error }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
-  console.log('getServerSideProps - params reçus:', params);
+export async function getServerSideProps(context) {
+  // Log plus détaillé du contexte
+  console.log('getServerSideProps context:', {
+    params: context.params,
+    query: context.query,
+    resolvedUrl: context.resolvedUrl
+  });
 
-  if (!params?._id) {
-    console.error('Pas d\'ID reçu dans les params');
+  // S'assurer que nous avons un ID
+  const id = context.params._id;
+  if (!id) {
+    console.error('ID manquant dans les paramètres');
     return {
       props: {
-        error: 'ID d\'article manquant'
+        error: 'ID article manquant'
       }
     };
   }
 
-  try {
-    const apiUrl = `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${params._id}`;
-    console.log('Tentative de fetch:', apiUrl);
+  // Construction de l'URL avec le bon ID
+  const apiUrl = `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${id}`;
+  console.log('Tentative de fetch vers:', apiUrl);
 
-    const response = await fetch(apiUrl);
+  try {
+    // Tentative avec timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    // Log de la réponse
     console.log('Réponse reçue:', {
       status: response.status,
       ok: response.ok,
-      headers: Object.fromEntries(response.headers.entries())
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers)
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Erreur API:', {
-        status: response.status,
-        text: errorText
-      });
-      throw new Error(`Erreur ${response.status}: ${errorText}`);
+      console.error('Erreur API:', errorText);
+      throw new Error(`API a retourné ${response.status}: ${errorText}`);
     }
 
-    const rawData = await response.json();
-    console.log('Données brutes reçues:', JSON.stringify(rawData, null, 2));
+    const article = await response.json();
+    console.log('Article reçu:', article);
 
-    // Validation et transformation des données
-    const article = {
-      _id: rawData._id || params._id,
-      title: rawData.title || '',
-      image_banner: rawData.image_banner || '',
-      content: Array.isArray(rawData.content) ? rawData.content : [],
-      faq: Array.isArray(rawData.faq) ? rawData.faq : [],
-      product_ids: Array.isArray(rawData.product_ids) ? rawData.product_ids : []
-    };
-
-    console.log('Article transformé:', JSON.stringify(article, null, 2));
-
-    if (!article.title) {
-      throw new Error('Article invalide: titre manquant');
+    // Validation des données reçues
+    if (!article || !article._id) {
+      console.error('Article invalide reçu:', article);
+      throw new Error('Format d\'article invalide');
     }
 
     return {
@@ -126,10 +136,10 @@ export async function getServerSideProps({ params }) {
       }
     };
   } catch (error) {
-    console.error('Erreur complète:', error);
+    console.error('Erreur lors de la récupération:', error);
     return {
       props: {
-        error: `Erreur lors de la récupération de l'article: ${error.message}`
+        error: `Erreur: ${error.message}`
       }
     };
   }
