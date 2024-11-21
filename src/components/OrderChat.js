@@ -20,7 +20,7 @@ const TypingMessage = ({ text, onComplete }) => {
   return <div className="whitespace-pre-wrap">{displayedText}</div>;
 };
 
-const OrderChat = ({ isOpen, onClose, className = "" }) => {
+const OrderChat = ({ isOpen = true, className = "" }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -160,7 +160,7 @@ const OrderChat = ({ isOpen, onClose, className = "" }) => {
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-xl flex flex-col h-[600px] ${className}`}>
+    <div className={`bg-white rounded-lg shadow-xl flex flex-col ${className}`}>
       <div className="p-4 bg-[#ff5900] text-[#ffd97f] flex justify-between items-center font-['Bobby_Jones_Soft',_sans-serif] rounded-t-lg">
         <h3 className="text-lg">Passez votre commande</h3>
         {onClose && (
