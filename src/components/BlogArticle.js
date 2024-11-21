@@ -22,34 +22,41 @@ const BlogArticle = ({ article }) => {
     const fetchAssociatedProducts = async () => {
       if (product_ids?.length > 0) {
         try {
-          console.log('Récupération des produits associés:', product_ids);
+          console.log('Product IDs à récupérer:', product_ids);
           
           const productRequests = product_ids.map(async (productId) => {
-            const response = await fetch(
-              `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId}`
-            );
+            // Construction de l'URL avec vérification
+            const productUrl = productId.includes('/') 
+              ? `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId.split('/').pop()}`
+              : `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId}`;
+            
+            console.log('Tentative de récupération du produit à:', productUrl);
+            
+            const response = await fetch(productUrl);
             
             if (!response.ok) {
-              console.error(`Erreur pour le produit ${productId}: ${response.status}`);
+              console.error(`Erreur ${response.status} pour l'URL: ${productUrl}`);
               return null;
             }
             
             const data = await response.json();
-            console.log(`Données du produit ${productId}:`, data);
+            console.log('Données reçues pour le produit:', data);
             return data;
           });
 
           const productsData = (await Promise.all(productRequests)).filter(Boolean);
-          console.log('Produits associés récupérés:', productsData);
+          console.log('Tous les produits récupérés:', productsData);
           setAssociatedProducts(productsData);
         } catch (error) {
-          console.error("Erreur lors de la récupération des produits associés:", error);
+          console.error("Erreur complète:", error);
         }
+      } else {
+        console.log("Pas de product_ids disponibles dans l'article:", article);
       }
     };
 
     fetchAssociatedProducts();
-  }, [product_ids]);
+  }, [product_ids, article]);
 
   const sectionRefs = useRef(content.map(() => React.createRef()));
 
