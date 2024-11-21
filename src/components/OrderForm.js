@@ -141,164 +141,168 @@ const OrderForm = () => {
         <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">Commander</h1>
         
         {/* Toggles de sélection */}
-        <div className="flex bg-white rounded-lg overflow-hidden border border-[#ff5900] mb-8">
-          <button
-            onClick={() => setOrderMethod('form')}
-            className={`flex-1 py-4 px-6 text-center transition-all duration-200 font-semibold ${
-              orderMethod === 'form'
-                ? 'bg-[#ff5900] text-[#ffd97f]'
-                : 'bg-white text-[#ff5900] hover:bg-[#fff5e6]'
-            }`}
-          >
-            Commander par formulaire
-          </button>
-          <button
-            onClick={() => setOrderMethod('chat')}
-            className={`flex-1 py-4 px-6 text-center transition-all duration-200 font-semibold ${
-              orderMethod === 'chat'
-                ? 'bg-[#ff5900] text-[#ffd97f]'
-                : 'bg-white text-[#ff5900] hover:bg-[#fff5e6]'
-            }`}
-          >
-            Commander par chat
-          </button>
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="flex bg-white rounded-lg overflow-hidden border border-[#ff5900]">
+            <button
+              onClick={() => setOrderMethod('form')}
+              className={`flex-1 py-4 px-6 text-center transition-all duration-200 font-semibold ${
+                orderMethod === 'form'
+                  ? 'bg-[#ff5900] text-[#ffd97f]'
+                  : 'bg-white text-[#ff5900] hover:bg-[#fff5e6]'
+              }`}
+            >
+              Commander par formulaire
+            </button>
+            <button
+              onClick={() => setOrderMethod('chat')}
+              className={`flex-1 py-4 px-6 text-center transition-all duration-200 font-semibold ${
+                orderMethod === 'chat'
+                  ? 'bg-[#ff5900] text-[#ffd97f]'
+                  : 'bg-white text-[#ff5900] hover:bg-[#fff5e6]'
+              }`}
+            >
+              Commander par chat
+            </button>
+          </div>
         </div>
 
         {/* Conteneur principal avec effet de transition */}
-        <div className="relative bg-white rounded-xl shadow-lg overflow-hidden min-h-[700px]">
-          {/* Formulaire */}
-          <div
-            className={`absolute inset-0 transition-all duration-500 transform ${
-              orderMethod === 'form' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'
-            }`}
-          >
-            <div className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {/* ... Contenu du formulaire existant ... */}
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Sélectionnez vos produits</h3>
-                  <div className="space-y-4">
-                    {products.map((product) => (
-                      <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{product.name}</h4>
-                          <p className="text-sm text-gray-500">{product.description}</p>
+        <div className="max-w-3xl mx-auto">
+          <div className="relative bg-white rounded-xl shadow-lg overflow-hidden min-h-[700px]">
+            {/* Formulaire */}
+            <div
+              className={`absolute inset-0 transition-all duration-500 transform ${
+                orderMethod === 'form' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'
+              }`}
+            >
+              <div className="p-8 w-full max-w-2xl mx-auto">
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  {/* ... Contenu du formulaire existant ... */}
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-900">Sélectionnez vos produits</h3>
+                    <div className="space-y-4">
+                      {products.map((product) => (
+                        <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">{product.name}</h4>
+                            <p className="text-sm text-gray-500">{product.description}</p>
+                          </div>
+                          <div className="w-24">
+                            <select
+                              value={formData[product.id]}
+                              onChange={(e) => handleQuantityChange(e, product.id)}
+                              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                            >
+                              {quantities.map((qty) => (
+                                <option key={qty} value={qty}>
+                                  {qty}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
-                        <div className="w-24">
-                          <select
-                            value={formData[product.id]}
-                            onChange={(e) => handleQuantityChange(e, product.id)}
-                            className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-                          >
-                            {quantities.map((qty) => (
-                              <option key={qty} value={qty}>
-                                {qty}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-900">Informations de livraison</h3>
+                    <div className="grid grid-cols-1 gap-6">
+                      <div>
+                        <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700">
+                          Date de livraison
+                        </label>
+                        <input
+                          type="date"
+                          id="deliveryDate"
+                          name="deliveryDate"
+                          required
+                          value={formData.deliveryDate}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                        />
                       </div>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Informations de livraison</h3>
-                  <div className="grid grid-cols-1 gap-6">
-                    <div>
-                      <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700">
-                        Date de livraison
-                      </label>
-                      <input
-                        type="date"
-                        id="deliveryDate"
-                        name="deliveryDate"
-                        required
-                        value={formData.deliveryDate}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-                      />
-                    </div>
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                          Nom complet
+                        </label>
+                        <input
+                          type="text"
+                          id="name"
+                          name="name"
+                          required
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                        />
+                      </div>
 
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                        Nom complet
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-                      />
-                    </div>
+                      <div>
+                        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                          Adresse de livraison
+                        </label>
+                        <textarea
+                          id="address"
+                          name="address"
+                          required
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          rows={3}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                        />
+                      </div>
 
-                    <div>
-                      <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                        Adresse de livraison
-                      </label>
-                      <textarea
-                        id="address"
-                        name="address"
-                        required
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        rows={3}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-                      />
-                    </div>
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          required
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                        />
+                      </div>
 
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="promoCode" className="block text-sm font-medium text-gray-700">
-                        Code Promo
-                      </label>
-                      <input
-                        type="text"
-                        id="promoCode"
-                        name="promoCode"
-                        value={formData.promoCode}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-                      />
+                      <div>
+                        <label htmlFor="promoCode" className="block text-sm font-medium text-gray-700">
+                          Code Promo
+                        </label>
+                        <input
+                          type="text"
+                          id="promoCode"
+                          name="promoCode"
+                          value={formData.promoCode}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-[#ff5900] text-[#ffd97f] py-4 px-6 rounded-lg hover:bg-[#ff7a33] focus:outline-none focus:ring-2 focus:ring-[#ff5900] focus:ring-offset-2 transition-colors font-semibold text-lg"
-                >
-                  Confirmer ma commande
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    className="w-full bg-[#ff5900] text-[#ffd97f] py-4 px-6 rounded-lg hover:bg-[#ff7a33] focus:outline-none focus:ring-2 focus:ring-[#ff5900] focus:ring-offset-2 transition-colors font-semibold text-lg"
+                  >
+                    Confirmer ma commande
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
 
-          {/* Chat */}
-          <div
-            className={`absolute inset-0 transition-all duration-500 transform ${
-              orderMethod === 'chat' ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
-            }`}
-          >
-            <div className="h-full">
-              <OrderChat className="h-full rounded-none" />
+            {/* Chat */}
+            <div
+              className={`absolute inset-0 transition-all duration-500 transform ${
+                orderMethod === 'chat' ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
+              }`}
+            >
+              <div className="h-full w-full max-w-2xl mx-auto">
+                <OrderChat className="h-full rounded-none" />
+              </div>
             </div>
           </div>
         </div>
