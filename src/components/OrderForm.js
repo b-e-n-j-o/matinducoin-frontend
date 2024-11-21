@@ -49,53 +49,72 @@ const OrderForm = () => {
     }));
   };
 
+  const generateFlavorString = () => {
+    const flavorParts = [];
+    if (parseInt(formData.reveilSoleil) > 0) {
+      flavorParts.push(`reveil soleil:${formData.reveilSoleil}`);
+    }
+    if (parseInt(formData.matchaMatin) > 0) {
+      flavorParts.push(`matcha matin:${formData.matchaMatin}`);
+    }
+    if (parseInt(formData.berryBalance) > 0) {
+      flavorParts.push(`berry balance:${formData.berryBalance}`);
+    }
+    return flavorParts.join(', ');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Vérification des produits sélectionnés
     const hasProducts = Object.entries(formData)
-        .filter(([key]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key))
-        .some(([_, value]) => value !== '0');
+      .filter(([key]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key))
+      .some(([_, value]) => value !== '0');
 
     if (!hasProducts) {
-        alert('Veuillez sélectionner au moins un produit');
-        return;
+      alert('Veuillez sélectionner au moins un produit');
+      return;
     }
+
+    // Génération de la chaîne flavor
+    const flavorString = generateFlavorString();
+    console.log('Résumé de la commande:', flavorString);
 
     // Création des données pour l'API
     const apiData = {
-        name: formData.name,
-        address: formData.address,
-        deliveryDate: new Date(formData.deliveryDate).toISOString(),
-        email: formData.email,
-        promoCode: formData.promoCode || undefined,
-        // Envoi des quantités individuelles
-        reveilSoleil: parseInt(formData.reveilSoleil),
-        matchaMatin: parseInt(formData.matchaMatin),
-        berryBalance: parseInt(formData.berryBalance)
+      name: formData.name,
+      address: formData.address,
+      deliveryDate: new Date(formData.deliveryDate).toISOString(),
+      email: formData.email,
+      flavor: flavorString, // Ajout du champ flavor
+      promoCode: formData.promoCode || undefined,
+      // Quantités individuelles
+      reveilSoleil: parseInt(formData.reveilSoleil),
+      matchaMatin: parseInt(formData.matchaMatin),
+      berryBalance: parseInt(formData.berryBalance)
     };
 
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(apiData),
-        });
-        
-        if (response.ok) {
-          await sendOwnerNotification(apiData);
-          alert('Commande passée avec succès!');
-          router.push(`/OrderConfirmation?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`);
-        } else {
-          const errorData = await response.json();
-          console.error('Erreur de réponse:', errorData);
-          alert(`Erreur lors de la commande: ${errorData.message || response.statusText}`);
-        }
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      });
+      
+      if (response.ok) {
+        await sendOwnerNotification(apiData);
+        alert('Commande passée avec succès!');
+        router.push(`/OrderConfirmation?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`);
+      } else {
+        const errorData = await response.json();
+        console.error('Erreur de réponse:', errorData);
+        alert(`Erreur lors de la commande: ${errorData.message || response.statusText}`);
+      }
     } catch (error) {
-        console.error('Erreur lors de la requête:', error);
-        alert(`Erreur lors de la commande: ${error.message}`);
+      console.error('Erreur lors de la requête:', error);
+      alert(`Erreur lors de la commande: ${error.message}`);
     }
   };
 
