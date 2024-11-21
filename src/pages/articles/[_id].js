@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongodb';
 import BlogArticle from '../../components/BlogArticle';
 import Navbar from '../../components/Navbar';
 import styles from '../../styles/Article.module.css';
@@ -29,9 +28,8 @@ export async function getServerSideProps({ params }) {
   const { _id } = params;
 
   try {
-    // Utiliser votre API backend au lieu de connectToDatabase
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${_id}`
+      `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${_id}`
     );
 
     if (!response.ok) {
@@ -39,10 +37,6 @@ export async function getServerSideProps({ params }) {
     }
 
     const article = await response.json();
-
-    if (!article) {
-      return { notFound: true };
-    }
 
     return {
       props: {
