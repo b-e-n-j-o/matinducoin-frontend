@@ -1,70 +1,42 @@
+// frontend/src/pages/articles/[id].js
+import BlogArticle from '@/components/BlogArticle';
 import { useRouter } from 'next/router';
-import BlogArticle from '../../components/BlogArticle';
-import Navbar from '../../components/Navbar';
-import styles from '../../styles/Article.module.css';
-import { fetchArticle } from '../../../pages/api/utils/api'; // Chemin correct
+import Head from 'next/head';
+import { useEffect, useState } from 'react';
 
-export default function Article({ article, error }) {
+export default function ArticlePage() {
   const router = useRouter();
+  const { id } = router.query;
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Vérifie si le routeur est prêt avant de continuer
-  if (!router.isReady) {
-    return <div>Chargement...</div>;
-  }
+  // Rediriger vers la page 404 si pas d'ID après le chargement initial
+  useEffect(() => {
+    if (router.isReady && !id) {
+      router.push('/404');
+    } else if (router.isReady) {
+      setIsLoading(false);
+    }
+  }, [router.isReady, id]);
 
-  // Gestion des erreurs
-  if (error) {
+  // Afficher un loader pendant le chargement
+  if (isLoading) {
     return (
-      <div className={styles.articleContainer}>
-        <Navbar />
-        <main>
-          <div className={styles.error}>Erreur : {error}</div>
-        </main>
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Chargement...</p>
       </div>
     );
   }
 
-  // Gestion de l'article non trouvé
-  if (!article) {
-    return (
-      <div className={styles.articleContainer}>
-        <Navbar />
-        <main>
-          <div className={styles.error}>Article non trouvé</div>
-        </main>
-      </div>
-    );
-  }
-
-  // Rendu principal
   return (
-    <div className={styles.articleContainer}>
-      <Navbar />
-      <main>
-        <BlogArticle article={article} />
+    <>
+      <Head>
+        <title>Article | Matin du Coin</title>
+        <meta name="description" content="Découvrez cet article sur Matin du Coin" />
+      </Head>
+
+      <main className="min-h-screen py-8">
+        {id && <BlogArticle articleId={id} />}
       </main>
-    </div>
+    </>
   );
-}
-
-// Fonction pour récupérer les données côté serveur
-export async function getServerSideProps({ params }) {
-  const { id } = params; // Récupère l'ID depuis l'URL dynamique
-
-  try {
-    // Utilisation de l'utilitaire fetchArticle pour récupérer l'article
-    const article = await fetchArticle(id);
-
-    return {
-      props: {
-        article, // Passe l'article récupéré au composant
-      },
-    };
-  } catch (error) {
-    return {
-      props: {
-        error: error.message || 'Erreur inconnue', // Gestion des erreurs
-      },
-    };
-  }
 }
