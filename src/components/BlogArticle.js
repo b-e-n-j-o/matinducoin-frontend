@@ -7,34 +7,71 @@ import ProductCard from './ProductCard';
 import styles from './BlogArticle.module.css';
 
 const BlogArticle = ({ article }) => {
-  // Log initial pour voir l'article reçu
-  console.log('Article reçu dans BlogArticle:', article);
+  // Logs détaillés pour le debugging
+  console.log('BlogArticle: Démarrage du rendu avec article:', {
+    articleExists: !!article,
+    articleId: article?._id,
+    hasTitle: !!article?.title,
+    contentLength: article?.content?.length,
+    productIdsLength: article?.product_ids?.length
+  });
 
+  const [associatedProducts, setAssociatedProducts] = useState([]);
+  const [error, setError] = useState(null);
+
+  // Validation initiale
   if (!article) {
+    console.error('BlogArticle: Article non défini');
     return <div className={styles.error}>Article non trouvé</div>;
   }
 
-  const { title, image_banner, content = [], faq = [], product_ids = [] } = article;
-  const [associatedProducts, setAssociatedProducts] = useState([]);
+  // Destructuration avec valeurs par défaut et validation
+  const { 
+    title = '', 
+    image_banner = '', 
+    content = [], 
+    faq = [], 
+    product_ids = [] 
+  } = article;
 
-  // Mise à jour des produits associés
+  // Validation du contenu
+  if (!Array.isArray(content)) {
+    console.error('BlogArticle: Le contenu n\'est pas un tableau:', content);
+    return <div className={styles.error}>Format d'article invalide</div>;
+  }
+
+  // Mise à jour des produits associés avec gestion d'erreur améliorée
   useEffect(() => {
     const fetchAssociatedProducts = async () => {
       if (product_ids?.length > 0) {
         try {
+          console.log('BlogArticle: Début du chargement des produits associés:', product_ids);
+          
           const productRequests = product_ids.map(async (productId) => {
-            const response = await fetch(`/api/products/${productId}`);
-            if (!response.ok) {
-              console.error(`Erreur pour le produit ${productId}: ${response.status}`);
+            try {
+              console.log(`BlogArticle: Chargement du produit ${productId}`);
+              const response = await fetch(`/api/products/${productId}`);
+              
+              if (!response.ok) {
+                console.error(`BlogArticle: Erreur pour le produit ${productId}:`, response.status);
+                return null;
+              }
+              
+              const product = await response.json();
+              console.log(`BlogArticle: Produit ${productId} chargé avec succès`);
+              return product;
+            } catch (error) {
+              console.error(`BlogArticle: Erreur lors du chargement du produit ${productId}:`, error);
               return null;
             }
-            return response.json();
           });
   
           const productsData = (await Promise.all(productRequests)).filter(Boolean);
+          console.log('BlogArticle: Tous les produits associés chargés:', productsData.length);
           setAssociatedProducts(productsData);
         } catch (error) {
-          console.error("Erreur lors de la récupération des produits associés:", error);
+          console.error("BlogArticle: Erreur lors de la récupération des produits associés:", error);
+          setError("Impossible de charger les produits associés");
         }
       }
     };
@@ -45,17 +82,23 @@ const BlogArticle = ({ article }) => {
   const sectionRefs = useRef(content.map(() => React.createRef()));
 
   const scrollToSection = (index) => {
-    const section = sectionRefs.current[index]?.current;
-    if (section) {
-      const yOffset = -150;
-      const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+    try {
+      const section = sectionRefs.current[index]?.current;
+      if (section) {
+        const yOffset = -150;
+        const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      } else {
+        console.warn('BlogArticle: Section non trouvée pour l\'index:', index);
+      }
+    } catch (error) {
+      console.error('BlogArticle: Erreur lors du défilement:', error);
     }
   };
 
   const renderTableOfContents = () => {
     if (!Array.isArray(content) || content.length === 0) {
-      console.log('Pas de contenu pour la table des matières');
+      console.log('BlogArticle: Pas de contenu pour la table des matières');
       return null;
     }
 
@@ -63,7 +106,10 @@ const BlogArticle = ({ article }) => {
       item.type === 'header' && (item.level === 1 || item.level === 2)
     );
 
-    if (headers.length === 0) return null;
+    if (headers.length === 0) {
+      console.log('BlogArticle: Pas de titres trouvés pour la table des matières');
+      return null;
+    }
 
     return (
       <div className={styles.tableOfContents}>
@@ -94,13 +140,15 @@ const BlogArticle = ({ article }) => {
 
   const renderContent = (contentItems) => {
     if (!Array.isArray(contentItems)) {
-      console.error("Le contenu de l'article n'est pas un tableau:", contentItems);
+      console.error("BlogArticle: Le contenu n'est pas un tableau:", contentItems);
       return <p className={styles.error}>Le contenu de l'article n'est pas dans le format attendu</p>;
     }
 
     return contentItems.map((item, index) => {
       try {
-        switch (item.type) {
+        console.log(`BlogArticle: Rendu de l'élément ${index}, type:`, item?.type);
+        
+        switch (item?.type) {
           case 'header':
             const HeaderTag = `h${item.level}`;
             return (
@@ -116,43 +164,49 @@ const BlogArticle = ({ article }) => {
             return (
               <div key={index} className={styles.textContent}>
                 {item.data.content.map((contentItem, contentIndex) => {
-                  switch (contentItem.type) {
-                    case 'subtitle':
-                      return (
-                        <ScrollAnimationWrapper key={contentIndex}>
-                          <h3 className={styles.subtitle}>
-                            <ReactMarkdown>{contentItem.text}</ReactMarkdown>
-                          </h3>
-                        </ScrollAnimationWrapper>
-                      );
-                    case 'paragraph':
-                      return (
-                        <ScrollAnimationWrapper key={contentIndex}>
-                          <div className={styles.paragraphBox}>
-                            {contentItem.sentences.map((sentence, sentenceIndex) => (
-                              <ReactMarkdown key={sentenceIndex} className={styles.sentence}>
-                                {sentence}
-                              </ReactMarkdown>
-                            ))}
-                          </div>
-                        </ScrollAnimationWrapper>
-                      );
-                    case 'list':
-                      return (
-                        <ScrollAnimationWrapper key={contentIndex}>
-                          <div className={styles.paragraphBox}>
-                            <ul className={styles.list}>
-                              {contentItem.items.map((listItem, itemIndex) => (
-                                <li key={itemIndex} className={styles.listItem}>
-                                  <ReactMarkdown>{listItem}</ReactMarkdown>
-                                </li>
+                  try {
+                    switch (contentItem.type) {
+                      case 'subtitle':
+                        return (
+                          <ScrollAnimationWrapper key={contentIndex}>
+                            <h3 className={styles.subtitle}>
+                              <ReactMarkdown>{contentItem.text}</ReactMarkdown>
+                            </h3>
+                          </ScrollAnimationWrapper>
+                        );
+                      case 'paragraph':
+                        return (
+                          <ScrollAnimationWrapper key={contentIndex}>
+                            <div className={styles.paragraphBox}>
+                              {contentItem.sentences.map((sentence, sentenceIndex) => (
+                                <ReactMarkdown key={sentenceIndex} className={styles.sentence}>
+                                  {sentence}
+                                </ReactMarkdown>
                               ))}
-                            </ul>
-                          </div>
-                        </ScrollAnimationWrapper>
-                      );
-                    default:
-                      return null;
+                            </div>
+                          </ScrollAnimationWrapper>
+                        );
+                      case 'list':
+                        return (
+                          <ScrollAnimationWrapper key={contentIndex}>
+                            <div className={styles.paragraphBox}>
+                              <ul className={styles.list}>
+                                {contentItem.items.map((listItem, itemIndex) => (
+                                  <li key={itemIndex} className={styles.listItem}>
+                                    <ReactMarkdown>{listItem}</ReactMarkdown>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </ScrollAnimationWrapper>
+                        );
+                      default:
+                        console.warn(`BlogArticle: Type de contenu texte non géré:`, contentItem.type);
+                        return null;
+                    }
+                  } catch (error) {
+                    console.error(`BlogArticle: Erreur dans le rendu du contenu texte ${contentIndex}:`, error);
+                    return null;
                   }
                 })}
               </div>
@@ -176,11 +230,11 @@ const BlogArticle = ({ article }) => {
               </ScrollAnimationWrapper>
             );
           default:
-            console.warn(`Type de contenu non géré: ${item.type}`);
+            console.warn(`BlogArticle: Type de contenu non géré:`, item?.type);
             return null;
         }
       } catch (error) {
-        console.error(`Erreur lors du rendu de l'élément ${index}:`, error);
+        console.error(`BlogArticle: Erreur lors du rendu de l'élément ${index}:`, error);
         return (
           <div key={index} className={styles.error}>
             Erreur lors du rendu de cet élément
@@ -191,7 +245,14 @@ const BlogArticle = ({ article }) => {
   };
 
   const renderAssociatedProducts = () => {
-    if (!associatedProducts?.length) return null;
+    if (error) {
+      return <div className={styles.error}>{error}</div>;
+    }
+
+    if (!associatedProducts?.length) {
+      console.log('BlogArticle: Pas de produits associés à afficher');
+      return null;
+    }
 
     return (
       <ScrollAnimationWrapper>
@@ -210,7 +271,10 @@ const BlogArticle = ({ article }) => {
   };
 
   const renderFAQ = () => {
-    if (!Array.isArray(faq) || faq.length === 0) return null;
+    if (!Array.isArray(faq) || faq.length === 0) {
+      console.log('BlogArticle: Pas de FAQ à afficher');
+      return null;
+    }
 
     return (
       <section className={styles.faqSection}>
@@ -227,33 +291,43 @@ const BlogArticle = ({ article }) => {
     );
   };
 
-  return (
-    <div className={styles.articleWrapper}>
-      <article className={styles.article}>
-        <header className={styles.articleHeader}>
-          <h1 className={styles.title}>{title}</h1>
-          {image_banner && (
-            <div className={styles.bannerContainer}>
-              <Image
-                src={image_banner}
-                alt="Bannière de l'article"
-                layout="responsive"
-                width={1200}
-                height={400}
-                className={styles.bannerImage}
-              />
-            </div>
-          )}
-        </header>
-        {renderTableOfContents()}
-        <div className={styles.contentContainer}>
-          {renderContent(content)}
-        </div>
-        {renderAssociatedProducts()}
-        {renderFAQ()}
-      </article>
-    </div>
-  );
+  // Rendu principal avec try-catch global
+  try {
+    return (
+      <div className={styles.articleWrapper}>
+        <article className={styles.article}>
+          <header className={styles.articleHeader}>
+            <h1 className={styles.title}>{title}</h1>
+            {image_banner && (
+              <div className={styles.bannerContainer}>
+                <Image
+                  src={image_banner}
+                  alt="Bannière de l'article"
+                  layout="responsive"
+                  width={1200}
+                  height={400}
+                  className={styles.bannerImage}
+                />
+              </div>
+            )}
+          </header>
+          {renderTableOfContents()}
+          <div className={styles.contentContainer}>
+            {renderContent(content)}
+          </div>
+          {renderAssociatedProducts()}
+          {renderFAQ()}
+        </article>
+      </div>
+    );
+  } catch (error) {
+    console.error('BlogArticle: Erreur fatale lors du rendu:', error);
+    return (
+      <div className={styles.error}>
+        Une erreur s'est produite lors de l'affichage de l'article
+      </div>
+    );
+  }
 };
 
 export default BlogArticle;
