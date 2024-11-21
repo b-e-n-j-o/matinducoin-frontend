@@ -1,3 +1,8 @@
+import { useRouter } from 'next/router';  // Ajout de l'import manquant
+import BlogArticle from '../../components/BlogArticle';
+import Navbar from '../../components/Navbar';
+import styles from '../../styles/Article.module.css';
+
 export default function Article({ article, error }) {
   const router = useRouter();
   
