@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '../api/utils/dbConnect.js';
 import BlogArticle from '../../components/BlogArticle';
 import Navbar from '../../components/Navbar';
 import styles from '../../styles/Article.module.css';
@@ -25,15 +27,14 @@ export default function Article({ article, error }) {
 }
 
 export async function getServerSideProps({ params }) {
-  const { _id } = params;
+  const { _id: id } = params;
 
   try {
-    const response = await fetch(
-      `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/articles/${_id}`
-    );
-
+    // Appel à notre propre API plutôt qu'au backend directement
+    const response = await fetch(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/articles/${id}`);
+    
     if (!response.ok) {
-      throw new Error('Article non trouvé');
+      throw new Error(`Article non trouvé: ${response.status}`);
     }
 
     const article = await response.json();
@@ -41,7 +42,7 @@ export async function getServerSideProps({ params }) {
     return {
       props: {
         article
-      },
+      }
     };
   } catch (error) {
     console.error('Erreur:', error);

@@ -22,41 +22,25 @@ const BlogArticle = ({ article }) => {
     const fetchAssociatedProducts = async () => {
       if (product_ids?.length > 0) {
         try {
-          console.log('Product IDs à récupérer:', product_ids);
-          
           const productRequests = product_ids.map(async (productId) => {
-            // Construction de l'URL avec vérification
-            const productUrl = productId.includes('/') 
-              ? `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId.split('/').pop()}`
-              : `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId}`;
-            
-            console.log('Tentative de récupération du produit à:', productUrl);
-            
-            const response = await fetch(productUrl);
-            
+            const response = await fetch(`/api/products/${productId}`);
             if (!response.ok) {
-              console.error(`Erreur ${response.status} pour l'URL: ${productUrl}`);
+              console.error(`Erreur pour le produit ${productId}: ${response.status}`);
               return null;
             }
-            
-            const data = await response.json();
-            console.log('Données reçues pour le produit:', data);
-            return data;
+            return response.json();
           });
-
+  
           const productsData = (await Promise.all(productRequests)).filter(Boolean);
-          console.log('Tous les produits récupérés:', productsData);
           setAssociatedProducts(productsData);
         } catch (error) {
-          console.error("Erreur complète:", error);
+          console.error("Erreur lors de la récupération des produits associés:", error);
         }
-      } else {
-        console.log("Pas de product_ids disponibles dans l'article:", article);
       }
     };
-
+  
     fetchAssociatedProducts();
-  }, [product_ids, article]);
+  }, [product_ids]);
 
   const sectionRefs = useRef(content.map(() => React.createRef()));
 
