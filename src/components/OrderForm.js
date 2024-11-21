@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const OrderForm = () => {
   const router = useRouter();
@@ -24,6 +22,8 @@ const OrderForm = () => {
     { id: 'berryBalance', name: 'Berry Balance', description: 'Mélange équilibré de baies antioxydantes' }
   ];
 
+  const quantities = Array.from({ length: 11 }, (_, i) => i.toString());
+
   useEffect(() => {
     if (initialFlavor) {
       setFormData(prevData => ({
@@ -41,7 +41,8 @@ const OrderForm = () => {
     }));
   };
 
-  const handleQuantityChange = (value, productId) => {
+  const handleQuantityChange = (e, productId) => {
+    const value = e.target.value;
     setFormData(prevData => ({
       ...prevData,
       [productId]: value
@@ -50,9 +51,8 @@ const OrderForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Données du formulaire brutes:', formData);
+    console.log('Données du formulaire:', formData);
 
-    // Vérification des produits sélectionnés
     const hasProducts = Object.entries(formData)
       .filter(([key]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key))
       .some(([_, value]) => value !== '0');
@@ -62,7 +62,6 @@ const OrderForm = () => {
       return;
     }
 
-    // Vérification des champs requis
     const requiredFields = ['name', 'address', 'deliveryDate', 'email'];
     const missingFields = requiredFields.filter(field => !formData[field]);
 
@@ -72,34 +71,20 @@ const OrderForm = () => {
       return;
     }
 
-    // Déterminer le produit principal (le premier avec une quantité > 0)
+    // Trouver le produit avec la plus grande quantité
     const selectedProducts = Object.entries(formData)
       .filter(([key, value]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key) && value !== '0')
-      .sort((a, b) => parseInt(b[1]) - parseInt(a[1])); // Trier par quantité décroissante
+      .sort((a, b) => parseInt(b[1]) - parseInt(a[1]));
 
-    if (selectedProducts.length === 0) {
-      alert('Veuillez sélectionner au moins un produit');
-      return;
-    }
-
-    // Créer l'objet de données formaté pour l'API
     const apiData = {
       name: formData.name,
       address: formData.address,
       deliveryDate: new Date(formData.deliveryDate).toISOString(),
       email: formData.email,
-      flavor: selectedProducts[0][0], // Utiliser le produit avec la plus grande quantité comme flavor principal
+      flavor: selectedProducts[0][0],
       promoCode: formData.promoCode || undefined,
-      orderTime: new Date().toISOString(),
-      // Ajouter les quantités comme métadonnées supplémentaires si nécessaire
-      orderDetails: {
-        reveilSoleil: parseInt(formData.reveilSoleil),
-        matchaMatin: parseInt(formData.matchaMatin),
-        berryBalance: parseInt(formData.berryBalance)
-      }
+      orderTime: new Date().toISOString()
     };
-
-    console.log('Données formatées pour API:', apiData);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
@@ -109,7 +94,7 @@ const OrderForm = () => {
         },
         body: JSON.stringify(apiData),
       });
-
+      
       if (response.ok) {
         await sendOwnerNotification(apiData);
         alert('Commande passée avec succès!');
@@ -136,8 +121,6 @@ const OrderForm = () => {
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Erreur lors de l'envoi de la notification au propriétaire:", errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
@@ -151,17 +134,18 @@ const OrderForm = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        <Card className="bg-white shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center text-gray-900">
+        <div className="bg-white shadow-lg rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-2xl font-bold text-center text-gray-900">
               Votre Commande
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </h2>
+          </div>
+          
+          <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-6">
                 <h3 className="text-lg font-medium text-gray-900">Sélectionnez vos produits</h3>
-                <div className="grid gap-6">
+                <div className="space-y-4">
                   {products.map((product) => (
                     <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                       <div className="flex-1">
@@ -169,21 +153,17 @@ const OrderForm = () => {
                         <p className="text-sm text-gray-500">{product.description}</p>
                       </div>
                       <div className="w-24">
-                        <Select 
-                          value={formData[product.id]} 
-                          onValueChange={(value) => handleQuantityChange(value, product.id)}
+                        <select
+                          value={formData[product.id]}
+                          onChange={(e) => handleQuantityChange(e, product.id)}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Qté" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {quantities.map((qty) => (
-                              <SelectItem key={qty} value={qty}>
-                                {qty}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          {quantities.map((qty) => (
+                            <option key={qty} value={qty}>
+                              {qty}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                   ))}
@@ -276,8 +256,8 @@ const OrderForm = () => {
                 Confirmer ma commande
               </button>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
