@@ -27,16 +27,16 @@ export default function Article({ article, error }) {
 }
 
 export async function getServerSideProps({ params }) {
-  const { _id } = params;
+  const { id } = params; // Changé de _id à id pour correspondre au paramètre de route Next.js
 
   try {
     const { db } = await connectToDatabase();
     
-    if (!ObjectId.isValid(_id)) {
+    if (!ObjectId.isValid(id)) {
       return { notFound: true };
     }
 
-    const article = await db.collection('articles_divers').findOne({ _id: new ObjectId(_id) });
+    const article = await db.collection('articles_divers').findOne({ _id: new ObjectId(id) });
 
     if (!article) {
       return { notFound: true };

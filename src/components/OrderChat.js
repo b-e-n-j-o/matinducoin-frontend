@@ -1,4 +1,3 @@
-// components/OrderChat.js
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
@@ -44,7 +43,7 @@ const OrderChat = ({ className = "" }) => {
       let messageHandler = (event) => {
         try {
           const message = JSON.parse(event.data);
-          console.log("Message reçu:", message); // Debug
+          console.log("Message reçu:", message);
           
           if (message && message.content) {
             ws.current.removeEventListener('message', messageHandler);
@@ -63,30 +62,22 @@ const OrderChat = ({ className = "" }) => {
     if (isInitialized) return;
 
     try {
-      // Attendre que la connexion soit établie
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      console.log("WebSocket connecté, envoi du premier message"); // Debug
-
-      // Premier message : "passer commande"
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
       const firstResponse = await waitForBotResponse();
-      console.log("Première réponse reçue:", firstResponse); // Debug
 
-      // Deuxième message : "oui"
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
       const secondResponse = await waitForBotResponse();
-      console.log("Deuxième réponse reçue:", secondResponse); // Debug
 
-      // Afficher uniquement le message de bienvenue
       setMessages([{
         text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
         sender: 'assistant',
@@ -102,23 +93,25 @@ const OrderChat = ({ className = "" }) => {
   };
 
   useEffect(() => {
-    // Initialisation WebSocket
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
-      console.log("WebSocket connection opened"); // Debug
+      console.log("WebSocket connection opened");
       initializeOrderChat();
     };
 
     ws.current.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        console.log("Message général reçu:", message); // Debug
+        console.log("Message général reçu:", message);
 
-        if (message && message.text && isInitialized) {
+        // Check if the message has text property or content property
+        const messageText = message.text || message.content;
+
+        if (messageText && isInitialized) {
           setIsTyping(true);
           setMessages(prev => [...prev, {
-            text: message.text,
+            text: messageText,
             sender: 'assistant',
             id: Date.now(),
             typing: true
@@ -131,12 +124,12 @@ const OrderChat = ({ className = "" }) => {
     };
 
     ws.current.onerror = (error) => {
-      console.error("WebSocket error:", error); // Debug
+      console.error("WebSocket error:", error);
       setError("Erreur de connexion");
     };
 
     ws.current.onclose = () => {
-      console.log("WebSocket connection closed"); // Debug
+      console.log("WebSocket connection closed");
     };
 
     return () => {

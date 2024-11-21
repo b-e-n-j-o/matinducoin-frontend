@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import Navbar from './Navbar';
 import Chat from './Chat';
-import DeliveryZoneMap from './DeliveryZoneMap'; // Importer le composant de la carte
+import DeliveryZoneMap from './DeliveryZoneMap';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import homeStyles from '../styles/Home.module.css';
@@ -12,6 +13,7 @@ import ClickableImage from '../components/ClickableImage';
 gsap.registerPlugin(ScrollTrigger);
 
 const HomeContent = ({ sections = [] }) => {
+  const router = useRouter();
   const scrollContainerRef = useRef(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isChatVisible, setIsChatVisible] = useState(false);
@@ -50,7 +52,6 @@ const HomeContent = ({ sections = [] }) => {
           const tlMobile = gsap.timeline({
             scrollTrigger: {
               trigger: section,
-              // start: "top 80%", // Déclenchement plus tôt pour atteindre l'opacité max plus rapidement
               start: "top 90%",
               toggleActions: "play reverse play reverse", 
               scrub: {
@@ -60,7 +61,6 @@ const HomeContent = ({ sections = [] }) => {
             }
           });
 
-          // Animation du texte
           tlMobile.fromTo(text, 
             {
               y: 30,
@@ -74,7 +74,6 @@ const HomeContent = ({ sections = [] }) => {
             }
           );
 
-          // Animation de l'image si elle existe
           if (image) {
             tlMobile.fromTo(image,
               {
@@ -91,7 +90,6 @@ const HomeContent = ({ sections = [] }) => {
             );
           }
         } else {
-          // Animation desktop
           const tl = gsap.timeline({
             scrollTrigger: {
               trigger: section,
@@ -152,181 +150,175 @@ const HomeContent = ({ sections = [] }) => {
   }, [isChatOpen]);
 
   const handleClick = (id) => {
-    window.location.href = `/articles/${id}`;
+    router.push(`/articles/${id}`);
+  };
+
+  const HeroSection = ({ id, title, subtitle, imageSrc, imageAlt, isInverted = false }) => {
+    return (
+      <section className={`${homeStyles.section} ${isInverted ? homeStyles.invertedSection : ''}`}>
+        <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
+          <div 
+            className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
+            onClick={() => handleClick(id)}
+          >
+            <div className="h-full">
+              {title}
+              {subtitle}
+              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">
+                voir plus
+              </span>
+            </div>
+          </div>
+          <div className={homeStyles.heroImageContainer}>
+            <div onClick={() => handleClick(id)} className="cursor-pointer">
+              <ClickableImage
+                _id={id}
+                src={imageSrc}
+                alt={imageAlt}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   };
 
   return (
     <div className={`min-h-screen flex flex-col ${homeStyles.customTextColor}`}>
       <Navbar />
       <main ref={scrollContainerRef} className={homeStyles.mainContent}>
-        <section className={`${homeStyles.section} ${homeStyles.heroSection}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-              onClick={() => handleClick("66f492e440064f42b6213f75")}
-            >
-              <h1 className={homeStyles.heroTitle}>
-                Matinducoin, vos <em><strong>ginger shots écoresponsables</strong></em>, livrés dans votre quartier !
-              </h1>
-              <p className={homeStyles.heroSubtitle}>
+        <HeroSection
+          id="66f492e440064f42b6213f75"
+          title={
+            <h1 className={homeStyles.heroTitle}>
+              Matinducoin, vos <em><strong>ginger shots écoresponsables</strong></em>, livrés dans votre quartier !
+            </h1>
+          }
+          subtitle={
+            <p className={homeStyles.heroSubtitle}>
               Des shots santé faits maison, 100% naturels, livrés à vélo dans des bouteilles réutilisables partout dans votre quartier. Aussi disponibles chez vos commerces locaux engagés. <br />
               Simple, sain, et responsable !
-              </p>
-              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">voir plus</span>
-            </div>
+            </p>
+          }
+          imageSrc="/images/ginger_herbe.jpg"
+          imageAlt="Personne faisant du jogging dans un parc"
+        />
 
-            <div className={homeStyles.heroImageContainer}>
-              <ClickableImage
-                _id="66f492e440064f42b6213f75"
-                src="/images/ginger_herbe.jpg"
-                alt="Personne faisant du jogging dans un parc"
-              />
-            </div>
-          </div>
-        </section>
+        <HeroSection
+          id="66c6ab3440064f42b6213f6f"
+          title={
+            <h2 className={homeStyles.heroTitle}>
+              Une <em><strong>dose quotidienne</strong></em> de vitalité
+            </h2>
+          }
+          subtitle={
+            <p className={homeStyles.heroSubtitle}>
+              Nos shots de gingembre, <em><strong>préparés avec amour chaque semaine</strong></em>, vous apportent l'énergie dont vous avez besoin pour affronter vos journées avec entrain à la veille de l'hiver!
+            </p>
+          }
+          imageSrc="/images/ginger_parc.jpg"
+          imageAlt="Shots de gingembre"
+          isInverted={true}
+        />
 
-        <section className={`${homeStyles.section} ${homeStyles.invertedSection}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-              onClick={() => handleClick("66c6ab3440064f42b6213f6f")}
-            >
-              <h2 className={homeStyles.heroTitle}>Une <em><strong>dose quotidienne</strong></em> de vitalité</h2>
-              <p className={homeStyles.heroSubtitle}>Nos shots de gingembre, <em><strong>préparés avec amour chaque semaine</strong></em>, vous apportent l'énergie dont vous avez besoin pour affronter vos journées avec entrain à la veille de l'hiver!</p>
-              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">voir plus</span>
-            </div>
-            <div className={homeStyles.heroImageContainer}>
-              <ClickableImage
-                _id="66c6ab3440064f42b6213f6f"
-                src="/images/ginger_parc.jpg"
-                alt="Shots de gingembre"
-              />
-            </div>
-          </div>
-        </section>
+        <HeroSection
+          id="670f814b40064f42b6213f7b"
+          title={
+            <h2 className={homeStyles.heroTitle}>
+              Pressés à froid, 100%<em><strong>naturels, local et frais</strong></em>
+            </h2>
+          }
+          subtitle={
+            <p className={homeStyles.heroSubtitle}>
+              Des ingrédients frais <em><strong>pressés à froid,</strong></em> au jour le jour pour en conserver tous les bienfaits et une fraicheur incomparable.
+            </p>
+          }
+          imageSrc="/images/coldpress.jpeg"
+          imageAlt="Ingrédients bio"
+        />
 
-        <section className={`${homeStyles.section}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-              onClick={() => handleClick("670f814b40064f42b6213f7b")}
-            >
-              <h2 className={homeStyles.heroTitle}>Pressés à froid, 100%<em><strong>naturels, local et frais</strong></em></h2>
-              <p className={homeStyles.heroSubtitle}>Des ingrédients frais <em><strong>pressés à froid,</strong></em>  au jour le jour pour en conserver tous les bienfaits et une fraicheur incomparable.</p>
-              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">voir plus</span>
-            </div>
-            <div className={homeStyles.heroImageContainer}>
-              <ClickableImage
-                _id="670f814b40064f42b6213f7b"
-                src="/images/coldpress.jpeg"
-                alt="Ingrédients bio"
-              />
-            </div>
-          </div>
-        </section>
+        <HeroSection
+          id="66c6ab3440064f42b6213f71"
+          title={
+            <h2 className={homeStyles.heroTitle}>
+              <em><strong>Eco-livraison</strong></em> à vélo
+            </h2>
+          }
+          subtitle={
+            <p className={homeStyles.heroSubtitle}>
+              2 fois par semaine, nous sillonnons votre quartier à vélo pour vous livrer vos shots. Une <em><strong>approche éco-responsable</strong></em> qui assure fraîcheur des produits et qui renforce les liens dans notre communauté.
+            </p>
+          }
+          imageSrc="/images/bixi.jpg"
+          imageAlt="Livraison à vélo"
+          isInverted={true}
+        />
 
-        <section className={`${homeStyles.section} ${homeStyles.invertedSection}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-              onClick={() => handleClick("66c6ab3440064f42b6213f71")}
-            >
-              <h2 className={homeStyles.heroTitle}><em><strong>Eco-livraison</strong></em> à vélo</h2>
-              <p className={homeStyles.heroSubtitle}>2 fois par semaine, nous sillonnons votre quartier à vélo pour vous livrer vos shots. Une <em><strong>approche éco-responsable</strong></em> qui assure fraîcheur des produits et qui renforce les liens dans notre communauté.</p>
-              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">voir plus</span>
-            </div>
-            <div className={homeStyles.heroImageContainer}>
-              <ClickableImage
-                _id="66c6ab3440064f42b6213f71"
-                src="/images/bixi.jpg"
-                alt="Livraison à vélo"
-              />
-            </div>
-          </div>
-        </section>
+        <HeroSection
+          id="671089f240064f42b6213f80"
+          title={
+            <h2 className={homeStyles.heroTitle}>
+              <em><strong>Durable et conscient</strong></em> à chaque gorgée
+            </h2>
+          }
+          subtitle={
+            <p className={homeStyles.heroSubtitle}>
+              Nos <em><strong>bouteilles en verre sont réutilisables</strong></em> et consignables dans tous les points de vente, ou récupérées à chaque cycle de livraison, réduisant notre impact environnemental tout en préservant la qualité de nos shots.
+            </p>
+          }
+          imageSrc="/images/emptybottles.png"
+          imageAlt="Bouteilles en verre réutilisables"
+        />
 
-        <section className={`${homeStyles.section}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-              onClick={() => handleClick("671089f240064f42b6213f80")}
-            >
-              <h2 className={homeStyles.heroTitle}><em><strong>Durable et conscient</strong></em> à chaque gorgée</h2>
-              <p className={homeStyles.heroSubtitle}>Nos <em><strong>bouteilles en verre sont réutilisables</strong></em> et consignables dans tous les points de vente, ou récupérées à chaque cycle de livraison, réduisant notre impact environnemental tout en préservant la qualité de nos shots.</p>
-              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">voir plus</span>
-            </div>
-            <div className={homeStyles.heroImageContainer}>
-              <ClickableImage
-                _id="671089f240064f42b6213f80"
-                src="/images/emptybottles.png"
-                alt="Bouteilles en verre réutilisables"
-              />
-            </div>
-          </div>
-        </section>
+        <HeroSection
+          id="66c6ab3440064f42b6213f71"
+          title={
+            <h2 className={homeStyles.heroTitle}>
+              Une semaine d'énergie livrée en <em><strong>une, ou deux fois</strong></em>
+            </h2>
+          }
+          subtitle={
+            <p className={homeStyles.heroSubtitle}>
+              Recevez vos shots pour toute la semaine en <em><strong>une seule fois</strong></em> ou en <em><strong>deux livraisons</strong></em> pour amnénager au mieux votre cure tout en profitant d'une fraîcheur inégalée.
+            </p>
+          }
+          imageSrc="/images/6_shots.jpg"
+          imageAlt="Livraison hebdomadaire de shots"
+          isInverted={true}
+        />
 
-        <section className={`${homeStyles.section} ${homeStyles.invertedSection}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-              onClick={() => handleClick("66c6ab3440064f42b6213f71")}
-            >
-              <h2 className={homeStyles.heroTitle}>Une semaine d'énergie livrée en <em><strong>une, ou deux fois</strong></em></h2>
-              <p className={homeStyles.heroSubtitle}>Recevez vos shots pour toute la semaine en <em><strong> une seule fois</strong></em>  ou en <em><strong> deux livraisons</strong></em> pour amnénager au mieux votre cure tout en profitant d'une fraîcheur
-              inégalée.</p>
-              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">voir plus</span>
-            </div>
-            <div className={homeStyles.heroImageContainer}>
-              <ClickableImage
-                _id="66c6ab3440064f42b6213f71"
-                src="/images/6_shots.jpg"
-                alt="Livraison hebdomadaire de shots"
-              />
-            </div>
-          </div>
-        </section>
+        <HeroSection
+          id="6714549f4f6f06c98db78039"
+          title={
+            <h2 className={homeStyles.heroTitle}>
+              Le Gingembre pour les Runners : Un Boost Naturel
+            </h2>
+          }
+          subtitle={
+            <p className={homeStyles.heroSubtitle}>
+              Le gingembre, allié des coureurs, réduit les douleurs musculaires, améliore la récupération et booste l'énergie. Un super-aliment naturel pour optimiser vos performances.
+            </p>
+          }
+          imageSrc="/images/running.jpg"
+          imageAlt="Gingembre et coureurs"
+        />
 
-        <section className={`${homeStyles.section}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-              onClick={() => handleClick("6714549f4f6f06c98db78039")}
-            >
-              <h2 className={homeStyles.heroTitle}>Le Gingembre pour les Runners : Un Boost Naturel</h2>
-              <p className={homeStyles.heroSubtitle}>
-                Le gingembre, allié des coureurs, réduit les douleurs musculaires, améliore la récupération et booste l'énergie. Un super-aliment naturel pour optimiser vos performances.
-              </p>
-              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">voir plus</span>
-            </div>
-            <div className={homeStyles.heroImageContainer}>
-              <ClickableImage
-                _id="6714549f4f6f06c98db78039"
-                src="/images/running.jpg"
-                alt="Gingembre et coureurs"
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className={`${homeStyles.section} ${homeStyles.invertedSection}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div 
-              className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-10 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
-              onClick={() => handleClick("66c6ab3440064f42b6213f74")}
-            >
-              <h2 className={homeStyles.heroTitle}>Énergie naturelle, <em><strong>sans caféine</strong></em></h2>
-              <p className={homeStyles.heroSubtitle}>Nos shots offrent un <em><strong>boost d'énergie 100% naturel</strong></em>, sans les inconvénients de la caféine. Idéal pour une <em><strong>vitalité durable</strong></em> tout au long de la journée.</p>
-              <span className="see-more absolute bottom-2 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">voir plus</span>
-            </div>
-            <div className={homeStyles.heroImageContainer}>
-              <ClickableImage
-                _id="66c6ab3440064f42b6213f74"
-                src="/images/cafeinefree.png"
-                alt="Ingrédients naturels énergisants"
-              />
-            </div>
-          </div>
-        </section>
+        <HeroSection
+          id="66c6ab3440064f42b6213f74"
+          title={
+            <h2 className={homeStyles.heroTitle}>
+              Énergie naturelle, <em><strong>sans caféine</strong></em>
+            </h2>
+          }
+          subtitle={
+            <p className={homeStyles.heroSubtitle}>
+              Nos shots offrent un <em><strong>boost d'énergie 100% naturel</strong></em>, sans les inconvénients de la caféine. Idéal pour une <em><strong>vitalité durable</strong></em> tout au long de la journée.
+            </p>
+          }
+          imageSrc="/images/cafeinefree.png"
+          imageAlt="Ingrédients naturels énergisants"
+          isInverted={true}
+        />
 
         <section className={`${homeStyles.section}`}>
           <div className={`${homeStyles.mapSectionContent} w-11/12 mx-auto bg-white/40 rounded-xl p-6 shadow-lg`}>
@@ -347,7 +339,7 @@ const HomeContent = ({ sections = [] }) => {
           </div>
         </section>
       </main>
-      
+
       <button
         onClick={toggleChat}
         className={`
@@ -361,7 +353,7 @@ const HomeContent = ({ sections = [] }) => {
       >
         {!isChatOpen && 'Posez vos questions!'}
       </button>
-      
+
       {isChatVisible && (
         <Chat 
           isOpen={isChatOpen} 
