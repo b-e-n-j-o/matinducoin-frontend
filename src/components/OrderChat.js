@@ -1,7 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 
 // Enum pour les étapes de commande
@@ -362,8 +359,8 @@ const OrderChat = () => {
   };
 
   return (
-    <Card className="w-full h-[600px] flex flex-col">
-      <CardContent className="flex-1 p-4 overflow-hidden flex flex-col">
+    <div className="w-full h-[600px] flex flex-col bg-white rounded-lg shadow-lg">
+      <div className="flex-1 p-4 overflow-hidden flex flex-col">
         <div className="flex-1 overflow-y-auto mb-4 space-y-4">
           {messages.map((msg, idx) => (
             <div
@@ -388,16 +385,23 @@ const OrderChat = () => {
           <div ref={chatEndRef} />
         </div>
         <form onSubmit={handleUserInput} className="flex gap-2">
-          <Input
+          <input
+            type="text"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             placeholder="Tapez votre message..."
-            className="flex-1"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <Button type="submit" size="icon">
+          <button 
+            type="submit" 
+            className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
             <Send className="h-4 w-4" />
-          </Button>
+          </button>
         </form>
-      </CardContent>
-    </Card>
-  )}
+      </div>
+    </div>
+  );
+};
+
+export default OrderChat;
