@@ -51,70 +51,51 @@ const OrderForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Données du formulaire:', formData);
-
+    
     // Vérification des produits sélectionnés
     const hasProducts = Object.entries(formData)
-      .filter(([key]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key))
-      .some(([_, value]) => value !== '0');
+        .filter(([key]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key))
+        .some(([_, value]) => value !== '0');
 
     if (!hasProducts) {
-      alert('Veuillez sélectionner au moins un produit');
-      return;
+        alert('Veuillez sélectionner au moins un produit');
+        return;
     }
 
-    // Vérification des champs requis
-    const requiredFields = ['name', 'address', 'deliveryDate', 'email'];
-    const missingFields = requiredFields.filter(field => !formData[field]);
-
-    if (missingFields.length > 0) {
-      console.log('Champs manquants:', missingFields);
-      alert(`Veuillez remplir les champs suivants : ${missingFields.join(', ')}`);
-      return;
-    }
-
-    // Trouver le produit avec la plus grande quantité
-    const selectedProducts = Object.entries(formData)
-      .filter(([key, value]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key) && value !== '0')
-      .sort((a, b) => parseInt(b[1]) - parseInt(a[1]));
-
-    // Préparation des données pour l'API
+    // Création des données pour l'API
     const apiData = {
-      name: formData.name,
-      address: formData.address,
-      deliveryDate: new Date(formData.deliveryDate).toISOString(),
-      email: formData.email,
-      flavor: selectedProducts[0][0], // Produit principal
-      promoCode: formData.promoCode || undefined,
-      orderTime: new Date().toISOString(),
-      orderDetails: {
+        name: formData.name,
+        address: formData.address,
+        deliveryDate: new Date(formData.deliveryDate).toISOString(),
+        email: formData.email,
+        promoCode: formData.promoCode || undefined,
+        // Envoi des quantités individuelles
         reveilSoleil: parseInt(formData.reveilSoleil),
         matchaMatin: parseInt(formData.matchaMatin),
         berryBalance: parseInt(formData.berryBalance)
-      }
     };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(apiData),
-      });
-      
-      if (response.ok) {
-        await sendOwnerNotification(apiData);
-        alert('Commande passée avec succès!');
-        router.push(`/OrderConfirmation?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`);
-      } else {
-        const errorData = await response.json();
-        console.error('Erreur de réponse:', errorData);
-        alert(`Erreur lors de la commande: ${errorData.message || response.statusText}`);
-      }
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(apiData),
+        });
+        
+        if (response.ok) {
+          await sendOwnerNotification(apiData);
+          alert('Commande passée avec succès!');
+          router.push(`/OrderConfirmation?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`);
+        } else {
+          const errorData = await response.json();
+          console.error('Erreur de réponse:', errorData);
+          alert(`Erreur lors de la commande: ${errorData.message || response.statusText}`);
+        }
     } catch (error) {
-      console.error('Erreur lors de la requête:', error);
-      alert(`Erreur lors de la commande: ${error.message}`);
+        console.error('Erreur lors de la requête:', error);
+        alert(`Erreur lors de la commande: ${error.message}`);
     }
   };
 
