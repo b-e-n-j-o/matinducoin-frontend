@@ -50,7 +50,7 @@ const BlogArticle = ({ article }) => {
           const productRequests = product_ids.map(async (productId) => {
             try {
               console.log(`BlogArticle: Chargement du produit ${productId}`);
-              const response = await fetch(`/api/products/${productId}`);
+              const response = await fetch(`https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId}`);
               
               if (!response.ok) {
                 console.error(`BlogArticle: Erreur pour le produit ${productId}:`, response.status);

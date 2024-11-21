@@ -61,7 +61,7 @@ export default function Article({ article, error }) {
 export async function getServerSideProps({ params }) {
   console.log('getServerSideProps starting with params:', params);
 
-  const { _id } = params;
+  const { id } = params;
 
   try {
     // Construction de l'URL
