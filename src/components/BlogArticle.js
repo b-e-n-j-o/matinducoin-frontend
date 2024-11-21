@@ -19,21 +19,43 @@ const BlogArticle = ({ article }) => {
     const fetchAssociatedProducts = async () => {
       if (product_ids && product_ids.length > 0) {
         try {
-          const productRequests = product_ids.map((productId) =>
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`).then((response) => response.json())
-          );
+          // Log pour vérifier les IDs reçus
+          console.log('IDs des produits à récupérer:', product_ids);
+  
+          const productRequests = product_ids.map(async (productId) => {
+            const response = await fetch(
+              `https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId}`
+            );
+  
+            // Log pour vérifier la réponse de chaque requête
+            console.log(`Réponse pour le produit ${productId}:`, response.status);
+  
+            if (!response.ok) {
+              throw new Error(`Erreur lors de la récupération du produit ${productId}`);
+            }
+  
+            const data = await response.json();
+            console.log(`Données reçues pour le produit ${productId}:`, data);
+            return data;
+          });
+  
           const productsData = await Promise.all(productRequests);
+          console.log('Tous les produits récupérés:', productsData);
           setAssociatedProducts(productsData);
         } catch (error) {
-          console.error("Erreur lors de la récupération des produits associés :", error);
+          console.error("Erreur détaillée:", error);
+          console.error("Erreur lors de la récupération des produits associés:", error.message);
         }
       } else {
-        console.log("Pas de product_ids disponibles.");
+        console.log("Pas de product_ids disponibles dans l'article:", article);
       }
     };
-
+  
+    // Log initial pour voir les données de l'article
+    console.log('Article reçu dans BlogArticle:', article);
+    
     fetchAssociatedProducts();
-  }, [product_ids]);
+  }, [product_ids, article]);
 
   const sectionRefs = useRef(content.map(() => React.createRef()));
 
