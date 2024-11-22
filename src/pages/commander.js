@@ -7,19 +7,22 @@ const OrderPage = () => {
   const [orderMethod, setOrderMethod] = useState('form');
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Empêcher tout défilement forcé au chargement de la page
+  // Supprimer le comportement de descente forcée au chargement
   useEffect(() => {
-    const preventScroll = () => {
-      window.scrollTo(0, 0); // Forcer la position initiale
+    const preventScrollOnLoad = () => {
+      if (window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
     };
-    window.addEventListener('scroll', preventScroll);
 
-    // Définir que le rendu initial est prêt
-    setIsLoaded(true);
+    // Éviter tout défilement forcé seulement au premier chargement
+    window.addEventListener('scroll', preventScrollOnLoad);
+    
+    setTimeout(() => {
+      window.removeEventListener('scroll', preventScrollOnLoad);
+    }, 100); // Supprimer rapidement le listener après le premier rendu
 
-    return () => {
-      window.removeEventListener('scroll', preventScroll); // Nettoyer
-    };
+    setIsLoaded(true); // Confirmer que la page est chargée
   }, []);
 
   return (
