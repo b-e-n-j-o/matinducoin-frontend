@@ -22,7 +22,8 @@ const TypingMessage = ({ text, onComplete }) => {
 
 const OrderChat = ({ className = "" }) => {
   const [messages, setMessages] = useState([]);
-  const [messageCount, setMessageCount] = useState(0); // Compteur de messages
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [showMessages, setShowMessages] = useState(false);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -41,12 +42,12 @@ const OrderChat = ({ className = "" }) => {
 
   const handleNewMessage = (messageText) => {
     if (messageText) {
-      // Incrémenter le compteur de messages
-      const newCount = messageCount + 1;
-      setMessageCount(newCount);
+      const newIndex = messageIndex + 1;
+      setMessageIndex(newIndex);
 
-      // N'ajouter le message à l'affichage que si son index est > 1
-      if (newCount > 2) {
+      // Afficher uniquement si nous avons passé les 4 premiers messages
+      if (newIndex > 4) {
+        setShowMessages(true);
         setIsTyping(true);
         setMessages(prev => [...prev, {
           text: messageText,
@@ -83,23 +84,31 @@ const OrderChat = ({ className = "" }) => {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Ces messages incrémenteront le compteur mais ne seront pas affichés
+      // Message 1 : Masqué (premier message système)
+      await waitForBotResponse();
+      setMessageIndex(prev => prev + 1);
+
+      // Message 2 : Masqué (envoi "passer commande")
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
-      await waitForBotResponse();
+      setMessageIndex(prev => prev + 1);
 
+      // Message 3 : Masqué (réponse système)
+      await waitForBotResponse();
+      setMessageIndex(prev => prev + 1);
+
+      // Message 4 : Masqué (envoi "oui")
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
       await waitForBotResponse();
-      
+      setMessageIndex(prev => prev + 1);
+
       setIsInitialized(true);
 
-      // Premier message visible (sera le 3ème dans le compteur)
-      handleNewMessage("Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?");
     } catch (error) {
       console.error("Erreur lors de l'initialisation:", error);
       setError("Erreur lors de l'initialisation du chat");
@@ -118,7 +127,6 @@ const OrderChat = ({ className = "" }) => {
       try {
         const message = JSON.parse(event.data);
         const messageText = message.text || message.content || message.response;
-        console.log("Message reçu:", message, "Text extrait:", messageText);
         
         if (messageText) {
           handleNewMessage(messageText);
@@ -152,13 +160,15 @@ const OrderChat = ({ className = "" }) => {
     setIsLoading(true);
 
     try {
-      // Incrémenter le compteur aussi pour les messages utilisateur
-      setMessageCount(prev => prev + 1);
-      setMessages(prev => [...prev, {
-        text: input.trim(),
-        sender: 'user',
-        id: Date.now()
-      }]);
+      if (showMessages) {
+        setMessages(prev => [...prev, {
+          text: input.trim(),
+          sender: 'user',
+          id: Date.now()
+        }]);
+      }
+
+      setMessageIndex(prev => prev + 1);
 
       ws.current.send(JSON.stringify({
         type: 'message',
