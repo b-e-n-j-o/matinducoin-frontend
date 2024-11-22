@@ -27,7 +27,7 @@ const OrderChat = ({ className = "" }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [initStepCompleted, setInitStepCompleted] = useState(false);
+  const [confirmationReceived, setConfirmationReceived] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
 
@@ -73,20 +73,36 @@ const OrderChat = ({ className = "" }) => {
     if (isInitialized) return;
 
     try {
+      // Attendre la connexion WebSocket
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Envoyer le message "passer commande" (partie de l'init)
+      // Envoyer "passer commande" et attendre la réponse
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
       await waitForBotResponse();
+
+      // Envoyer la confirmation "oui"
+      ws.current.send(JSON.stringify({
+        type: 'message',
+        content: 'oui'
+      }));
+      await waitForBotResponse();
       
-      // Une fois qu'on a la réponse à "passer commande", l'init est terminée
-      setInitStepCompleted(true);
+      // Activer l'affichage des messages après la confirmation
+      setConfirmationReceived(true);
       setIsInitialized(true);
+
+      // Afficher le premier message visible
+      setMessages([{
+        text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
+        sender: 'assistant',
+        id: Date.now(),
+        typing: true
+      }]);
 
     } catch (error) {
       console.error("Erreur lors de l'initialisation:", error);
@@ -119,10 +135,8 @@ const OrderChat = ({ className = "" }) => {
           }
         }
 
-        // N'afficher le message que si:
-        // - soit l'étape d'init est terminée (initStepCompleted)
-        // - soit c'est le premier message système
-        if (messageText && (initStepCompleted || !isInitialized)) {
+        // N'afficher les messages que si la confirmation a été reçue
+        if (messageText && confirmationReceived) {
           handleNewMessage(messageText);
         }
 
