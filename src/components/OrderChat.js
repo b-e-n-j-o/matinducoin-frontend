@@ -22,12 +22,12 @@ const TypingMessage = ({ text, onComplete }) => {
 
 const OrderChat = ({ className = "" }) => {
   const [messages, setMessages] = useState([]);
+  const [messageCount, setMessageCount] = useState(0); // Compteur de messages
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [confirmationReceived, setConfirmationReceived] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
 
@@ -41,13 +41,20 @@ const OrderChat = ({ className = "" }) => {
 
   const handleNewMessage = (messageText) => {
     if (messageText) {
-      setIsTyping(true);
-      setMessages(prev => [...prev, {
-        text: messageText,
-        sender: 'assistant',
-        id: Date.now(),
-        typing: true
-      }]);
+      // Incrémenter le compteur de messages
+      const newCount = messageCount + 1;
+      setMessageCount(newCount);
+
+      // N'ajouter le message à l'affichage que si son index est > 1
+      if (newCount > 2) {
+        setIsTyping(true);
+        setMessages(prev => [...prev, {
+          text: messageText,
+          sender: 'assistant',
+          id: Date.now(),
+          typing: true
+        }]);
+      }
     }
   };
 
@@ -56,7 +63,6 @@ const OrderChat = ({ className = "" }) => {
       let messageHandler = (event) => {
         try {
           const message = JSON.parse(event.data);
-          console.log("waitForBotResponse reçoit:", message);
           if (message && (message.content || message.text)) {
             ws.current.removeEventListener('message', messageHandler);
             resolve(message.content || message.text);
@@ -73,37 +79,27 @@ const OrderChat = ({ className = "" }) => {
     if (isInitialized) return;
 
     try {
-      // Attendre la connexion WebSocket
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Envoyer "passer commande" et attendre la réponse
+      // Ces messages incrémenteront le compteur mais ne seront pas affichés
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
       await waitForBotResponse();
 
-      // Envoyer la confirmation "oui"
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
       await waitForBotResponse();
       
-      // Activer l'affichage des messages après la confirmation
-      setConfirmationReceived(true);
       setIsInitialized(true);
 
-      // Afficher le premier message visible
-      setMessages([{
-        text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
-        sender: 'assistant',
-        id: Date.now(),
-        typing: true
-      }]);
-
+      // Premier message visible (sera le 3ème dans le compteur)
+      handleNewMessage("Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?");
     } catch (error) {
       console.error("Erreur lors de l'initialisation:", error);
       setError("Erreur lors de l'initialisation du chat");
@@ -121,25 +117,12 @@ const OrderChat = ({ className = "" }) => {
     ws.current.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        console.log("Message reçu:", message);
-
-        let messageText = null;
-        if (typeof message === 'object') {
-          if (message.text || message.content || message.response) {
-            messageText = message.text || message.content || message.response;
-          } else if (message.INFO && typeof message.INFO === 'string') {
-            const infoText = message.INFO;
-            if (infoText.includes('Réponse générée:')) {
-              messageText = infoText.split('Réponse générée:')[1].trim();
-            }
-          }
-        }
-
-        // N'afficher les messages que si la confirmation a été reçue
-        if (messageText && confirmationReceived) {
+        const messageText = message.text || message.content || message.response;
+        console.log("Message reçu:", message, "Text extrait:", messageText);
+        
+        if (messageText) {
           handleNewMessage(messageText);
         }
-
       } catch (error) {
         console.error('Erreur de traitement du message:', error);
       }
@@ -169,6 +152,8 @@ const OrderChat = ({ className = "" }) => {
     setIsLoading(true);
 
     try {
+      // Incrémenter le compteur aussi pour les messages utilisateur
+      setMessageCount(prev => prev + 1);
       setMessages(prev => [...prev, {
         text: input.trim(),
         sender: 'user',
