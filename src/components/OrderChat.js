@@ -97,25 +97,28 @@ const OrderChat = ({ className = "" }) => {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Premier message caché
-      console.log("Envoi 'passer commande'");
+      // Premier message caché - passer commande
       ws.current.send(JSON.stringify({
-        type: 'message',
+        type: 'init_message',
         content: 'passer commande'
       }));
-      const firstResponse = await waitForBotResponse();
+      await waitForBotResponse();
 
-      // Deuxième message caché  
-      console.log("Envoi 'oui'");
+      // Deuxième message caché - oui
       ws.current.send(JSON.stringify({
-        type: 'message',
+        type: 'init_message',
         content: 'oui'
       }));
       await waitForBotResponse();
 
-      // Activer l'interface avant la liste des produits
+      // Troisième message à masquer - réponse confirmation
+      await waitForBotResponse();
+
+      // Activer l'interface pour le message des produits
+      console.log("Activation interface pour afficher les produits");
       setShowMessages(true);
       setIsInitialized(true);
+
     } catch (error) {
       console.error("Erreur initialisation:", error);
       setError("Erreur lors de l'initialisation du chat");
@@ -135,16 +138,12 @@ const OrderChat = ({ className = "" }) => {
         console.log("Message reçu:", event.data);
         const message = JSON.parse(event.data);
         
-        let messageText = null;
-        if (message.type === 'response') {
-          messageText = message.content;
-        } else if (message.type === 'error') {
-          console.error("Erreur reçue:", message.message);
-          return;
-        }
-
-        if (messageText && (isInitialized || message.type === 'response')) {
-          handleNewMessage(messageText);
+        // N'afficher que si showMessages est true et ce n'est pas un message d'init
+        if (message.type !== 'init_message' && showMessages) {
+          const messageText = message.content || message.text || message.response;
+          if (messageText) {
+            handleNewMessage(messageText);
+          }
         }
       } catch (error) {
         console.error('Erreur traitement message:', error);
