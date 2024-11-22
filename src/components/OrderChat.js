@@ -76,13 +76,13 @@ const OrderChat = ({ className = "" }) => {
       }
 
       ws.current.send(JSON.stringify({
-        type: 'message',
+        type: 'init_message',
         content: 'passer commande'
       }));
       await waitForBotResponse();
 
       ws.current.send(JSON.stringify({
-        type: 'message',
+        type: 'init_message',
         content: 'oui'
       }));
       await waitForBotResponse();
@@ -115,7 +115,7 @@ const OrderChat = ({ className = "" }) => {
         const messageText = message.text || message.content || message.response;
         console.log("Message reçu:", message, "Text extrait:", messageText);
         
-        if (messageText && isInitialized && !message.type) {
+        if (messageText && (isInitialized || message.type !== 'init_message')) {
           handleNewMessage(messageText);
         }
       } catch (error) {

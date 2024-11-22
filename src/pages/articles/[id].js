@@ -3,6 +3,8 @@ import BlogArticle from '../../components/BlogArticle';  // Chemin relatif
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
+import Navbar from '../../components/Navbar';
+
 
 export default function ArticlePage() {
   const router = useRouter();
@@ -29,6 +31,7 @@ export default function ArticlePage() {
 
   return (
     <>
+      <Navbar />
       <Head>
         <title>Article | Matin du Coin</title>
         <meta name="description" content="Découvrez cet article sur Matin du Coin" />
