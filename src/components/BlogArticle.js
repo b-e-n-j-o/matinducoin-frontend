@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { fetchArticle } from '../services/api';
-import styles from './BlogArticle.module.css';
 
 const BlogArticle = ({ articleId }) => {
   const [article, setArticle] = useState(null);
@@ -32,50 +31,36 @@ const BlogArticle = ({ articleId }) => {
   }
 
   if (error) {
-    return <div className={styles.error}>Erreur: {error}</div>;
+    return <div className="flex justify-center items-center min-h-screen">
+      <p className="text-red-500">Erreur: {error}</p>
+    </div>;
   }
 
   if (!article) {
-    return <div className={styles.error}>Aucun article trouvé</div>;
+    return <div className="flex justify-center items-center min-h-screen">
+      <p>Aucun article trouvé</p>
+    </div>;
   }
 
   const renderContent = (contentItem) => {
     switch (contentItem.type) {
       case 'header':
         const HeaderTag = `h${contentItem.level}`;
-        return (
-          <div className={styles.sectionHeaderWrapper}>
-            <HeaderTag className={`${styles.sectionHeader} ${styles[`h${contentItem.level}`]}`}>
-              {contentItem.data}
-            </HeaderTag>
-          </div>
-        );
+        return <HeaderTag className="text-2xl font-bold my-4">{contentItem.data}</HeaderTag>;
       
       case 'text':
         return contentItem.data.content.map((textContent, index) => {
           if (textContent.type === 'paragraph') {
-            return (
-              <div key={index} className={styles.paragraphBox}>
-                {textContent.sentences.map((sentence, sentenceIndex) => (
-                  <p key={sentenceIndex} className={styles.sentence}>
-                    {sentence}
-                  </p>
-                ))}
-              </div>
-            );
+            return <p key={index} className="my-4">
+              {textContent.sentences.join(' ')}
+            </p>;
           }
           if (textContent.type === 'list') {
-            return (
-              <div key={index} className={styles.paragraphBox}>
-                <ul className={styles.list}>
-                  {textContent.items.map((item, itemIndex) => (
-                    <li key={itemIndex} className={styles.listItem}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
+            return <ul key={index} className="list-disc ml-6 my-4">
+              {textContent.items.map((item, itemIndex) => (
+                <li key={itemIndex} className="my-2">{item}</li>
+              ))}
+            </ul>;
           }
           return null;
         });
@@ -86,30 +71,25 @@ const BlogArticle = ({ articleId }) => {
   };
 
   return (
-    <div className={styles.articleWrapper}>
-      <article className={styles.article}>
-        <header className={styles.articleHeader}>
-          <h1 className={styles.title}>{article.title}</h1>
-          {article.image_banner && (
-            <div className={styles.bannerContainer}>
-              <img 
-                src={article.image_banner}
-                alt={article.title}
-                className={styles.bannerImage}
-              />
-            </div>
-          )}
-        </header>
-        
-        <div className={styles.contentContainer}>
-          {article.content.map((contentItem, index) => (
-            <div key={index}>
-              {renderContent(contentItem)}
-            </div>
-          ))}
-        </div>
-      </article>
-    </div>
+    <article className="max-w-4xl mx-auto px-4 py-8">
+      {article.image_banner && (
+        <img 
+          src={article.image_banner} 
+          alt={article.title}
+          className="w-full h-64 object-cover rounded-lg mb-8"
+        />
+      )}
+      
+      <h1 className="text-4xl font-bold mb-8">{article.title}</h1>
+      
+      <div className="prose max-w-none">
+        {article.content.map((contentItem, index) => (
+          <div key={index}>
+            {renderContent(contentItem)}
+          </div>
+        ))}
+      </div>
+    </article>
   );
 };
 
