@@ -99,7 +99,7 @@ const ProductDetail = () => {
             <button onClick={handleNextImage} className={styles.carouselButton}>❯</button>
           </div>
 
-          <div className={styles.detailsSection}>
+          <div className={styles.productCard}>
             <h1 className={styles.title}>{product.name}</h1>
             <p className={styles.description}>{product.description}</p>
             <p className={styles.detailedDesc}>{product.detailed_desc}</p>
