@@ -22,13 +22,13 @@ const TypingMessage = ({ text, onComplete }) => {
 
 const OrderChat = ({ className = "" }) => {
   const [messages, setMessages] = useState([]);
-  const [messageIndex, setMessageIndex] = useState(0);
-  const [showMessages, setShowMessages] = useState(false);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [confirmationReceived, setConfirmationReceived] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
 
@@ -42,20 +42,14 @@ const OrderChat = ({ className = "" }) => {
 
   const handleNewMessage = (messageText) => {
     if (messageText) {
-      const newIndex = messageIndex + 1;
-      setMessageIndex(newIndex);
-
-      // Afficher uniquement si nous avons passé les 4 premiers messages
-      if (newIndex > 4) {
-        setShowMessages(true);
-        setIsTyping(true);
-        setMessages(prev => [...prev, {
-          text: messageText,
-          sender: 'assistant',
-          id: Date.now(),
-          typing: true
-        }]);
-      }
+      setIsTyping(true);
+      setMessages(prev => [...prev, {
+        text: messageText,
+        sender: 'assistant',
+        id: Date.now(),
+        typing: true,
+        visible: showMessages
+      }]);
     }
   };
 
@@ -64,6 +58,7 @@ const OrderChat = ({ className = "" }) => {
       let messageHandler = (event) => {
         try {
           const message = JSON.parse(event.data);
+          console.log("waitForBotResponse reçoit:", message);
           if (message && (message.content || message.text)) {
             ws.current.removeEventListener('message', messageHandler);
             resolve(message.content || message.text);
@@ -84,30 +79,29 @@ const OrderChat = ({ className = "" }) => {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Message 1 : Masqué (premier message système)
-      await waitForBotResponse();
-      setMessageIndex(prev => prev + 1);
-
-      // Message 2 : Masqué (envoi "passer commande")
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
-      setMessageIndex(prev => prev + 1);
-
-      // Message 3 : Masqué (réponse système)
       await waitForBotResponse();
-      setMessageIndex(prev => prev + 1);
 
-      // Message 4 : Masqué (envoi "oui")
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
       await waitForBotResponse();
-      setMessageIndex(prev => prev + 1);
-
+      
+      setConfirmationReceived(true);
       setIsInitialized(true);
+      setShowMessages(true);
+
+      setMessages([{
+        text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
+        sender: 'assistant',
+        id: Date.now(),
+        typing: true,
+        visible: true
+      }]);
 
     } catch (error) {
       console.error("Erreur lors de l'initialisation:", error);
@@ -126,11 +120,24 @@ const OrderChat = ({ className = "" }) => {
     ws.current.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        const messageText = message.text || message.content || message.response;
-        
-        if (messageText) {
+        console.log("Message reçu:", message);
+
+        let messageText = null;
+        if (typeof message === 'object') {
+          if (message.text || message.content || message.response) {
+            messageText = message.text || message.content || message.response;
+          } else if (message.INFO && typeof message.INFO === 'string') {
+            const infoText = message.INFO;
+            if (infoText.includes('Réponse générée:')) {
+              messageText = infoText.split('Réponse générée:')[1].trim();
+            }
+          }
+        }
+
+        if (messageText && confirmationReceived) {
           handleNewMessage(messageText);
         }
+
       } catch (error) {
         console.error('Erreur de traitement du message:', error);
       }
@@ -160,15 +167,12 @@ const OrderChat = ({ className = "" }) => {
     setIsLoading(true);
 
     try {
-      if (showMessages) {
-        setMessages(prev => [...prev, {
-          text: input.trim(),
-          sender: 'user',
-          id: Date.now()
-        }]);
-      }
-
-      setMessageIndex(prev => prev + 1);
+      setMessages(prev => [...prev, {
+        text: input.trim(),
+        sender: 'user',
+        id: Date.now(),
+        visible: showMessages
+      }]);
 
       ws.current.send(JSON.stringify({
         type: 'message',
@@ -188,7 +192,7 @@ const OrderChat = ({ className = "" }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[500px]">
-        {messages.map((message) => (
+        {messages.filter(message => message.visible).map((message) => (
           <div
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
