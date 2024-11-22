@@ -8,8 +8,8 @@ const TypingMessage = ({ text, onComplete }) => {
   useEffect(() => {
     if (currentIndex < text.length) {
       const timer = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
+        setDisplayedText((prev) => prev + text[currentIndex]);
+        setCurrentIndex((prev) => prev + 1);
       }, 15);
       return () => clearTimeout(timer);
     } else if (onComplete) {
@@ -33,51 +33,41 @@ const OrderChat = ({ className = "" }) => {
   const messageCount = useRef(0);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!isTyping) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages]);
 
   const handleNewMessage = (messageText) => {
     if (messageText) {
-      console.log(`📨 Traitement nouveau message: "${messageText}"`);
       messageCount.current += 1;
-      console.log(`Message count: ${messageCount.current}`);
 
       setIsTyping(true);
-      setMessages(prev => [...prev, {
-        text: messageText,
-        sender: 'assistant',
-        id: Date.now(),
-        typing: true
-      }]);
-      console.log('✅ Message ajouté au chat');
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: messageText,
+          sender: 'assistant',
+          id: Date.now(),
+          typing: true,
+        },
+      ]);
     }
   };
 
   const waitForBotResponse = async () => {
-    console.log('⏳ Attente réponse bot...');
     return new Promise((resolve) => {
-      let messageHandler = (event) => {
+      const messageHandler = (event) => {
         try {
-          console.log("Data brute reçue:", event.data);
-          let messageText = null;
-          try {
-            const message = JSON.parse(event.data);
-            console.log("Message parsé:", message);
-            
-            messageText = message.content || message.text || message.response;
-          } catch {
-            const match = event.data.match(/Réponse générée: (.*?)(?=\n|$)/);
-            if (match) {
-              messageText = match[1].trim();
-            }
-          }
+          const message = JSON.parse(event.data);
+          const messageText =
+            message.content || message.text || message.response;
 
           if (messageText) {
-            console.log("Message extrait:", messageText);
             ws.current.removeEventListener('message', messageHandler);
             resolve(messageText);
           }
@@ -94,41 +84,49 @@ const OrderChat = ({ className = "" }) => {
 
     try {
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
-      console.log("Envoi 'passer commande'");
-      ws.current.send(JSON.stringify({
-        type: 'message',
-        content: 'passer commande'
-      }));
+      ws.current.send(
+        JSON.stringify({
+          type: 'message',
+          content: 'passer commande',
+        })
+      );
       await waitForBotResponse();
 
-      console.log("Envoi 'oui'");
-      ws.current.send(JSON.stringify({
-        type: 'message',
-        content: 'oui'
-      }));
+      ws.current.send(
+        JSON.stringify({
+          type: 'message',
+          content: 'oui',
+        })
+      );
       await waitForBotResponse();
 
       setShowMessages(true);
       setIsInitialized(true);
 
-      // Envoi automatique des produits du panier
       setTimeout(() => {
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         if (cart.length > 0) {
-          const message = cart.map(item => `${item.quantity} x ${item.name}`).join(', ');
-          ws.current.send(JSON.stringify({
-            type: 'message',
-            content: message
-          }));
-          setMessages(prev => [...prev, { text: message, sender: 'user', id: Date.now() }]);
+          const message = cart
+            .map((item) => `${item.quantity} x ${item.name}`)
+            .join(', ');
+          ws.current.send(
+            JSON.stringify({
+              type: 'message',
+              content: message,
+            })
+          );
+          setMessages((prev) => [
+            ...prev,
+            { text: message, sender: 'user', id: Date.now() },
+          ]);
         }
       }, 2000);
     } catch (error) {
-      console.error("Erreur initialisation:", error);
-      setError("Erreur lors de l'initialisation du chat");
+      console.error('Erreur initialisation:', error);
+      setError('Erreur lors de l\'initialisation du chat');
     }
   };
 
@@ -136,24 +134,16 @@ const OrderChat = ({ className = "" }) => {
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
-      console.log("WebSocket connecté");
       initializeOrderChat();
     };
 
     ws.current.onmessage = (event) => {
       try {
-        console.log("Message reçu:", event.data);
         const message = JSON.parse(event.data);
-        
-        let messageText = null;
-        if (message.type === 'response') {
-          messageText = message.content;
-        } else if (message.type === 'error') {
-          console.error("Erreur reçue:", message.message);
-          return;
-        }
+        const messageText =
+          message.type === 'response' ? message.content : null;
 
-        if (messageText && (isInitialized || message.type === 'response')) {
+        if (messageText && isInitialized) {
           handleNewMessage(messageText);
         }
       } catch (error) {
@@ -162,18 +152,16 @@ const OrderChat = ({ className = "" }) => {
     };
 
     ws.current.onerror = (error) => {
-      console.error("❌ WebSocket erreur:", error);
-      setError("Erreur de connexion");
+      console.error('❌ WebSocket erreur:', error);
+      setError('Erreur de connexion');
     };
 
     ws.current.onclose = () => {
-      console.log("🔌 WebSocket fermé");
+      console.log('🔌 WebSocket fermé');
     };
 
     return () => {
-      if (ws.current) {
-        ws.current.close();
-      }
+      ws.current?.close();
     };
   }, []);
 
@@ -186,28 +174,32 @@ const OrderChat = ({ className = "" }) => {
     setIsLoading(true);
 
     try {
-      const userMessageObj = {
-        text: userMessage,
-        sender: 'user',
-        id: Date.now()
-      };
-      setMessages(prev => [...prev, userMessageObj]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: userMessage,
+          sender: 'user',
+          id: Date.now(),
+        },
+      ]);
 
-      ws.current.send(JSON.stringify({
-        type: 'message',
-        content: userMessage
-      }));
-      
-      console.log("Message utilisateur envoyé et affiché:", userMessage);
+      ws.current.send(
+        JSON.stringify({
+          type: 'message',
+          content: userMessage,
+        })
+      );
     } catch (error) {
-      setError("Erreur d'envoi");
+      setError('Erreur d\'envoi');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={`w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg flex flex-col ${className}`}>
+    <div
+      className={`w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg flex flex-col ${className}`}
+    >
       <div className="p-4 bg-[#ff5900] text-[#ffd97f] font-['Bobby_Jones_Soft',_sans-serif] rounded-t-xl">
         <h3 className="text-lg">Passez votre commande</h3>
       </div>
@@ -216,23 +208,27 @@ const OrderChat = ({ className = "" }) => {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${
+              message.sender === 'user' ? 'justify-end' : 'justify-start'
+            }`}
           >
-            <div 
+            <div
               className={`max-w-[80%] rounded-lg p-3 ${
-                message.sender === 'user' 
+                message.sender === 'user'
                   ? 'bg-[#ff5900] text-[#ffd97f]'
                   : 'bg-gray-100 text-gray-800'
               }`}
             >
               {message.typing ? (
-                <TypingMessage 
-                  text={message.text} 
+                <TypingMessage
+                  text={message.text}
                   onComplete={() => {
                     setIsTyping(false);
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === message.id ? { ...msg, typing: false } : msg
-                    ));
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === message.id ? { ...msg, typing: false } : msg
+                      )
+                    );
                   }}
                 />
               ) : (
@@ -241,7 +237,7 @@ const OrderChat = ({ className = "" }) => {
             </div>
           </div>
         ))}
-        
+
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-gray-100 rounded-lg p-3">
@@ -272,9 +268,7 @@ const OrderChat = ({ className = "" }) => {
             </button>
           </div>
           {error && (
-            <div className="text-red-500 text-sm mt-1">
-              {error}
-            </div>
+            <div className="text-red-500 text-sm mt-1">{error}</div>
           )}
         </div>
       </form>
