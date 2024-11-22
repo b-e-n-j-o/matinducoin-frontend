@@ -182,28 +182,27 @@ const OrderChat = ({ className = "" }) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
+    const userMessage = input.trim();
     setInput('');
     setIsLoading(true);
 
     try {
-      console.log(`📤 Envoi message utilisateur: "${input.trim()}"`);
-      messageCount.current += 1;
-      console.log(`Message count: ${messageCount.current}`);
-
-      setMessages(prev => [...prev, {
-        text: input.trim(),
+      // Afficher le message utilisateur immédiatement
+      const userMessageObj = {
+        text: userMessage,
         sender: 'user',
         id: Date.now()
-      }]);
+      };
+      setMessages(prev => [...prev, userMessageObj]);
 
+      // Envoyer au backend
       ws.current.send(JSON.stringify({
         type: 'message',
-        content: input.trim()
+        content: userMessage
       }));
-      console.log('✅ Message envoyé');
-
+      
+      console.log("Message utilisateur envoyé et affiché:", userMessage);
     } catch (error) {
-      console.error('❌ Erreur envoi:', error);
       setError("Erreur d'envoi");
     } finally {
       setIsLoading(false);
