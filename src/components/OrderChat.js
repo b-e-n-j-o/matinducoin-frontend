@@ -28,6 +28,7 @@ const OrderChat = ({ className = "" }) => {
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [confirmationReceived, setConfirmationReceived] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
 
@@ -91,6 +92,7 @@ const OrderChat = ({ className = "" }) => {
       
       setConfirmationReceived(true);
       setIsInitialized(true);
+      setShowMessages(true);
 
       setMessages([{
         text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
@@ -115,27 +117,35 @@ const OrderChat = ({ className = "" }) => {
 
     ws.current.onmessage = (event) => {
       try {
+        console.log("Message brut reçu:", event.data);
         const message = JSON.parse(event.data);
-        console.log("Message reçu:", message);
+        console.log("Message parsé:", message);
 
         let messageText = null;
+        
+        // Chercher le message dans les différents formats possibles
         if (typeof message === 'object') {
+          // Format standard
           if (message.text || message.content || message.response) {
             messageText = message.text || message.content || message.response;
-          } else if (message.INFO && typeof message.INFO === 'string') {
-            const infoText = message.INFO;
-            if (infoText.includes('Réponse générée:')) {
-              messageText = infoText.split('Réponse générée:')[1].trim();
+          }
+          // Format des logs Python
+          else if (message.INFO && typeof message.INFO === 'string') {
+            const infoMatch = message.INFO.match(/Réponse générée: (.*?)(?=\n|$)/);
+            if (infoMatch) {
+              messageText = infoMatch[1].trim();
             }
           }
         }
 
-        if (messageText && confirmationReceived) {
+        console.log("Texte extrait:", messageText);
+
+        if (messageText && showMessages) {
           handleNewMessage(messageText);
         }
 
       } catch (error) {
-        console.error('Erreur de traitement du message:', error);
+        console.error('Erreur de traitement du message:', error, 'Data brut:', event.data);
       }
     };
 
@@ -153,7 +163,7 @@ const OrderChat = ({ className = "" }) => {
         ws.current.close();
       }
     };
-  }, []);
+  }, [showMessages]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
