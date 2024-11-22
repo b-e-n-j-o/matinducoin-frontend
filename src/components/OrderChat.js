@@ -48,7 +48,7 @@ const OrderChat = ({ className = "" }) => {
         sender: 'assistant',
         id: Date.now(),
         typing: true,
-        visible: showMessages
+        visible: true // Toujours visible maintenant
       }]);
     }
   };
@@ -171,7 +171,7 @@ const OrderChat = ({ className = "" }) => {
         text: input.trim(),
         sender: 'user',
         id: Date.now(),
-        visible: showMessages
+        visible: true // Toujours visible maintenant
       }]);
 
       ws.current.send(JSON.stringify({
@@ -192,7 +192,7 @@ const OrderChat = ({ className = "" }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[500px]">
-        {messages.filter(message => message.visible).map((message) => (
+        {messages.map((message) => (
           <div
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
