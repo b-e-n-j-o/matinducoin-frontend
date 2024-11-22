@@ -27,6 +27,7 @@ const OrderChat = ({ className = "" }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
   const messageCount = useRef(0);
@@ -41,33 +42,37 @@ const OrderChat = ({ className = "" }) => {
 
   const handleNewMessage = (messageText) => {
     if (messageText) {
+      console.log(`📨 Traitement nouveau message: "${messageText}"`);
       messageCount.current += 1;
-      
-      // N'afficher que les messages après l'initialisation (après le 4ème)
-      if (messageCount.current > 4) {
-        setIsTyping(true);
-        setMessages(prev => [...prev, {
-          text: messageText,
-          sender: 'assistant',
-          id: Date.now(),
-          typing: true
-        }]);
-      }
+      console.log(`Message count: ${messageCount.current}`);
+
+      setIsTyping(true);
+      setMessages(prev => [...prev, {
+        text: messageText,
+        sender: 'assistant',
+        id: Date.now(),
+        typing: true
+      }]);
+      console.log('✅ Message ajouté au chat');
     }
   };
 
   const waitForBotResponse = async () => {
+    console.log('⏳ Attente réponse bot...');
     return new Promise((resolve) => {
       let messageHandler = (event) => {
         try {
           const message = JSON.parse(event.data);
-          console.log("Réponse reçue:", message);
+          console.log("🤖 Réponse bot reçue:", message);
+          
           if (message && (message.content || message.text)) {
             ws.current.removeEventListener('message', messageHandler);
-            resolve(message.content || message.text);
+            const response = message.content || message.text;
+            console.log(`✅ Réponse valide: "${response}"`);
+            resolve(response);
           }
         } catch (error) {
-          console.error('Erreur parsing réponse:', error);
+          console.error('❌ Erreur parsing réponse:', error);
         }
       };
       ws.current.addEventListener('message', messageHandler);
@@ -75,43 +80,41 @@ const OrderChat = ({ className = "" }) => {
   };
 
   const initializeOrderChat = async () => {
-    if (isInitialized) return;
+    if (isInitialized) {
+      console.log("ℹ️ Chat déjà initialisé");
+      return;
+    }
 
     try {
+      console.log("🚀 Début initialisation chat");
+      
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
+        console.log("⏳ Attente connexion WebSocket...");
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Premier message système
-      const firstResponse = await waitForBotResponse();
-      messageCount.current += 1;
-
-      // Envoi "passer commande"
+      console.log("1️⃣ Envoi commande initiale");
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
-      messageCount.current += 1;
+      const firstResponse = await waitForBotResponse();
+      console.log("Première réponse:", firstResponse);
 
-      // Réception réponse
-      const secondResponse = await waitForBotResponse();
-      messageCount.current += 1;
-
-      // Envoi "oui"
+      console.log("2️⃣ Envoi confirmation");
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
-      messageCount.current += 1;
+      const secondResponse = await waitForBotResponse();
+      console.log("Deuxième réponse:", secondResponse);
 
-      // Attendre la dernière réponse avant d'activer
-      const finalResponse = await waitForBotResponse();
-      handleNewMessage(finalResponse);
-
+      console.log("🎯 Activation affichage messages");
+      setShowMessages(true);
       setIsInitialized(true);
 
     } catch (error) {
-      console.error("Erreur lors de l'initialisation:", error);
+      console.error("❌ Erreur initialisation:", error);
       setError("Erreur lors de l'initialisation du chat");
     }
   };
@@ -120,41 +123,57 @@ const OrderChat = ({ className = "" }) => {
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
-      console.log("WebSocket connecté");
+      console.log("🔌 WebSocket connecté");
       initializeOrderChat();
     };
 
     ws.current.onmessage = (event) => {
       try {
+        console.log("\n=== Nouveau message reçu ===");
+        console.log("Message brut:", event.data);
         const message = JSON.parse(event.data);
-        console.log("Message reçu:", message);
+        console.log("Message parsé:", message);
 
         let messageText = null;
-        if (message.text || message.content || message.response) {
-          messageText = message.text || message.content || message.response;
-        } else if (message.INFO && typeof message.INFO === 'string') {
-          const infoMatch = message.INFO.match(/Réponse générée: (.*?)(?=\n|$)/);
-          if (infoMatch) {
-            messageText = infoMatch[1].trim();
+        if (typeof message === 'object') {
+          if (message.text || message.content || message.response) {
+            messageText = message.text || message.content || message.response;
+            console.log("Message format standard:", messageText);
+          }
+          else if (message.INFO && typeof message.INFO === 'string') {
+            const infoMatch = message.INFO.match(/Réponse générée: (.*?)(?=\n|$)/);
+            if (infoMatch) {
+              messageText = infoMatch[1].trim();
+              console.log("Message format log:", messageText);
+            }
           }
         }
 
-        if (messageText && isInitialized) {
+        console.log("États actuels:");
+        console.log("- showMessages:", showMessages);
+        console.log("- isInitialized:", isInitialized);
+        console.log("- messageCount:", messageCount.current);
+        console.log("Message sera affiché:", Boolean(messageText && showMessages));
+
+        if (messageText && showMessages) {
+          console.log("✅ Ajout message au chat");
           handleNewMessage(messageText);
+        } else {
+          console.log("❌ Message ignoré");
         }
 
       } catch (error) {
-        console.error('Erreur traitement message:', error);
+        console.error('Erreur traitement message:', error, 'Data:', event.data);
       }
     };
 
     ws.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
+      console.error("❌ WebSocket erreur:", error);
       setError("Erreur de connexion");
     };
 
     ws.current.onclose = () => {
-      console.log("WebSocket fermé");
+      console.log("🔌 WebSocket fermé");
     };
 
     return () => {
@@ -172,7 +191,10 @@ const OrderChat = ({ className = "" }) => {
     setIsLoading(true);
 
     try {
+      console.log(`📤 Envoi message utilisateur: "${input.trim()}"`);
       messageCount.current += 1;
+      console.log(`Message count: ${messageCount.current}`);
+
       setMessages(prev => [...prev, {
         text: input.trim(),
         sender: 'user',
@@ -183,13 +205,17 @@ const OrderChat = ({ className = "" }) => {
         type: 'message',
         content: input.trim()
       }));
+      console.log('✅ Message envoyé');
+
     } catch (error) {
+      console.error('❌ Erreur envoi:', error);
       setError("Erreur d'envoi");
     } finally {
       setIsLoading(false);
     }
   };
 
+  // ... reste du JSX inchangé ...
   return (
     <div className={`w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg flex flex-col ${className}`}>
       <div className="p-4 bg-[#ff5900] text-[#ffd97f] font-['Bobby_Jones_Soft',_sans-serif] rounded-t-xl">

@@ -77,6 +77,18 @@ const ProductDetail = () => {
     router.push('/panier');
   };
 
+  const renderDescription = (description) => {
+    if (!description) return null;
+
+    return description
+      .split('. ') // Divise chaque phrase en utilisant le point suivi d'un espace
+      .map((sentence, index) => (
+        <p key={index}>
+          {sentence} {/* Affiche chaque phrase sur une nouvelle ligne */}
+        </p>
+      ));
+  };
+
   if (loading) return <p>Chargement...</p>;
   if (!product) return <p>Produit non trouvé</p>;
 
@@ -102,7 +114,7 @@ const ProductDetail = () => {
           <div className={styles.productCard}>
             <h1 className={styles.title}>{product.name}</h1>
             <p className={styles.description}>{product.description}</p>
-            <p className={styles.detailedDesc}>{product.detailed_desc}</p>
+            <div className={styles.detailedDesc}>{renderDescription(product.detailed_desc)}</div>
             <p className={styles.ingredients}>
               <strong>Ingrédients :</strong> {product.ingredients}
             </p>
