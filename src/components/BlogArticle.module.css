@@ -2,14 +2,14 @@
 .articleContainer {
   width: 100%;
   min-height: 100vh;
-  background-color: #FFE4A7; /* Fond jaune doux */
+  background-color: #ffd97f00; /* Fond jaune doux */
   padding: 2rem 1rem;
 }
 
 .contentWrapper {
   max-width: 1000px;
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.95); /* Fond blanc légèrement transparent */
+  background: rgba(255, 255, 255, 0); /* Fond blanc légèrement transparent */
   border-radius: 1.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
