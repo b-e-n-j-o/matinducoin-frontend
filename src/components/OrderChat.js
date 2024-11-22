@@ -1,25 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const TypingMessage = ({ text, onComplete }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timer = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 15);
-      return () => clearTimeout(timer);
-    } else if (onComplete) {
-      onComplete();
-    }
-  }, [currentIndex, text, onComplete]);
-
-  return <div className="whitespace-pre-wrap">{displayedText}</div>;
-};
-
 const OrderChat = ({ className = "" }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -30,7 +11,6 @@ const OrderChat = ({ className = "" }) => {
   const [showMessages, setShowMessages] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
-  const messageCount = useRef(0);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,47 +22,30 @@ const OrderChat = ({ className = "" }) => {
 
   const handleNewMessage = (messageText) => {
     if (messageText) {
-      console.log(`📨 Traitement nouveau message: "${messageText}"`);
-      messageCount.current += 1;
-      console.log(`Message count: ${messageCount.current}`);
-
       setIsTyping(true);
-      setMessages(prev => [...prev, {
-        text: messageText,
-        sender: 'assistant',
-        id: Date.now(),
-        typing: true
-      }]);
-      console.log('✅ Message ajouté au chat');
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: messageText,
+          sender: 'assistant',
+          id: Date.now(),
+          typing: true,
+        },
+      ]);
     }
   };
 
   const waitForBotResponse = async () => {
-    console.log('⏳ Attente réponse bot...');
     return new Promise((resolve) => {
-      let messageHandler = (event) => {
+      const messageHandler = (event) => {
         try {
-          console.log("Data brute reçue:", event.data);
-          let messageText = null;
-          try {
-            const message = JSON.parse(event.data);
-            console.log("Message parsé:", message);
-            
-            messageText = message.content || message.text || message.response;
-          } catch {
-            const match = event.data.match(/Réponse générée: (.*?)(?=\n|$)/);
-            if (match) {
-              messageText = match[1].trim();
-            }
-          }
-
-          if (messageText) {
-            console.log("Message extrait:", messageText);
+          const message = JSON.parse(event.data);
+          if (message.type === 'response') {
             ws.current.removeEventListener('message', messageHandler);
-            resolve(messageText);
+            resolve(message.content);
           }
         } catch (error) {
-          console.error('Erreur parsing:', error);
+          console.error('Erreur parsing message:', error);
         }
       };
       ws.current.addEventListener('message', messageHandler);
@@ -94,30 +57,30 @@ const OrderChat = ({ className = "" }) => {
 
     try {
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
-      // Premier message caché
-      console.log("Envoi 'passer commande'");
-      ws.current.send(JSON.stringify({
-        type: 'message',
-        content: 'passer commande'
-      }));
-      const firstResponse = await waitForBotResponse();
+      ws.current.send(
+        JSON.stringify({
+          type: 'message',
+          content: 'passer commande',
+        })
+      );
 
-      // Deuxième message caché  
-      console.log("Envoi 'oui'");
-      ws.current.send(JSON.stringify({
-        type: 'message',
-        content: 'oui'
-      }));
       await waitForBotResponse();
 
-      // Activer l'interface avant la liste des produits
+      ws.current.send(
+        JSON.stringify({
+          type: 'message',
+          content: 'oui',
+        })
+      );
+
+      await waitForBotResponse();
       setShowMessages(true);
       setIsInitialized(true);
     } catch (error) {
-      console.error("Erreur initialisation:", error);
+      console.error('Erreur initialisation:', error);
       setError("Erreur lors de l'initialisation du chat");
     }
   };
@@ -126,34 +89,18 @@ const OrderChat = ({ className = "" }) => {
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
-      console.log("WebSocket connecté");
       initializeOrderChat();
     };
 
     ws.current.onmessage = (event) => {
       try {
-        console.log("Message reçu:", event.data);
         const message = JSON.parse(event.data);
-        
-        let messageText = null;
         if (message.type === 'response') {
-          messageText = message.content;
-        } else if (message.type === 'error') {
-          console.error("Erreur reçue:", message.message);
-          return;
-        }
-
-        if (messageText && (isInitialized || message.type === 'response')) {
-          handleNewMessage(messageText);
+          handleNewMessage(message.content);
         }
       } catch (error) {
         console.error('Erreur traitement message:', error);
       }
-    };
-
-    ws.current.onerror = (error) => {
-      console.error("❌ WebSocket erreur:", error);
-      setError("Erreur de connexion");
     };
 
     ws.current.onclose = () => {
@@ -167,6 +114,33 @@ const OrderChat = ({ className = "" }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (isInitialized) {
+      const timer = setTimeout(() => {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        if (cart.length > 0) {
+          const cartMessage = cart
+            .map((item) => `${item.quantity} x ${item.name}`)
+            .join(', ');
+
+          setMessages((prev) => [
+            ...prev,
+            { text: cartMessage, sender: 'user', id: Date.now() },
+          ]);
+
+          ws.current.send(
+            JSON.stringify({
+              type: 'message',
+              content: cartMessage,
+            })
+          );
+        }
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isInitialized]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -176,21 +150,17 @@ const OrderChat = ({ className = "" }) => {
     setIsLoading(true);
 
     try {
-      // Afficher le message utilisateur immédiatement
-      const userMessageObj = {
-        text: userMessage,
-        sender: 'user',
-        id: Date.now()
-      };
-      setMessages(prev => [...prev, userMessageObj]);
+      setMessages((prev) => [
+        ...prev,
+        { text: userMessage, sender: 'user', id: Date.now() },
+      ]);
 
-      // Envoyer au backend
-      ws.current.send(JSON.stringify({
-        type: 'message',
-        content: userMessage
-      }));
-      
-      console.log("Message utilisateur envoyé et affiché:", userMessage);
+      ws.current.send(
+        JSON.stringify({
+          type: 'message',
+          content: userMessage,
+        })
+      );
     } catch (error) {
       setError("Erreur d'envoi");
     } finally {
@@ -210,9 +180,9 @@ const OrderChat = ({ className = "" }) => {
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div 
+            <div
               className={`max-w-[80%] rounded-lg p-3 ${
-                message.sender === 'user' 
+                message.sender === 'user'
                   ? 'bg-[#ff5900] text-[#ffd97f]'
                   : 'bg-gray-100 text-gray-800'
               }`}

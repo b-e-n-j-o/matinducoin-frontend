@@ -145,7 +145,7 @@ const CartPage = () => {
             </div>
           </>
         )}
-        <Link href="/products" className={styles.continueShoppingLink}>
+        <Link href="/produits" className={styles.continueShoppingLink}>
           Continuer vos achats
         </Link>
       </div>
