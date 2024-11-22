@@ -40,16 +40,16 @@ const OrderChat = ({ className = "" }) => {
   }, [messages, isTyping]);
 
   const handleNewMessage = (messageText) => {
-    if (messageText && showMessages) {
-      console.log("Ajout message au chat:", messageText);
-      setIsTyping(true);
-      setMessages(prev => [...prev, {
-        text: messageText,
-        sender: 'assistant',
-        id: Date.now(),
-        typing: true
-      }]);
-    }
+    if (!messageText) return;
+    
+    console.log("Nouveau message à traiter:", messageText);
+    setIsTyping(true);
+    setMessages(prev => [...prev, {
+      text: messageText,
+      sender: 'assistant',
+      id: Date.now(),
+      typing: true
+    }]);
   };
 
   const waitForBotResponse = async () => {
@@ -75,35 +75,30 @@ const OrderChat = ({ className = "" }) => {
     if (isInitialized) return;
 
     try {
-      console.log("🚀 Début initialisation chat");
-      
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Premier message caché
+      // Premier message masqué
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
       await waitForBotResponse();
 
-      // Deuxième message caché
+      // Deuxième message masqué  
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
       await waitForBotResponse();
-
-      // Attendre le message de confirmation avant d'activer
-      await waitForBotResponse();
       
-      // Activer l'interface
-      setShowMessages(true);
+      // Maintenant on active l'affichage pour le message des produits
       setIsInitialized(true);
+      setShowMessages(true);
 
     } catch (error) {
-      console.error("Erreur initialisation:", error);
+      console.error("Erreur lors de l'initialisation:", error);
       setError("Erreur lors de l'initialisation du chat");
     }
   };
@@ -118,13 +113,17 @@ const OrderChat = ({ className = "" }) => {
 
     ws.current.onmessage = (event) => {
       try {
-        console.log("Message reçu:", event.data);
         const message = JSON.parse(event.data);
-        
-        let messageText = message.text || message.content || message.response;
-        console.log("Message extrait:", messageText, "showMessages:", showMessages);
+        let messageText = null;
 
-        if (messageText && showMessages) {
+        if (message.type === 'response') {
+          messageText = message.content;
+        } else if (message.type === 'error') {
+          console.error("Erreur reçue:", message.message);
+          return;
+        }
+
+        if (messageText && isInitialized) {
           handleNewMessage(messageText);
         }
       } catch (error) {

@@ -5,10 +5,11 @@ import { useRouter } from 'next/router';
 const OrderForm = () => {
   const router = useRouter();
   const { flavor: initialFlavor } = router.query;
+
   const [formData, setFormData] = useState({
     reveilSoleil: '0',
-    matchaMatin: '0', 
-    berryBalance: '0',
+    matchaMatin: '0',
+    berryBalance: '0', 
     deliveryDate: '',
     name: '',
     address: '',
@@ -25,8 +26,36 @@ const OrderForm = () => {
   const quantities = Array.from({ length: 11 }, (_, i) => i.toString());
 
   useEffect(() => {
+    // Récupérer les produits du panier depuis le localStorage
+    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    // Initialiser les quantités des produits en fonction du panier
+    const initialQuantities = cartItems.reduce((acc, item) => {
+      switch (item.name) {
+        case 'Réveil Soleil':
+          acc.reveilSoleil = item.quantity.toString();
+          break;
+        case 'Matcha Matin':
+          acc.matchaMatin = item.quantity.toString();
+          break;
+        case 'Berry Balance':
+          acc.berryBalance = item.quantity.toString();
+          break;
+        default:
+          break;
+      }
+      return acc;
+    }, {});
+
+    setFormData((prevData) => ({
+      ...prevData,
+      ...initialQuantities
+    }));
+  }, []);
+
+  useEffect(() => {
     if (initialFlavor) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
         [initialFlavor]: '1'
       }));
@@ -35,7 +64,7 @@ const OrderForm = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [name]: value
     }));
@@ -43,7 +72,7 @@ const OrderForm = () => {
 
   const handleQuantityChange = (e, productId) => {
     const value = e.target.value;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [productId]: value
     }));
@@ -58,7 +87,7 @@ const OrderForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const hasProducts = Object.entries(formData)
       .filter(([key]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key))
       .some(([_, value]) => value !== '0');
@@ -88,7 +117,7 @@ const OrderForm = () => {
         },
         body: JSON.stringify(apiData),
       });
-      
+
       if (response.ok) {
         await sendOwnerNotification(apiData);
         alert('Commande passée avec succès!');

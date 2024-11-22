@@ -88,11 +88,7 @@ const CartPage = () => {
   const total = cart.reduce((sum, item) => sum + calculateItemPrice(item), 0);
 
   const handleCheckout = () => {
-    if (user) {
-      router.push('/checkout');
-    } else {
-      router.push('/login?redirect=checkout');
-    }
+    router.push('/commander'); // Redirige vers la page de commande
   };
 
   return (
@@ -109,14 +105,34 @@ const CartPage = () => {
                 <div key={item.id} className={styles.cartItem}>
                   <div className={styles.itemInfo}>
                     <h2 className={styles.itemName}>{item.name}</h2>
-                    <p className={styles.itemPrice} dangerouslySetInnerHTML={{ __html: formatItemPrice(item) }}></p>
-                    <p className={styles.itemTotalPrice}>Total: {calculateItemPrice(item).toFixed(2)}$ CAD</p>
+                    <p
+                      className={styles.itemPrice}
+                      dangerouslySetInnerHTML={{ __html: formatItemPrice(item) }}
+                    ></p>
+                    <p className={styles.itemTotalPrice}>
+                      Total: {calculateItemPrice(item).toFixed(2)}$ CAD
+                    </p>
                   </div>
                   <div className={styles.itemActions}>
-                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className={styles.quantityButton}>-</button>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className={styles.quantityButton}
+                    >
+                      -
+                    </button>
                     <span className={styles.quantity}>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className={styles.quantityButton}>+</button>
-                    <button onClick={() => removeItem(item.id)} className={styles.removeButton}>Supprimer</button>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className={styles.quantityButton}
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className={styles.removeButton}
+                    >
+                      Supprimer
+                    </button>
                   </div>
                 </div>
               ))}
@@ -124,14 +140,9 @@ const CartPage = () => {
             <div className={styles.cartSummary}>
               <p className={styles.totalPrice}>Total: {total.toFixed(2)}$ CAD</p>
               <button className={styles.checkoutButton} onClick={handleCheckout}>
-                {user ? 'Finaliser la commande' : 'Se connecter pour commander'}
+                Continuer vers ma commande
               </button>
             </div>
-            {!user && (
-              <p className={styles.loginMessage}>
-                Connectez-vous pour sauvegarder votre panier et accéder à des offres exclusives.
-              </p>
-            )}
           </>
         )}
         <Link href="/products" className={styles.continueShoppingLink}>
