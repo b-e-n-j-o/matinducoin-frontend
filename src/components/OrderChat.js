@@ -28,7 +28,6 @@ const OrderChat = ({ className = "" }) => {
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [confirmationReceived, setConfirmationReceived] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
 
@@ -47,8 +46,7 @@ const OrderChat = ({ className = "" }) => {
         text: messageText,
         sender: 'assistant',
         id: Date.now(),
-        typing: true,
-        visible: true // Toujours visible maintenant
+        typing: true
       }]);
     }
   };
@@ -93,14 +91,12 @@ const OrderChat = ({ className = "" }) => {
       
       setConfirmationReceived(true);
       setIsInitialized(true);
-      setShowMessages(true);
 
       setMessages([{
         text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
         sender: 'assistant',
         id: Date.now(),
-        typing: true,
-        visible: true
+        typing: true
       }]);
 
     } catch (error) {
@@ -170,8 +166,7 @@ const OrderChat = ({ className = "" }) => {
       setMessages(prev => [...prev, {
         text: input.trim(),
         sender: 'user',
-        id: Date.now(),
-        visible: true // Toujours visible maintenant
+        id: Date.now()
       }]);
 
       ws.current.send(JSON.stringify({
