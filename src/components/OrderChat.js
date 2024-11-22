@@ -33,11 +33,11 @@ const OrderChat = ({ className = "" }) => {
   const messageCount = useRef(0);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Supprimé le scroll automatique
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Supprimé le scroll automatique
   }, [messages, isTyping]);
 
   const handleNewMessage = (messageText) => {
