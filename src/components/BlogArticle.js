@@ -6,36 +6,20 @@ import ProductCard from './ProductCard';
 import styles from './BlogArticle.module.css';
 import { fetchArticle } from '../services/api';
 
-// Helper pour gérer les URLs d'images
-const getImageUrl = (imagePath) => {
-  // Si l'URL est déjà absolue, la retourner telle quelle
-  if (imagePath.startsWith('http')) {
-    return imagePath;
-  }
-  // Sinon, construire l'URL complète
-  return `https://matinducoin-backend-b2f47bd8118b.herokuapp.com${imagePath}`;
-};
-
 const BlogArticle = ({ articleId }) => {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [associatedProducts, setAssociatedProducts] = useState([]);
 
-  // Fetch article data with better error handling
+  // Fetch article data
   useEffect(() => {
     const getArticle = async () => {
       try {
-        console.log('Fetching article with ID:', articleId);
         setLoading(true);
         const data = await fetchArticle(articleId);
-        console.log('Received article data:', data);
         setArticle(data);
       } catch (err) {
-        console.error('Error fetching article:', {
-          message: err.message,
-          stack: err.stack
-        });
         setError(err.message);
       } finally {
         setLoading(false);
@@ -49,28 +33,22 @@ const BlogArticle = ({ articleId }) => {
 
   // Loading state
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-xl">Chargement de l'article...</p>
-      </div>
-    );
+    return <div className="flex justify-center items-center min-h-screen">
+      <p className="text-xl">Chargement...</p>
+    </div>;
   }
 
   // Error state
   if (error) {
-    return (
-      <div className={styles.error}>
-        Une erreur s'est produite : {error}
-      </div>
-    );
+    return <div className={styles.error}>Erreur: {error}</div>;
   }
 
-  // No article state
+  // No article found state
   if (!article) {
     return <div className={styles.error}>Article non trouvé</div>;
   }
 
-  // Destructure with validation
+  // Destructuration avec valeurs par défaut
   const { 
     title = '', 
     image_banner = '', 
@@ -86,11 +64,10 @@ const BlogArticle = ({ articleId }) => {
         try {
           const productRequests = product_ids.map(async (productId) => {
             try {
-              const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`);
+              const response = await fetch(`https://matinducoin-backend-b2f47bd8118b.herokuapp.com/api/products/${productId}`);
               if (!response.ok) return null;
               return await response.json();
             } catch (error) {
-              console.error(`Erreur lors du chargement du produit ${productId}:`, error);
               return null;
             }
           });
@@ -106,72 +83,99 @@ const BlogArticle = ({ articleId }) => {
     fetchAssociatedProducts();
   }, [product_ids]);
 
-  // Render content with better error handling
-  const renderContent = (contentItems) => {
-    if (!Array.isArray(contentItems)) {
-      console.error('Content is not an array:', contentItems);
-      return null;
+  const sectionRefs = useRef(content.map(() => React.createRef()));
+
+  const scrollToSection = (index) => {
+    const section = sectionRefs.current[index]?.current;
+    if (section) {
+      const yOffset = -150;
+      const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
+  };
 
-    return contentItems.map((item, index) => {
-      try {
-        switch (item?.type) {
-          case 'header':
-            const HeaderTag = `h${item.level || 2}`;
-            return (
-              <div key={index} className={styles.sectionHeaderWrapper}>
-                <HeaderTag className={`${styles.sectionHeader} ${styles[`h${item.level}`]}`}>
-                  {item.data}
-                </HeaderTag>
-              </div>
-            );
-          
-          case 'text':
-            if (!item.data?.content) return null;
-            
-            return (
-              <div key={index} className={styles.textContent}>
-                {item.data.content.map((contentItem, contentIndex) => {
-                  switch (contentItem.type) {
-                    case 'paragraph':
-                      return (
-                        <div key={contentIndex} className={styles.paragraphBox}>
-                          {contentItem.sentences.map((sentence, sentenceIndex) => (
-                            <p key={sentenceIndex} className={styles.sentence}>
-                              {sentence}
-                            </p>
-                          ))}
-                        </div>
-                      );
-                    
-                    case 'list':
-                      return (
-                        <div key={contentIndex} className={styles.paragraphBox}>
-                          <ul className={styles.list}>
-                            {contentItem.items.map((item, itemIndex) => (
-                              <li key={itemIndex} className={styles.listItem}>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    
-                    default:
-                      return null;
-                  }
-                })}
-              </div>
-            );
+  const renderTableOfContents = () => {
+    const headers = content.filter(item => 
+      item.type === 'header' && (item.level === 1 || item.level === 2)
+    );
 
-          default:
-            return null;
-        }
-      } catch (error) {
-        console.error(`Error rendering content item ${index}:`, error);
+    if (headers.length === 0) return null;
+
+    return (
+      <div className={styles.tableOfContents}>
+        <h2 className={styles.tocTitle}>Sommaire</h2>
+        <ul className={styles.tocList}>
+          {headers.map((header, index) => (
+            <li key={index} className={styles.tocItem}>
+              <button onClick={() => scrollToSection(index)}>
+                {header.data}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+  
+  const ScrollAnimationWrapper = ({ children }) => {
+    const ref = useRef(null);
+    const isVisible = useIntersectionObserver(ref, { threshold: 0.1 });
+
+    return (
+      <div ref={ref} className={`${styles.fadeIn} ${isVisible ? styles.visible : ''}`}>
+        {children}
+      </div>
+    );
+  };
+
+  const renderContent = (contentItem) => {
+    switch (contentItem.type) {
+      case 'header':
+        const HeaderTag = `h${contentItem.level}`;
+        return (
+          <ScrollAnimationWrapper>
+            <HeaderTag className={`${styles.sectionHeader} ${styles[`h${contentItem.level}`]}`}>
+              {contentItem.data}
+            </HeaderTag>
+          </ScrollAnimationWrapper>
+        );
+      
+      case 'text':
+        return contentItem.data.content.map((textContent, index) => {
+          if (textContent.type === 'paragraph') {
+            return (
+              <ScrollAnimationWrapper key={index}>
+                <div className={styles.paragraphBox}>
+                  {textContent.sentences.map((sentence, sentenceIndex) => (
+                    <p key={sentenceIndex} className={styles.sentence}>
+                      {sentence}
+                    </p>
+                  ))}
+                </div>
+              </ScrollAnimationWrapper>
+            );
+          }
+          if (textContent.type === 'list') {
+            return (
+              <ScrollAnimationWrapper key={index}>
+                <div className={styles.paragraphBox}>
+                  <ul className={styles.list}>
+                    {textContent.items.map((item, itemIndex) => (
+                      <li key={itemIndex} className={styles.listItem}>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </ScrollAnimationWrapper>
+            );
+          }
+          return null;
+        });
+      
+      default:
         return null;
-      }
-    });
+    }
   };
 
   return (
@@ -181,18 +185,24 @@ const BlogArticle = ({ articleId }) => {
           <h1 className={styles.title}>{title}</h1>
           {image_banner && (
             <div className={styles.bannerContainer}>
-              <img
-                src={getImageUrl(image_banner)}
-                alt="Bannière de l'article"
+              <img 
+                src={image_banner}
+                alt={title}
                 className={styles.bannerImage}
               />
             </div>
           )}
         </header>
+        {renderTableOfContents()}
         <div className={styles.contentContainer}>
-          {renderContent(content)}
+          {content.map((contentItem, index) => (
+            <div key={index} ref={sectionRefs.current[index]}>
+              {renderContent(contentItem)}
+            </div>
+          ))}
         </div>
-        {/* Products and FAQ sections removed for brevity */}
+        {renderAssociatedProducts()}
+        {renderFAQ()}
       </article>
     </div>
   );
