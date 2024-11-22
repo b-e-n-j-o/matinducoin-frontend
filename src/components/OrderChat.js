@@ -93,37 +93,31 @@ const OrderChat = ({ className = "" }) => {
     if (isInitialized) return;
 
     try {
-      console.log("🚀 Début initialisation chat");
-      
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      console.log("1️⃣ Envoi 'passer commande'");
+      // Premier message caché
+      console.log("Envoi 'passer commande'");
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
       const firstResponse = await waitForBotResponse();
-      console.log("Première réponse reçue:", firstResponse);
 
-      console.log("2️⃣ Envoi 'oui'");
+      // Deuxième message caché  
+      console.log("Envoi 'oui'");
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
-      const secondResponse = await waitForBotResponse();
-      console.log("Deuxième réponse reçue:", secondResponse);
+      await waitForBotResponse();
 
-      console.log("✅ Activation interface");
+      // Activer l'interface avant la liste des produits
       setShowMessages(true);
       setIsInitialized(true);
-      
-      const productMessage = await waitForBotResponse();
-      handleNewMessage(productMessage);
-
     } catch (error) {
-      console.error("❌ Erreur initialisation:", error);
+      console.error("Erreur initialisation:", error);
       setError("Erreur lors de l'initialisation du chat");
     }
   };
@@ -132,29 +126,24 @@ const OrderChat = ({ className = "" }) => {
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
-      console.log("🔌 WebSocket connecté");
+      console.log("WebSocket connecté");
       initializeOrderChat();
     };
 
     ws.current.onmessage = (event) => {
-      if (!isInitialized) return;
-      
       try {
         console.log("Message reçu:", event.data);
+        const message = JSON.parse(event.data);
+        
         let messageText = null;
-
-        try {
-          const message = JSON.parse(event.data);
-          messageText = message.content || message.text || message.response;
-        } catch {
-          const match = event.data.match(/Réponse générée: (.*?)(?=\n|$)/);
-          if (match) {
-            messageText = match[1].trim();
-          }
+        if (message.type === 'response') {
+          messageText = message.content;
+        } else if (message.type === 'error') {
+          console.error("Erreur reçue:", message.message);
+          return;
         }
 
-        if (messageText && showMessages) {
-          console.log("✅ Affichage message:", messageText);
+        if (messageText && (isInitialized || message.type === 'response')) {
           handleNewMessage(messageText);
         }
       } catch (error) {
