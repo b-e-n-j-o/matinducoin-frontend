@@ -71,11 +71,11 @@ const Navbar = () => {
   }, [user]);
 
   const menuItems = [
-    { name: 'Accueil', path: '/' },
+    { name: 'Accueil', path: '/home' },
     { name: 'Produits', path: '/produits' },
     { name: 'Articles', path: '/articles' },
     { name: 'Commander', path: '/commander' },
-    user ? { name: 'Profil', path: '/profile' } : { name: 'Login', path: '/login' },
+    // user ? { name: 'Profil', path: '/profile' } : { name: 'Login', path: '/login' },
   ];
 
   return (

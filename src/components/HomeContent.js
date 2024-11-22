@@ -205,7 +205,7 @@ const HomeContent = ({ sections = [] }) => {
         />
 
         <HeroSection
-          id="66c6ab3440064f42b6213f6f"
+          id="67144ab64f6f06c98db78037"
           title={
             <h2 className={homeStyles.heroTitle}>
               Une <em><strong>dose quotidienne</strong></em> de vitalité
@@ -271,7 +271,7 @@ const HomeContent = ({ sections = [] }) => {
         />
 
         <HeroSection
-          id="66c6ab3440064f42b6213f71"
+          id="671a49924f6f06c98db7803a"
           title={
             <h2 className={homeStyles.heroTitle}>
               Une semaine d'énergie livrée en <em><strong>une, ou deux fois</strong></em>
@@ -304,7 +304,7 @@ const HomeContent = ({ sections = [] }) => {
         />
 
         <HeroSection
-          id="66c6ab3440064f42b6213f74"
+          id="66f492e440064f42b6213f75"
           title={
             <h2 className={homeStyles.heroTitle}>
               Énergie naturelle, <em><strong>sans caféine</strong></em>
