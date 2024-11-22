@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { fetchArticle } from '../services/api';
+import styles from './BlogArticle.module.css';
 
 const BlogArticle = ({ articleId }) => {
   const [article, setArticle] = useState(null);
@@ -25,42 +26,63 @@ const BlogArticle = ({ articleId }) => {
   }, [articleId]);
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">
-      <p className="text-xl">Chargement...</p>
-    </div>;
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loader}></div>
+        <p>Chargement...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="flex justify-center items-center min-h-screen">
-      <p className="text-red-500">Erreur: {error}</p>
-    </div>;
+    return (
+      <div className={styles.errorContainer}>
+        <p className={styles.errorMessage}>Erreur: {error}</p>
+      </div>
+    );
   }
 
   if (!article) {
-    return <div className="flex justify-center items-center min-h-screen">
-      <p>Aucun article trouvé</p>
-    </div>;
+    return (
+      <div className={styles.errorContainer}>
+        <p>Aucun article trouvé</p>
+      </div>
+    );
   }
 
   const renderContent = (contentItem) => {
     switch (contentItem.type) {
       case 'header':
         const HeaderTag = `h${contentItem.level}`;
-        return <HeaderTag className="text-2xl font-bold my-4">{contentItem.data}</HeaderTag>;
+        return (
+          <div className={styles.headerContainer}>
+            <HeaderTag className={styles[`h${contentItem.level}`]}>
+              {contentItem.data}
+            </HeaderTag>
+          </div>
+        );
       
       case 'text':
         return contentItem.data.content.map((textContent, index) => {
           if (textContent.type === 'paragraph') {
-            return <p key={index} className="my-4">
-              {textContent.sentences.join(' ')}
-            </p>;
+            return (
+              <div key={index} className={styles.paragraphContainer}>
+                <p className={styles.paragraph}>
+                  {textContent.sentences.join(' ')}
+                </p>
+              </div>
+            );
           }
           if (textContent.type === 'list') {
-            return <ul key={index} className="list-disc ml-6 my-4">
-              {textContent.items.map((item, itemIndex) => (
-                <li key={itemIndex} className="my-2">{item}</li>
-              ))}
-            </ul>;
+            return (
+              <div key={index} className={styles.listContainer}>
+                <ul className={styles.list}>
+                  {textContent.items.map((item, itemIndex) => (
+                    <li key={itemIndex} className={styles.listItem}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            );
           }
           return null;
         });
@@ -71,23 +93,27 @@ const BlogArticle = ({ articleId }) => {
   };
 
   return (
-    <article className="max-w-4xl mx-auto px-4 py-8">
-      {article.image_banner && (
-        <img 
-          src={article.image_banner} 
-          alt={article.title}
-          className="w-full h-64 object-cover rounded-lg mb-8"
-        />
-      )}
-      
-      <h1 className="text-4xl font-bold mb-8">{article.title}</h1>
-      
-      <div className="prose max-w-none">
-        {article.content.map((contentItem, index) => (
-          <div key={index}>
-            {renderContent(contentItem)}
+    <article className={styles.articleContainer}>
+      <div className={styles.contentWrapper}>
+        {article.image_banner && (
+          <div className={styles.bannerWrapper}>
+            <img 
+              src={article.image_banner} 
+              alt={article.title}
+              className={styles.bannerImage}
+            />
           </div>
-        ))}
+        )}
+        
+        <h1 className={styles.title}>{article.title}</h1>
+        
+        <div className={styles.articleContent}>
+          {article.content.map((contentItem, index) => (
+            <div key={index} className={styles.contentItem}>
+              {renderContent(contentItem)}
+            </div>
+          ))}
+        </div>
       </div>
     </article>
   );
