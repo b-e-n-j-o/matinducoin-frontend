@@ -58,15 +58,15 @@
 }
 
 .productCard {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: #fff;
   border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px 30px; /* Ajustement du padding pour réduire la taille */
+  max-width: 600px; /* Réduction de la largeur maximale */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  line-height: 1.6;
   font-family: "Bobby Jones Soft", sans-serif;
-  margin-bottom: 40px;
-  width: 100%;
-  max-width: 700px;
 }
+
 
 .productCard h1,
 .productCard p,

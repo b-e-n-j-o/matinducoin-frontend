@@ -62,17 +62,27 @@ const OrderChat = ({ className = "" }) => {
     return new Promise((resolve) => {
       let messageHandler = (event) => {
         try {
-          const message = JSON.parse(event.data);
-          console.log("🤖 Réponse bot reçue:", message);
-          
-          if (message && (message.content || message.text)) {
+          console.log("Data brute reçue:", event.data);
+          let messageText = null;
+          try {
+            const message = JSON.parse(event.data);
+            console.log("Message parsé:", message);
+            
+            messageText = message.content || message.text || message.response;
+          } catch {
+            const match = event.data.match(/Réponse générée: (.*?)(?=\n|$)/);
+            if (match) {
+              messageText = match[1].trim();
+            }
+          }
+
+          if (messageText) {
+            console.log("Message extrait:", messageText);
             ws.current.removeEventListener('message', messageHandler);
-            const response = message.content || message.text;
-            console.log(`✅ Réponse valide: "${response}"`);
-            resolve(response);
+            resolve(messageText);
           }
         } catch (error) {
-          console.error('❌ Erreur parsing réponse:', error);
+          console.error('Erreur parsing:', error);
         }
       };
       ws.current.addEventListener('message', messageHandler);
@@ -80,38 +90,37 @@ const OrderChat = ({ className = "" }) => {
   };
 
   const initializeOrderChat = async () => {
-    if (isInitialized) {
-      console.log("ℹ️ Chat déjà initialisé");
-      return;
-    }
+    if (isInitialized) return;
 
     try {
       console.log("🚀 Début initialisation chat");
       
       while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-        console.log("⏳ Attente connexion WebSocket...");
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      console.log("1️⃣ Envoi commande initiale");
+      console.log("1️⃣ Envoi 'passer commande'");
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
       }));
       const firstResponse = await waitForBotResponse();
-      console.log("Première réponse:", firstResponse);
+      console.log("Première réponse reçue:", firstResponse);
 
-      console.log("2️⃣ Envoi confirmation");
+      console.log("2️⃣ Envoi 'oui'");
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'oui'
       }));
       const secondResponse = await waitForBotResponse();
-      console.log("Deuxième réponse:", secondResponse);
+      console.log("Deuxième réponse reçue:", secondResponse);
 
-      console.log("🎯 Activation affichage messages");
+      console.log("✅ Activation interface");
       setShowMessages(true);
       setIsInitialized(true);
+      
+      const productMessage = await waitForBotResponse();
+      handleNewMessage(productMessage);
 
     } catch (error) {
       console.error("❌ Erreur initialisation:", error);
@@ -128,42 +137,28 @@ const OrderChat = ({ className = "" }) => {
     };
 
     ws.current.onmessage = (event) => {
+      if (!isInitialized) return;
+      
       try {
-        console.log("\n=== Nouveau message reçu ===");
-        console.log("Message brut:", event.data);
-        const message = JSON.parse(event.data);
-        console.log("Message parsé:", message);
-
+        console.log("Message reçu:", event.data);
         let messageText = null;
-        if (typeof message === 'object') {
-          if (message.text || message.content || message.response) {
-            messageText = message.text || message.content || message.response;
-            console.log("Message format standard:", messageText);
-          }
-          else if (message.INFO && typeof message.INFO === 'string') {
-            const infoMatch = message.INFO.match(/Réponse générée: (.*?)(?=\n|$)/);
-            if (infoMatch) {
-              messageText = infoMatch[1].trim();
-              console.log("Message format log:", messageText);
-            }
+
+        try {
+          const message = JSON.parse(event.data);
+          messageText = message.content || message.text || message.response;
+        } catch {
+          const match = event.data.match(/Réponse générée: (.*?)(?=\n|$)/);
+          if (match) {
+            messageText = match[1].trim();
           }
         }
-
-        console.log("États actuels:");
-        console.log("- showMessages:", showMessages);
-        console.log("- isInitialized:", isInitialized);
-        console.log("- messageCount:", messageCount.current);
-        console.log("Message sera affiché:", Boolean(messageText && showMessages));
 
         if (messageText && showMessages) {
-          console.log("✅ Ajout message au chat");
+          console.log("✅ Affichage message:", messageText);
           handleNewMessage(messageText);
-        } else {
-          console.log("❌ Message ignoré");
         }
-
       } catch (error) {
-        console.error('Erreur traitement message:', error, 'Data:', event.data);
+        console.error('Erreur traitement message:', error);
       }
     };
 
@@ -215,7 +210,6 @@ const OrderChat = ({ className = "" }) => {
     }
   };
 
-  // ... reste du JSX inchangé ...
   return (
     <div className={`w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg flex flex-col ${className}`}>
       <div className="p-4 bg-[#ff5900] text-[#ffd97f] font-['Bobby_Jones_Soft',_sans-serif] rounded-t-xl">
