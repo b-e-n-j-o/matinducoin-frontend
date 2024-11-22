@@ -1,4 +1,3 @@
-// pages/order.js
 import React, { useState, useEffect } from 'react';
 import OrderForm from '../components/OrderForm';
 import OrderChat from '../components/OrderChat';
@@ -8,9 +7,19 @@ const OrderPage = () => {
   const [orderMethod, setOrderMethod] = useState('form');
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Assurer que le rendu initial est côté client et afficher le formulaire immédiatement
+  // Empêcher tout défilement forcé au chargement de la page
   useEffect(() => {
+    const preventScroll = () => {
+      window.scrollTo(0, 0); // Forcer la position initiale
+    };
+    window.addEventListener('scroll', preventScroll);
+
+    // Définir que le rendu initial est prêt
     setIsLoaded(true);
+
+    return () => {
+      window.removeEventListener('scroll', preventScroll); // Nettoyer
+    };
   }, []);
 
   return (
