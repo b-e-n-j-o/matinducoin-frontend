@@ -27,7 +27,6 @@ const OrderChat = ({ className = "" }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [confirmationReceived, setConfirmationReceived] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
@@ -78,6 +77,7 @@ const OrderChat = ({ className = "" }) => {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
+      // Messages cachés d'initialisation
       ws.current.send(JSON.stringify({
         type: 'message',
         content: 'passer commande'
@@ -89,17 +89,10 @@ const OrderChat = ({ className = "" }) => {
         content: 'oui'
       }));
       await waitForBotResponse();
-      
-      setConfirmationReceived(true);
-      setIsInitialized(true);
-      setShowMessages(true);
 
-      setMessages([{
-        text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
-        sender: 'assistant',
-        id: Date.now(),
-        typing: true
-      }]);
+      // Activer l'affichage pour les messages suivants
+      setShowMessages(true);
+      setIsInitialized(true);
 
     } catch (error) {
       console.error("Erreur lors de l'initialisation:", error);
@@ -122,15 +115,10 @@ const OrderChat = ({ className = "" }) => {
         console.log("Message parsé:", message);
 
         let messageText = null;
-        
-        // Chercher le message dans les différents formats possibles
         if (typeof message === 'object') {
-          // Format standard
           if (message.text || message.content || message.response) {
             messageText = message.text || message.content || message.response;
-          }
-          // Format des logs Python
-          else if (message.INFO && typeof message.INFO === 'string') {
+          } else if (message.INFO && typeof message.INFO === 'string') {
             const infoMatch = message.INFO.match(/Réponse générée: (.*?)(?=\n|$)/);
             if (infoMatch) {
               messageText = infoMatch[1].trim();
@@ -138,7 +126,7 @@ const OrderChat = ({ className = "" }) => {
           }
         }
 
-        console.log("Texte extrait:", messageText);
+        console.log("Texte extrait:", messageText, "showMessages:", showMessages);
 
         if (messageText && showMessages) {
           handleNewMessage(messageText);
@@ -163,7 +151,7 @@ const OrderChat = ({ className = "" }) => {
         ws.current.close();
       }
     };
-  }, [showMessages]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -21,11 +21,9 @@ const ProductDetail = () => {
     if (id) {
       const fetchProductData = async () => {
         try {
-          // Récupération du produit principal
           const productData = await fetchProduct(id);
           setProduct(productData);
 
-          // Récupération des produits associés
           if (productData.product_ids && productData.product_ids.length > 0) {
             const relatedProductsData = await fetchRelatedProducts(
               productData.product_ids.filter((relatedId) => relatedId !== id)
@@ -113,17 +111,19 @@ const ProductDetail = () => {
               <a className={styles.articleLink}>Lire l'article associé</a>
             </Link>
 
-            <select
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className={styles.quantitySelect}
-            >
-              {product.purchaseOptions.map((option, index) => (
-                <option key={index} value={index + 1}>
-                  {option} - {(product.price * (index + 1)).toFixed(2)} CAD
-                </option>
-              ))}
-            </select>
+            <div className={styles.packSelection}>
+              <select
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className={styles.quantitySelect}
+              >
+                {product.purchaseOptions.map((option, index) => (
+                  <option key={index} value={index + 1}>
+                    {option} - {(product.price * (index + 1)).toFixed(2)} CAD
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <button className={styles.addToCartButton} onClick={addToCart}>
               Ajouter au panier
@@ -133,7 +133,7 @@ const ProductDetail = () => {
 
         {relatedProducts.length > 0 && (
           <div className={styles.relatedProducts}>
-            <h2>Produits associés</h2>
+            <h2 className={styles.randomProductTitle}>Produits associés</h2>
             <div className={styles.relatedProductsList}>
               {relatedProducts.map((relatedProduct) => (
                 <ProductCard key={relatedProduct._id} product={relatedProduct} />
