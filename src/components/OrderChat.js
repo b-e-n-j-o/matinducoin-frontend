@@ -27,6 +27,7 @@ const OrderChat = ({ className = "" }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [initStepCompleted, setInitStepCompleted] = useState(false);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
 
@@ -39,7 +40,7 @@ const OrderChat = ({ className = "" }) => {
   }, [messages, isTyping]);
 
   const handleNewMessage = (messageText) => {
-    if (messageText && isInitialized) {
+    if (messageText) {
       setIsTyping(true);
       setMessages(prev => [...prev, {
         text: messageText,
@@ -55,6 +56,7 @@ const OrderChat = ({ className = "" }) => {
       let messageHandler = (event) => {
         try {
           const message = JSON.parse(event.data);
+          console.log("waitForBotResponse reçoit:", message);
           if (message && (message.content || message.text)) {
             ws.current.removeEventListener('message', messageHandler);
             resolve(message.content || message.text);
@@ -75,26 +77,17 @@ const OrderChat = ({ className = "" }) => {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
+      // Envoyer le message "passer commande" (partie de l'init)
       ws.current.send(JSON.stringify({
-        type: 'init_message',
+        type: 'message',
         content: 'passer commande'
       }));
       await waitForBotResponse();
-
-      ws.current.send(JSON.stringify({
-        type: 'init_message',
-        content: 'oui'
-      }));
-      await waitForBotResponse();
-
-      setMessages([{
-        text: "Bonjour ! Je suis là pour prendre votre commande. Voici nos produits disponibles :\n\n- Reveil Soleil (2.99$) : Shot énergisant au gingembre\n- Matcha Matin (3.49$) : Shot au matcha et gingembre\n- Berry Balance (3.49$) : Shot aux baies et gingembre\n\nQue souhaitez-vous commander ?",
-        sender: 'assistant',
-        id: Date.now(),
-        typing: true
-      }]);
-
+      
+      // Une fois qu'on a la réponse à "passer commande", l'init est terminée
+      setInitStepCompleted(true);
       setIsInitialized(true);
+
     } catch (error) {
       console.error("Erreur lors de l'initialisation:", error);
       setError("Erreur lors de l'initialisation du chat");
@@ -112,12 +105,27 @@ const OrderChat = ({ className = "" }) => {
     ws.current.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        const messageText = message.text || message.content || message.response;
-        console.log("Message reçu:", message, "Text extrait:", messageText);
-        
-        if (messageText && (isInitialized || message.type !== 'init_message')) {
+        console.log("Message reçu:", message);
+
+        let messageText = null;
+        if (typeof message === 'object') {
+          if (message.text || message.content || message.response) {
+            messageText = message.text || message.content || message.response;
+          } else if (message.INFO && typeof message.INFO === 'string') {
+            const infoText = message.INFO;
+            if (infoText.includes('Réponse générée:')) {
+              messageText = infoText.split('Réponse générée:')[1].trim();
+            }
+          }
+        }
+
+        // N'afficher le message que si:
+        // - soit l'étape d'init est terminée (initStepCompleted)
+        // - soit c'est le premier message système
+        if (messageText && (initStepCompleted || !isInitialized)) {
           handleNewMessage(messageText);
         }
+
       } catch (error) {
         console.error('Erreur de traitement du message:', error);
       }
