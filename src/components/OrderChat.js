@@ -125,7 +125,7 @@ const OrderChat = ({ className = "" }) => {
           }));
           setMessages(prev => [...prev, { text: message, sender: 'user', id: Date.now() }]);
         }
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.error("Erreur initialisation:", error);
       setError("Erreur lors de l'initialisation du chat");
