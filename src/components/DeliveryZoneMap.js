@@ -66,11 +66,12 @@ const DeliveryZoneMap = () => {
 
     // Polygone du Plateau Mont-Royal
     const plateauCoords = [
-      [45.509503, -73.550456],
-      [45.520123, -73.547025], 
-      [45.530564, -73.569471],
-      [45.522187, -73.577800],
-      [45.509503, -73.550456] // Fermer le polygone en revenant au point de départ
+      [45.513813, -73.576380],
+      [45.518884, -73.572056],
+      [45.537815, -73.585284],
+      [45.527919, -73.594986],
+      [45.522929, -73.583830],
+      [45.513813, -73.576380] // Fermer le polygone en revenant au point de départ
     ];
     L.polygon(plateauCoords, {
       color: '#FF5900',
