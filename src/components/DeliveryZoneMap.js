@@ -93,6 +93,28 @@ const DeliveryZoneMap = () => {
       })
     }).addTo(map);
 
+    // Ajouter le texte pour Laurier
+    L.marker([45.530935, -73.586112], {
+      icon: L.divIcon({
+        className: 'label-text',
+        html: `<div style="background-color: #FBD461; color: #FF5900; padding: 5px; border-radius: 5px;">
+                 <strong>Laurier</strong>
+               </div>`,
+        iconSize: [100, 40]
+      })
+    }).addTo(map);
+
+    // Ajouter le texte pour Le Village
+    L.marker([45.521196, -73.557801], {
+      icon: L.divIcon({
+        className: 'label-text',
+        html: `<div style="background-color: #FBD461; color: #FF5900; padding: 5px; border-radius: 5px;">
+                 <strong>Le Village</strong>
+               </div>`,
+        iconSize: [100, 40]
+      })
+    }).addTo(map);
+
   }, []);
 
   return (
