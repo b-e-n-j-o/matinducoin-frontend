@@ -188,6 +188,15 @@ const OrderForm = () => {
                 required
                 value={formData.deliveryDate}
                 onChange={handleInputChange}
+                min={new Date().toISOString().split('T')[0]}
+                onKeyDown={(e) => e.preventDefault()}
+                onClick={(e) => {
+                  const date = new Date(e.target.value);
+                  const day = date.getDay();
+                  if (day !== 1 && day !== 4) { // 1 = Lundi, 4 = Jeudi
+                    e.target.value = '';
+                  }
+                }}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
               />
             </div>
