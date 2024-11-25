@@ -33,10 +33,8 @@ const ProductDetail = () => {
     const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
 
     if (existingItemIndex > -1) {
-      // Si le produit existe déjà, mettez à jour sa quantité
       cart[existingItemIndex].quantity += quantity;
     } else {
-      // Sinon, ajoutez le nouveau produit au panier
       cart.push(cartItem);
     }
 
@@ -47,41 +45,67 @@ const ProductDetail = () => {
   if (!product) return <p>Loading...</p>;
 
   return (
-    <div>
+    <div className="min-h-screen bg-amber-50">
       <Navbar />
       <main className="container mx-auto p-4">
-        <h1 className="text-4xl font-bold text-center my-10">{product.name}</h1>
-        <div className="product-detail-images flex justify-center">
-          {product.images.map((image, index) => (
-            <img key={index} src={image} alt={`${product.name} ${index + 1}`} className="w-48 h-48 object-cover mx-2" />
-          ))}
-        </div>
-        <p className="text-center text-gray-700 my-4">{product.description}</p>
-        <p className="text-center text-gray-900 font-bold my-2">Prix : {product.price} €</p>
-        <p className="text-center text-gray-700 my-2">Options d'achat : {product.purchaseOptions.join(', ')}</p>
-
-        <div className="flex justify-center items-center my-4">
-          <label htmlFor="quantity" className="mr-2">Quantité:</label>
-          <select
-            id="quantity"
-            value={quantity}
-            onChange={(e) => setQuantity(parseInt(e.target.value))}
-            className="border rounded px-2 py-1"
-          >
-            {[...Array(10)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>{i + 1}</option>
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 my-10">
+          <h1 className="text-4xl font-bold text-center text-orange-500 mb-8">{product.name}</h1>
+          
+          <div className="product-detail-images flex justify-center gap-4 mb-8">
+            {product.images.map((image, index) => (
+              <div key={index} className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+                <img 
+                  src={image} 
+                  alt={`${product.name} ${index + 1}`} 
+                  className="w-48 h-48 object-cover"
+                />
+              </div>
             ))}
-          </select>
-          <button
-            onClick={addToCart}
-            className="ml-4 bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Ajouter au panier
-          </button>
+          </div>
+
+          <div className="space-y-6">
+            <p className="text-center text-gray-700 text-lg">{product.description}</p>
+            <p className="text-center font-bold text-2xl text-orange-500">{product.price} €</p>
+            
+            {product.detailed_desc && (
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <p className="text-gray-700">{product.detailed_desc}</p>
+              </div>
+            )}
+
+            <div className="flex flex-col items-center gap-4 mt-8">
+              <div className="flex items-center gap-4">
+                <label htmlFor="quantity" className="text-lg font-medium text-gray-700">
+                  Nombre de shots:
+                </label>
+                <select
+                  id="quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(parseInt(e.target.value))}
+                  className="border-2 border-orange-200 rounded-lg px-4 py-2 text-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 focus:outline-none"
+                >
+                  {[...Array(20)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} {i + 1 === 1 ? 'shot' : 'shots'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                onClick={addToCart}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full text-lg font-medium transform hover:scale-105 transition-all"
+              >
+                Ajouter au panier
+              </button>
+            </div>
+          </div>
         </div>
 
-        <ReviewForm productId={product._id} />
-        <ReviewList productId={product._id} />
+        <div className="max-w-4xl mx-auto">
+          <ReviewForm productId={product._id} />
+          <ReviewList productId={product._id} />
+        </div>
       </main>
     </div>
   );

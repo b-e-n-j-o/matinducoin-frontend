@@ -176,6 +176,10 @@
     width: 100%;
   }
   
+  .section:hover {
+    z-index: 1;
+  }
+  
   .heroContent {
     flex-direction: column;
     width: 100%;
@@ -227,6 +231,10 @@
 
   .section {
     padding: 0.25rem;
+  }
+  
+  .section:hover {
+    z-index: 1;
   }
 
   .heroContent {
