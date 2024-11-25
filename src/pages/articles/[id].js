@@ -11,7 +11,7 @@ const ProductCard = ({ product }) => {
   return (
     <div 
       onClick={() => router.push(`/produits/${product._id}`)}
-      className="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 cursor-pointer"
+      className="bg-white/50 backdrop-blur-sm rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 cursor-pointer"
     >
       <div className="relative h-48">
         <img 
