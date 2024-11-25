@@ -58,7 +58,7 @@ export default function ProductDetail() {
   if (error) {
     return (
       <div className="min-h-screen bg-amber-50 flex justify-center items-center">
-        <p className="text-xl text-red-500 font-bobby">{error}</p>
+        <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-xl text-red-500">{error}</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="min-h-screen bg-amber-50 flex justify-center items-center">
-        <p className="text-xl text-orange-500 font-bobby">Chargement...</p>
+        <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-xl text-orange-500">Chargement...</p>
       </div>
     );
   }
@@ -79,8 +79,8 @@ export default function ProductDetail() {
           {/* En-tête du produit */}
           <div className="text-center mb-8 bg-orange-100/50 p-6 rounded-lg border border-orange-200">
             <div className="max-w-3xl mx-auto">
-              <h1 className="text-4xl font-bobby text-orange-500 mb-4">{product.name}</h1>
-              <p className="text-xl font-bobby text-gray-700 max-w-2xl mx-auto">{product.description}</p>
+              <h1 style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-4xl text-orange-500 mb-4">{product.name}</h1>
+              <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-xl text-gray-700 max-w-2xl mx-auto">{product.description}</p>
             </div>
           </div>
 
@@ -102,15 +102,15 @@ export default function ProductDetail() {
 
           {/* Prix du produit */}
           <div className="text-center mb-8">
-            <p className="text-3xl font-bobby text-orange-500">{product.price} €</p>
+            <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-3xl text-orange-500">{product.price} €</p>
           </div>
 
           {/* Description détaillée */}
           {product.detailed_desc && (
             <div className="bg-orange-50 p-6 rounded-lg mb-8">
               <div 
-                className="whitespace-pre-line text-gray-700 space-y-1 font-bobby"
-                style={{ lineHeight: '1.8' }}
+                style={{ fontFamily: "'Bobby Jones Soft', sans-serif", lineHeight: '1.8' }}
+                className="whitespace-pre-line text-gray-700 space-y-1"
               >
                 {product.detailed_desc}
               </div>
@@ -120,14 +120,15 @@ export default function ProductDetail() {
           {/* Section achat */}
           <div className="flex flex-col items-center gap-4 mt-8">
             <div className="flex items-center gap-4">
-              <label htmlFor="quantity" className="text-lg font-bobby text-gray-700">
+              <label style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} htmlFor="quantity" className="text-lg text-gray-700">
                 Nombre de shots :
               </label>
               <select
                 id="quantity"
                 value={quantity}
                 onChange={(e) => setQuantity(parseInt(e.target.value))}
-                className="border-2 border-orange-200 rounded-lg px-4 py-2 text-lg font-bobby focus:border-orange-500 focus:ring-2 focus:ring-orange-200 focus:outline-none"
+                style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }}
+                className="border-2 border-orange-200 rounded-lg px-4 py-2 text-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 focus:outline-none"
               >
                 {[...Array(20)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
@@ -139,7 +140,8 @@ export default function ProductDetail() {
 
             <button
               onClick={addToCart}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full text-lg font-bobby transform hover:scale-105 transition-all"
+              style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full text-lg transform hover:scale-105 transition-all"
             >
               Ajouter au panier
             </button>
