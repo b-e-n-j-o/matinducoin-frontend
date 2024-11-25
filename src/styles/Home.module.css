@@ -54,10 +54,6 @@
   transition: transform 0.3s ease;
 }
 
-.heroContent:hover {
-  transform: scale(1.02);
-}
-
 .heroText {
   flex: 1;
   padding-right: 1.5rem;
@@ -166,132 +162,80 @@
 @media (max-width: 768px) {
   .section {
     min-height: auto;
-    margin-top: -5vh;
-    padding: 1rem;
+    margin-top: 0;
+    padding: 0.5rem;
+    width: 100%;
   }
   
   .heroContent {
-    padding: 1rem;
-  }
-
-  .heroText, .heroImageContainer {
-    max-width: 100%;
+    flex-direction: column;
     width: 100%;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
+    gap: 1rem;
+    padding: 0.5rem;
+    margin: 0;
   }
 
   .heroText {
     width: 100%;
-    margin: 0 auto 2rem auto;
+    max-width: 100%;
+    padding: 1rem;
+    margin: 0;
+    border-radius: 10px;
   }
 
   .heroImageContainer {
+    width: 100%;
     max-width: 100%;
+    margin: 0;
+    padding: 0;
     height: auto;
-    overflow: hidden;
   }
 
   .heroImage {
-    height: auto;
-    max-height: 500px;
     width: 100%;
-    object-fit: contain;
-    object-position: center;
-  }
-
-  .pageContainer {
-    padding-bottom: 200px;
+    height: auto;
+    border-radius: 10px;
+    object-fit: cover;
   }
 
   /* Ajustement pour les sections inversées en responsive */
+  .invertedSection .heroContent {
+    flex-direction: column;
+  }
+
   .invertedSection .heroText {
-    padding: 1.5rem;
     width: 100%;
-  }
-
-  .heroTitle {
-    font-size: 3.3rem;
-    color: #FF5900;
-    text-transform: uppercase;
-    line-height: 1.2;
-    margin-bottom: 0.5rem;
-  }
-
-  .heroSubtitle {
-    font-size: 1.1rem;
-    padding-top: 10px;
-  }
-
-  /* Réduire l'espacement entre les sections */
-  .section + .section {
-    margin-top: -8vh;
-  }
-
-  /* Ajuster le z-index pour assurer que le contenu reste visible */
-  .heroContent {
-    position: relative;
-    z-index: 2;
-  }
-
-  /* Disable animations for smaller screens */
-  .section, .heroSection, .heroContent, .heroText, .heroImageContainer, .heroImage {
-    transition: none !important;
-    animation: none !important;
-    transform: none !important;
+    max-width: 100%;
+    padding: 1rem;
+    margin: 0;
   }
 }
 
 @media (max-width: 480px) {
-  .pageContainer {
-    padding-bottom: 400px;
+  .section {
+    padding: 0.25rem;
   }
 
   .heroContent {
-    padding: 0.5rem;
-    width: 100%;
+    padding: 0.25rem;
   }
 
   .heroText {
-    width: 100%;
     padding: 1rem;
   }
 
   .heroTitle {
-    font-size: clamp(2rem, 3.5vw, 2.5rem);
+    font-size: clamp(1.5rem, 5vw, 2rem);
   }
 
   .heroSubtitle {
-    font-size: clamp(1rem, 1.8vw, 1rem);
-  }
-
-  /* Réduire encore plus l'espacement pour les très petits écrans */
-  .section + .section {
-    margin-top: -10vh;
-  }
-
-  .heroImageContainer {
-    max-width: 100%;
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    height: auto;
-    overflow: hidden;
+    font-size: clamp(0.9rem, 4vw, 1rem);
   }
 
   .mapSectionContent {
-    max-width: 100%;
     width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    border-radius: 15px;
-    padding: 2rem 1.5rem;
-  }
-
-  .heroImage {
-    max-height: 400px;
-    width: 100%;
-    object-fit: contain;
-    object-position: center;
+    margin: 0;
+    border-radius: 10px;
+    padding: 1rem;
   }
 }
