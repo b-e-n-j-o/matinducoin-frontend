@@ -4,6 +4,33 @@ import Navbar from '../components/Navbar';
 import ReviewForm from '../components/ReviewForm';
 import ReviewList from '../components/ReviewList';
 
+const ProductFeatures = ({ features }) => {
+  if (!features) return null;
+
+  return (
+    <div className="space-y-6">
+      {Object.values(features).map((section, index) => (
+        <div key={index} className="mb-6">
+          <h3 className="text-lg font-bold text-orange-500 mb-3">
+            {section.title}
+          </h3>
+          <ul className="space-y-2">
+            {section.items.map((item, idx) => (
+              <li 
+                key={idx} 
+                className="flex items-start text-gray-700"
+              >
+                <span className="mr-3 ml-4">•</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const ProductDetail = () => {
   const router = useRouter();
   const { id } = router.query;
@@ -42,55 +69,11 @@ const ProductDetail = () => {
     alert('Produit ajouté au panier !');
   };
 
-  const ProductSection = ({ title, children, className = "" }) => (
-    <div className={`mb-6 ${className}`}>
-      {title && <h3 className="text-lg font-bold text-orange-500 mb-3">{title}</h3>}
-      {children}
+  if (!product) return (
+    <div className="min-h-screen bg-amber-50 flex justify-center items-center">
+      <p className="text-xl text-orange-500">Chargement...</p>
     </div>
   );
-
-  const ProductImage = ({ src, alt, index }) => (
-    <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-      <img 
-        src={src} 
-        alt={alt} 
-        className="w-48 h-48 object-cover"
-      />
-    </div>
-  );
-
-  const formatDescriptionContent = (desc) => {
-    // Séparation en sections basées sur les emojis
-    const sections = desc.split(/\n(?=[✨🌿♻️💚])/g).filter(Boolean);
-    
-    return sections.map((section, index) => {
-      // Séparation du titre et des éléments de la liste pour chaque section
-      const [sectionTitle, ...listItems] = section.split('\n').filter(Boolean);
-      
-      return (
-        <div key={index} className="mb-6">
-          <h3 className="text-lg font-bold text-orange-500 mb-3">
-            {sectionTitle.trim()}
-          </h3>
-          <ul className="space-y-2">
-            {listItems.map((item, idx) => (
-              <li 
-                key={idx} 
-                className="flex items-start ml-4 text-gray-700"
-              >
-                <span className="mr-3">•</span>
-                <span>
-                  {item.startsWith('-') ? item.substring(1).trim() : item.trim()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    });
-  };
-
-  if (!product) return <p>Loading...</p>;
 
   return (
     <div className="min-h-screen bg-amber-50">
@@ -100,42 +83,52 @@ const ProductDetail = () => {
           {/* En-tête du produit */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-orange-500 mb-4">{product.name}</h1>
-            <p className="text-xl text-gray-700">{product.description}</p>
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">{product.description}</p>
           </div>
 
           {/* Images du produit */}
-          <div className="flex justify-center gap-4 mb-8">
+          <div className="flex justify-center gap-4 mb-8 flex-wrap">
             {product.images?.map((image, index) => (
-              <ProductImage 
-                key={index}
-                src={image}
-                alt={`${product.name} ${index + 1}`}
-                index={index}
-              />
+              <div 
+                key={index} 
+                className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
+              >
+                <img 
+                  src={image} 
+                  alt={`${product.name} ${index + 1}`} 
+                  className="w-48 h-48 object-cover"
+                />
+              </div>
             ))}
+          </div>
+
+          {/* Prix du produit */}
+          <div className="text-center mb-8">
+            <p className="text-3xl font-bold text-orange-500">{product.price} €</p>
           </div>
 
           {/* Ingrédients */}
           {product.ingredients && (
-            <div className="text-center mb-8">
+            <div className="text-center mb-8 bg-orange-50 py-4 rounded-lg">
               <p className="text-lg font-bold text-orange-500">
-                INGRÉDIENTS : {product.ingredients}
+                INGRÉDIENTS
+              </p>
+              <p className="text-gray-700 mt-2">
+                {product.ingredients}
               </p>
             </div>
           )}
 
-          {/* Description détaillée */}
-          {product.detailed_desc && (
-            <div className="bg-orange-50 p-6 rounded-lg mb-8 whitespace-pre-line">
-              {formatDescriptionContent(product.detailed_desc)}
+          {/* Caractéristiques du produit */}
+          {product.features && (
+            <div className="bg-orange-50 p-6 rounded-lg mb-8">
+              <ProductFeatures features={product.features} />
             </div>
           )}
 
           {/* Section achat */}
-          <div className="flex flex-col items-center gap-4 mt-8">
-            <p className="text-3xl font-bold text-orange-500">{product.price} €</p>
-            
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-4 mt-8 bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-center gap-4 flex-wrap justify-center">
               <label htmlFor="quantity" className="text-lg font-medium text-gray-700">
                 Nombre de shots :
               </label>
@@ -151,18 +144,19 @@ const ProductDetail = () => {
                   </option>
                 ))}
               </select>
+              <button
+                onClick={addToCart}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full text-lg font-medium transform hover:scale-105 transition-all"
+              >
+                Ajouter au panier
+              </button>
             </div>
-
-            <button
-              onClick={addToCart}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full text-lg font-medium transform hover:scale-105 transition-all"
-            >
-              Ajouter au panier
-            </button>
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        {/* Section avis */}
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 my-10">
+          <h2 className="text-2xl font-bold text-orange-500 mb-6 text-center">Avis clients</h2>
           <ReviewForm productId={product._id} />
           <ReviewList productId={product._id} />
         </div>
