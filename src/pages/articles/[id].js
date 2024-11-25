@@ -2,7 +2,7 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { ChevronLeft, Clock, Calendar } from 'lucide-react';
+import { ChevronLeft, Calendar } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 
 const ProductCard = ({ product }) => {
@@ -22,10 +22,47 @@ const ProductCard = ({ product }) => {
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-lg text-gray-800">{product.name}</h3>
-        <p className="text-orange-500 font-medium mt-2">{product.price.toFixed(2)}€</p>
+        <p className="text-orange-500 font-medium mt-2">{product.price.toFixed(2)}$</p>
       </div>
     </div>
   );
+};
+
+const ContentBlock = ({ block }) => {
+  switch (block.type) {
+    case "header":
+      const HeaderTag = `h${block.level || 1}`;
+      return (
+        <HeaderTag className={`font-bold text-gray-900 ${
+          block.level === 1 ? 'text-4xl mb-6' : 
+          block.level === 2 ? 'text-2xl mt-12 mb-4' : 
+          'text-xl mt-8 mb-3'
+        }`}>
+          {block.data}
+        </HeaderTag>
+      );
+    
+    case "text":
+      return (block.data?.content || []).map((contentItem, index) => {
+        switch (contentItem.type) {
+          case "paragraph":
+            return (
+              <div key={index} className="mb-6">
+                {contentItem.sentences.map((sentence, sentenceIndex) => (
+                  <p key={sentenceIndex} className="text-gray-600 leading-relaxed mb-4">
+                    {sentence.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}
+                  </p>
+                ))}
+              </div>
+            );
+          default:
+            return null;
+        }
+      });
+    
+    default:
+      return null;
+  }
 };
 
 export default function ArticlePage() {
@@ -119,7 +156,7 @@ export default function ArticlePage() {
       <Navbar />
       <Head>
         <title>{article.title} | Matin du Coin</title>
-        <meta name="description" content={article.content?.[0]?.content || "Découvrez cet article sur Matin du Coin"} />
+        <meta name="description" content={article.content?.[1]?.data?.content?.[0]?.sentences?.[0] || "Découvrez cet article sur Matin du Coin"} />
       </Head>
 
       <main className="min-h-screen py-8">
@@ -145,19 +182,13 @@ export default function ArticlePage() {
           <div className={`space-y-6 transform transition-all duration-700 ${
             isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
           }`}>
-            <h1 className="text-4xl font-bold text-gray-900">
-              {article.title}
-            </h1>
+            {/* Title will be handled by ContentBlock now */}
 
             {/* Meta Information */}
             <div className="flex items-center gap-6 text-gray-600 text-sm border-b border-gray-200 pb-6">
               <div className="flex items-center gap-2">
                 <Calendar size={16} />
                 <span>{new Date(article.created_at).toLocaleDateString('fr-FR')}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock size={16} />
-                <span>5 min de lecture</span>
               </div>
             </div>
 
@@ -172,11 +203,8 @@ export default function ArticlePage() {
 
             {/* Article Content */}
             <article className="prose prose-lg max-w-none mt-8 space-y-6">
-              {article.content && article.content.map((section, index) => (
-                <div key={index}>
-                  {section.title && <h2 className="text-2xl font-bold text-gray-900 mt-8">{section.title}</h2>}
-                  {section.content && <p className="text-gray-600 leading-relaxed">{section.content}</p>}
-                </div>
+              {article.content && article.content.map((block, index) => (
+                <ContentBlock key={index} block={block} />
               ))}
             </article>
 
