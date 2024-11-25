@@ -58,7 +58,7 @@ export default function ProductDetail() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-amber-50 flex justify-center items-center">
+      <div className="min-h-screen bg-orange-75 flex justify-center items-center">
         <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-xl text-red-500">{error}</p>
       </div>
     );
@@ -66,19 +66,19 @@ export default function ProductDetail() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-amber-50 flex justify-center items-center">
+      <div className="min-h-screen bg-orange-75 flex justify-center items-center">
         <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-xl text-orange-500">Chargement...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-screen bg-orange-75">
       <Navbar />
       <main className="container mx-auto p-4">
-        <div className="max-w-4xl mx-auto bg-white/20 rounded-xl shadow-lg p-6 my-10">
+        <div className="max-w-4xl mx-auto bg-orange-75 rounded-xl shadow-lg p-6 my-10">
           {/* En-tête du produit */}
-          <div className="text-center mb-8 bg-orange-100/50 p-6 rounded-lg border border-orange-200">
+          <div className="text-center mb-8 bg-orange-75 p-6 rounded-lg border border-orange-200">
             <div className="max-w-3xl mx-auto">
               <h1 style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-4xl text-orange-500 mb-4">{product.name}</h1>
               <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-xl text-gray-700 max-w-2xl mx-auto">{product.description}</p>
@@ -86,7 +86,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Conteneur pour les images et le prix */}
-          <div className="bg-orange-100/50 p-6 rounded-lg border border-orange-200 mb-8">
+          <div className="bg-orange-75 p-6 rounded-lg border border-orange-200 mb-8">
             {/* Images du produit */}
             <div className="flex justify-center gap-4 mb-8 flex-wrap">
               {Array.isArray(product.images) && product.images.map((image, index) => (
@@ -106,7 +106,7 @@ export default function ProductDetail() {
 
             {/* Prix du produit */}
             <div className="text-center">
-              <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-3xl text-orange-500">{product.price} $</p>
+              <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-3xl text-orange-500">{product.price} $ (dont 0.50$ de consigne)</p>
             </div>
           </div>
 
@@ -134,7 +134,7 @@ export default function ProductDetail() {
 
           {/* Description détaillée */}
           {product.detailed_desc && (
-            <div className="bg-orange-50/80 p-6 rounded-lg mb-8">
+            <div className="bg-orange-75 p-6 rounded-lg mb-8">
               <div 
                 style={{ fontFamily: "'Bobby Jones Soft', sans-serif", lineHeight: '1.8' }}
                 className="whitespace-pre-line text-gray-700 space-y-1"
