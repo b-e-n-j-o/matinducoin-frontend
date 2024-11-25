@@ -9,13 +9,35 @@ export default function ProductDetail() {
   const { id } = router.query;
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [reviews, setReviews] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (id) {
+      // Récupération du produit
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Produit non trouvé');
+          }
+          return response.json();
+        })
         .then(data => setProduct(data))
-        .catch(error => console.error('Error fetching product:', error));
+        .catch(error => {
+          console.error('Erreur lors de la récupération du produit:', error);
+          setError(error.message);
+        });
+
+      // Récupération des reviews
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}/reviews`)
+        .then(response => response.json())
+        .then(data => {
+          setReviews(Array.isArray(data) ? data : []);
+        })
+        .catch(error => {
+          console.error('Erreur lors de la récupération des reviews:', error);
+          setReviews([]);
+        });
     }
   }, [id]);
 
@@ -29,24 +51,39 @@ export default function ProductDetail() {
       quantity: quantity
     };
 
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
+    try {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
 
-    if (existingItemIndex > -1) {
-      cart[existingItemIndex].quantity += quantity;
-    } else {
-      cart.push(cartItem);
+      if (existingItemIndex > -1) {
+        cart[existingItemIndex].quantity += quantity;
+      } else {
+        cart.push(cartItem);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert('Produit ajouté au panier !');
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout au panier:', error);
+      alert('Une erreur est survenue lors de l\'ajout au panier');
     }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert('Produit ajouté au panier !');
   };
 
-  if (!product) return (
-    <div className="min-h-screen bg-amber-50 flex justify-center items-center">
-      <p className="text-xl text-orange-500">Chargement...</p>
-    </div>
-  );
+  if (error) {
+    return (
+      <div className="min-h-screen bg-amber-50 flex justify-center items-center">
+        <p className="text-xl text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-amber-50 flex justify-center items-center">
+        <p className="text-xl text-orange-500">Chargement...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-amber-50">
@@ -61,7 +98,7 @@ export default function ProductDetail() {
 
           {/* Images du produit */}
           <div className="flex justify-center gap-4 mb-8 flex-wrap">
-            {product.images?.map((image, index) => (
+            {Array.isArray(product.images) && product.images.map((image, index) => (
               <div 
                 key={index} 
                 className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
@@ -85,9 +122,7 @@ export default function ProductDetail() {
             <div className="bg-orange-50 p-6 rounded-lg mb-8">
               <div 
                 className="whitespace-pre-line text-gray-700 space-y-1"
-                style={{ 
-                  lineHeight: '1.8'
-                }}
+                style={{ lineHeight: '1.8' }}
               >
                 {product.detailed_desc}
               </div>
@@ -123,9 +158,11 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <ReviewForm productId={product._id} />
-          <ReviewList productId={product._id} />
+        {/* Section avis */}
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 my-10">
+          <h2 className="text-2xl font-bold text-orange-500 mb-6 text-center">Avis clients</h2>
+          <ReviewForm productId={id} />
+          <ReviewList reviews={reviews} />
         </div>
       </main>
     </div>
