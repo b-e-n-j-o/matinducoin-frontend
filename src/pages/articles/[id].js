@@ -47,9 +47,12 @@ const ContentBlock = ({ block }) => {
         switch (contentItem.type) {
           case "paragraph":
             return (
-              <div key={index} className="mb-6">
+              <div 
+                key={index} 
+                className="mb-8 bg-white/50 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300"
+              >
                 {contentItem.sentences.map((sentence, sentenceIndex) => (
-                  <p key={sentenceIndex} className="text-gray-600 leading-relaxed mb-4">
+                  <p key={sentenceIndex} className="text-gray-600 leading-relaxed mb-4 last:mb-0">
                     {sentence.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}
                   </p>
                 ))}
