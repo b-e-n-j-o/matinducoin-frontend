@@ -85,21 +85,29 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Images du produit */}
-          <div className="flex justify-center gap-4 mb-8 flex-wrap">
-            {Array.isArray(product.images) && product.images.map((image, index) => (
-              <div 
-                key={index} 
-                className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => setSelectedImage(image)}
-              >
-                <img 
-                  src={image} 
-                  alt={`${product.name} ${index + 1}`} 
-                  className="w-48 h-48 object-cover"
-                />
-              </div>
-            ))}
+          {/* Conteneur pour les images et le prix */}
+          <div className="bg-orange-100/50 p-6 rounded-lg border border-orange-200 mb-8">
+            {/* Images du produit */}
+            <div className="flex justify-center gap-4 mb-8 flex-wrap">
+              {Array.isArray(product.images) && product.images.map((image, index) => (
+                <div 
+                  key={index} 
+                  className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => setSelectedImage(image)}
+                >
+                  <img 
+                    src={image} 
+                    alt={`${product.name} ${index + 1}`} 
+                    className="w-48 h-48 object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Prix du produit */}
+            <div className="text-center">
+              <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-3xl text-orange-500">{product.price} $</p>
+            </div>
           </div>
 
           {/* Modal pour l'image agrandie */}
@@ -108,11 +116,11 @@ export default function ProductDetail() {
               className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
               onClick={() => setSelectedImage(null)}
             >
-              <div className="relative max-w-4xl max-h-[90vh] w-full">
+              <div className="relative max-w-3xl max-h-[80vh] w-full">
                 <img 
                   src={selectedImage} 
                   alt="Image agrandie"
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-scale-down"
                 />
                 <button 
                   className="absolute top-4 right-4 text-white text-xl bg-black bg-opacity-50 w-8 h-8 rounded-full"
@@ -124,14 +132,9 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* Prix du produit */}
-          <div className="text-center mb-8">
-            <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-3xl text-orange-500">{product.price} $</p>
-          </div>
-
           {/* Description détaillée */}
           {product.detailed_desc && (
-            <div className="bg-orange-50 p-6 rounded-lg mb-8">
+            <div className="bg-orange-50/80 p-6 rounded-lg mb-8">
               <div 
                 style={{ fontFamily: "'Bobby Jones Soft', sans-serif", lineHeight: '1.8' }}
                 className="whitespace-pre-line text-gray-700 space-y-1"
