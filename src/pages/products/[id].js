@@ -34,12 +34,12 @@ export default function ProductDetail() {
 
       containers.forEach(container => {
         const rect = container.getBoundingClientRect();
-        const centerPosition = windowHeight / 2;
+        const targetPosition = windowHeight * 0.25; // Position à 75% en haut de la page
         const elementCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(centerPosition - elementCenter);
+        const distance = Math.abs(targetPosition - elementCenter);
         const maxDistance = windowHeight / 2;
         
-        // Calcul de l'opacité basé sur la distance du centre
+        // Calcul de l'opacité basé sur la distance du point à 75% en haut
         const opacity = Math.max(0.2, 1 - (distance / maxDistance) * 0.8);
         container.style.opacity = opacity;
       });
