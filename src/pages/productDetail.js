@@ -72,16 +72,11 @@ const ProductDetail = () => {
 
       return (
         <ProductSection key={index} title={title}>
-          <ul className="list-none">
+          <div className="whitespace-pre-line text-gray-700 ml-4">
             {items.map((item, idx) => (
-              <li 
-                key={idx} 
-                className="text-gray-700 ml-4 my-1"
-              >
-                {item.startsWith('-') ? item.substring(1).trim() : item.trim()}
-              </li>
-            ))}
-          </ul>
+              item.startsWith('-') ? item.trim() : `- ${item.trim()}`
+            )).join('\n')}
+          </div>
         </ProductSection>
       );
     });
