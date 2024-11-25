@@ -340,6 +340,16 @@ const HomeContent = ({ sections = [] }) => {
         </section>
       </main>
 
+      <footer className="bg-white/40 py-8 mt-12 rounded-xl shadow-lg">
+        <div className="w-11/12 mx-auto text-center">
+          <p className="text-gray-600">© 2024 Matin du Coin. Tous droits réservés.</p>
+          <div className="mt-4 space-x-4">
+            <a href="#" className="text-orange-500 hover:text-orange-600">Mentions légales</a>
+            <a href="#" className="text-orange-500 hover:text-orange-600">Contact</a>
+          </div>
+        </div>
+      </footer>
+
       <button
         onClick={toggleChat}
         className={`
