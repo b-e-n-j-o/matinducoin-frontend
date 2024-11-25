@@ -76,7 +76,7 @@ export default function ProductDetail() {
     <div className="min-h-screen bg-orange-75">
       <Navbar />
       <main className="container mx-auto p-4">
-        <div className="max-w-4xl mx-auto bg-orange-75 rounded-xl shadow-lg p-6 my-10">
+        <div className="max-w-4xl mx-auto bg-white bg-opacity-20 rounded-xl shadow-lg p-6 my-10">
           {/* En-tête du produit */}
           <div className="text-center mb-8 bg-white bg-opacity-60 p-6 rounded-lg border border-orange-200">
             <div className="max-w-3xl mx-auto">
