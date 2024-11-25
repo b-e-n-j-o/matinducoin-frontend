@@ -72,11 +72,19 @@ const ProductDetail = () => {
 
       return (
         <ProductSection key={index} title={title}>
-          <div className="whitespace-pre-line text-gray-700 ml-4">
+          <ul className="list-none space-y-2">
             {items.map((item, idx) => (
-              item.startsWith('-') ? item.trim() : `- ${item.trim()}`
-            )).join('\n')}
-          </div>
+              <li 
+                key={idx} 
+                className="text-gray-700 ml-4 flex items-start"
+              >
+                <span className="mr-2">•</span>
+                <span className="flex-1">
+                  {item.startsWith('-') ? item.substring(1).trim() : item.trim()}
+                </span>
+              </li>
+            ))}
+          </ul>
         </ProductSection>
       );
     });
