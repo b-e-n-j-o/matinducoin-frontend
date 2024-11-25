@@ -12,6 +12,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (id) {
+      // Récupération du produit
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`)
         .then(response => {
           if (!response.ok) {
@@ -26,30 +27,6 @@ export default function ProductDetail() {
         });
     }
   }, [id]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const containers = document.querySelectorAll('.scroll-opacity');
-      const windowHeight = window.innerHeight;
-
-      containers.forEach(container => {
-        const rect = container.getBoundingClientRect();
-        const targetPosition = windowHeight * 0.25; // Position à 75% en haut de la page
-        const elementCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(targetPosition - elementCenter);
-        const maxDistance = windowHeight / 2;
-        
-        // Calcul de l'opacité basé sur la distance du point à 75% en haut
-        const opacity = Math.max(0.2, 1 - (distance / maxDistance) * 0.8);
-        container.style.opacity = opacity;
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Appel initial
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const addToCart = () => {
     if (!product) return;
@@ -101,7 +78,7 @@ export default function ProductDetail() {
       <main className="container mx-auto p-4">
         <div className="max-w-4xl mx-auto bg-white bg-opacity-20 rounded-xl shadow-lg p-6 my-10">
           {/* En-tête du produit */}
-          <div className="text-center mb-8 bg-white bg-opacity-60 p-6 rounded-lg border border-orange-200 scroll-opacity transition-opacity duration-300">
+          <div className="text-center mb-8 bg-white bg-opacity-60 p-6 rounded-lg border border-orange-200">
             <div className="max-w-3xl mx-auto">
               <h1 style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-4xl text-orange-500 mb-4">{product.name}</h1>
               <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-xl text-gray-700 max-w-2xl mx-auto">{product.description}</p>
@@ -109,7 +86,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Conteneur pour les images et le prix */}
-          <div className="bg-white bg-opacity-40 p-6 rounded-lg border border-orange-200 mb-8 scroll-opacity transition-opacity duration-300">
+          <div className="bg-white bg-opacity-40 p-6 rounded-lg border border-orange-200 mb-8">
             {/* Images du produit */}
             <div className="flex justify-center gap-4 mb-8 flex-wrap">
               {Array.isArray(product.images) && product.images.map((image, index) => (
@@ -157,7 +134,7 @@ export default function ProductDetail() {
 
           {/* Description détaillée */}
           {product.detailed_desc && (
-            <div className="bg-white bg-opacity-40 p-6 rounded-lg mb-8 scroll-opacity transition-opacity duration-300">
+            <div className="bg-white bg-opacity-40 p-6 rounded-lg mb-8">
               <div 
                 style={{ fontFamily: "'Bobby Jones Soft', sans-serif", lineHeight: '1.8' }}
                 className="whitespace-pre-line text-gray-700 space-y-1"
@@ -168,7 +145,7 @@ export default function ProductDetail() {
           )}
 
           {/* Section achat */}
-          <div className="flex flex-col items-center gap-4 mt-8 scroll-opacity transition-opacity duration-300">
+          <div className="flex flex-col items-center gap-4 mt-8">
             <div className="flex items-center gap-4">
               <label style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} htmlFor="quantity" className="text-lg text-gray-700">
                 Nombre de shots
