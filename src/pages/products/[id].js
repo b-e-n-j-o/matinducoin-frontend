@@ -75,11 +75,13 @@ export default function ProductDetail() {
     <div className="min-h-screen bg-transparent">
       <Navbar />
       <main className="container mx-auto p-4">
-        <div className="max-w-4xl mx-auto bg-transparent rounded-xl shadow-lg p-6 my-10">
+        <div className="max-w-4xl mx-auto bg-white/20 rounded-xl shadow-lg p-6 my-10">
           {/* En-tête du produit */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-orange-500 mb-4">{product.name}</h1>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto">{product.description}</p>
+          <div className="text-center mb-8 bg-orange-100/50 p-6 rounded-lg border border-orange-200">
+            <div className="max-w-3xl mx-auto">
+              <h1 className="text-4xl font-bold text-orange-500 mb-4">{product.name}</h1>
+              <p className="text-xl text-gray-700 max-w-2xl mx-auto">{product.description}</p>
+            </div>
           </div>
 
           {/* Images du produit */}
