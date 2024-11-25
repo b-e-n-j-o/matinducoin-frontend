@@ -8,6 +8,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -89,7 +90,8 @@ export default function ProductDetail() {
             {Array.isArray(product.images) && product.images.map((image, index) => (
               <div 
                 key={index} 
-                className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
+                className="rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer"
+                onClick={() => setSelectedImage(image)}
               >
                 <img 
                   src={image} 
@@ -100,9 +102,31 @@ export default function ProductDetail() {
             ))}
           </div>
 
+          {/* Modal pour l'image agrandie */}
+          {selectedImage && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+              onClick={() => setSelectedImage(null)}
+            >
+              <div className="relative max-w-4xl max-h-[90vh] w-full">
+                <img 
+                  src={selectedImage} 
+                  alt="Image agrandie"
+                  className="w-full h-full object-contain"
+                />
+                <button 
+                  className="absolute top-4 right-4 text-white text-xl bg-black bg-opacity-50 w-8 h-8 rounded-full"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Prix du produit */}
           <div className="text-center mb-8">
-            <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-3xl text-orange-500">{product.price} €</p>
+            <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-3xl text-orange-500">{product.price} $</p>
           </div>
 
           {/* Description détaillée */}
@@ -121,7 +145,7 @@ export default function ProductDetail() {
           <div className="flex flex-col items-center gap-4 mt-8">
             <div className="flex items-center gap-4">
               <label style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} htmlFor="quantity" className="text-lg text-gray-700">
-                Nombre de shots :
+                Nombre de shots
               </label>
               <select
                 id="quantity"
