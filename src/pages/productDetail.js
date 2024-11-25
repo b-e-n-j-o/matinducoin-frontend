@@ -59,33 +59,33 @@ const ProductDetail = () => {
     </div>
   );
 
-  const ProductFeaturesList = ({ features }) => {
-    if (!features) return null;
-    
-    // Divise le texte en sections basées sur les emojis ou les sauts de ligne
-    const sections = features.split(/\n(?=[✨🌿♻️💚])/);
+  const formatDescriptionContent = (desc) => {
+    // Séparation en sections basées sur les emojis
+    const sections = desc.split(/\n(?=[✨🌿♻️💚])/g).filter(Boolean);
     
     return sections.map((section, index) => {
-      const lines = section.split('\n');
-      const title = lines[0];
-      const items = lines.slice(1).filter(line => line.trim());
-
+      // Séparation du titre et des éléments de la liste pour chaque section
+      const [sectionTitle, ...listItems] = section.split('\n').filter(Boolean);
+      
       return (
-        <ProductSection key={index} title={title}>
-          <ul className="list-none space-y-2">
-            {items.map((item, idx) => (
+        <div key={index} className="mb-6">
+          <h3 className="text-lg font-bold text-orange-500 mb-3">
+            {sectionTitle.trim()}
+          </h3>
+          <ul className="space-y-2">
+            {listItems.map((item, idx) => (
               <li 
                 key={idx} 
-                className="text-gray-700 ml-4 flex items-start"
+                className="flex items-start ml-4 text-gray-700"
               >
-                <span className="mr-2">•</span>
-                <span className="flex-1">
+                <span className="mr-3">•</span>
+                <span>
                   {item.startsWith('-') ? item.substring(1).trim() : item.trim()}
                 </span>
               </li>
             ))}
           </ul>
-        </ProductSection>
+        </div>
       );
     });
   };
@@ -98,13 +98,13 @@ const ProductDetail = () => {
       <main className="container mx-auto p-4">
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 my-10">
           {/* En-tête du produit */}
-          <ProductSection className="text-center">
+          <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-orange-500 mb-4">{product.name}</h1>
             <p className="text-xl text-gray-700">{product.description}</p>
-          </ProductSection>
+          </div>
 
           {/* Images du produit */}
-          <ProductSection className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 mb-8">
             {product.images?.map((image, index) => (
               <ProductImage 
                 key={index}
@@ -113,26 +113,26 @@ const ProductDetail = () => {
                 index={index}
               />
             ))}
-          </ProductSection>
+          </div>
 
           {/* Ingrédients */}
           {product.ingredients && (
-            <ProductSection className="text-center">
-              <p className="text-orange-500 font-bold">
+            <div className="text-center mb-8">
+              <p className="text-lg font-bold text-orange-500">
                 INGRÉDIENTS : {product.ingredients}
               </p>
-            </ProductSection>
+            </div>
           )}
 
           {/* Description détaillée */}
           {product.detailed_desc && (
-            <ProductSection className="bg-orange-50 p-6 rounded-lg">
-              <ProductFeaturesList features={product.detailed_desc} />
-            </ProductSection>
+            <div className="bg-orange-50 p-6 rounded-lg mb-8 whitespace-pre-line">
+              {formatDescriptionContent(product.detailed_desc)}
+            </div>
           )}
 
           {/* Section achat */}
-          <ProductSection className="flex flex-col items-center gap-4 mt-8">
+          <div className="flex flex-col items-center gap-4 mt-8">
             <p className="text-3xl font-bold text-orange-500">{product.price} €</p>
             
             <div className="flex items-center gap-4">
@@ -159,7 +159,7 @@ const ProductDetail = () => {
             >
               Ajouter au panier
             </button>
-          </ProductSection>
+          </div>
         </div>
 
         <div className="max-w-4xl mx-auto">
