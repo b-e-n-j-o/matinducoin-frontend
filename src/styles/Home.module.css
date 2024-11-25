@@ -13,22 +13,30 @@
 
 /* Styles de section */
 .section {
-  min-height: 100vh;
+  min-height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  padding: 2rem;
   will-change: transform, opacity;
+  margin-top: -10vh;
+  position: relative;
+  z-index: 1;
+}
+
+.section:hover {
+  z-index: 2;
 }
 
 /* Styles pour la section hero */
 .heroSection {
-  min-height: 100vh;
+  min-height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
   background-color: #fff6e200;
+  margin-top: 0;
 }
 
 .heroContent {
@@ -40,13 +48,23 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  gap: 2rem; /* Augmenté l'espacement entre les éléments */
+  gap: 1.5rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(5px);
+  transition: transform 0.3s ease;
+}
+
+.heroContent:hover {
+  transform: scale(1.02);
 }
 
 .heroText {
   flex: 1;
-  padding-right: 2rem;
+  padding-right: 1.5rem;
   text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
 }
 
 .heroTitle {
@@ -82,7 +100,7 @@
 /* Style pour les sections inversées */
 .invertedSection .heroContent {
   flex-direction: row-reverse;
-  gap: 2rem; /* Même espacement pour les sections inversées */
+  gap: 2rem;
 }
 
 .invertedSection .heroText {
@@ -147,24 +165,24 @@
 /* Media queries pour la responsivité */
 @media (max-width: 768px) {
   .section {
-    padding: 1.5rem;
-    min-height: auto; /* Supprime la hauteur minimale pour les mobiles */
+    min-height: auto;
+    margin-top: -5vh;
+    padding: 1rem;
   }
   
-  .heroContent, .invertedSection .heroContent {
-    flex-direction: column;
-    width: 100%; /* Prend toute la largeur disponible */
+  .heroContent {
+    padding: 1rem;
   }
 
   .heroText, .heroImageContainer {
     max-width: 100%;
-    width: 100%; /* Force la pleine largeur */
-    padding: 2rem 1.5rem; /* Plus de padding intérieur */
-    margin-bottom: 2rem;
+    width: 100%;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .heroText {
-    width: 100%; /* Même largeur que mapSectionContent */
+    width: 100%;
     margin: 0 auto 2rem auto;
   }
 
@@ -188,7 +206,7 @@
 
   /* Ajustement pour les sections inversées en responsive */
   .invertedSection .heroText {
-    padding: 2rem 1.5rem; /* Plus de padding intérieur */
+    padding: 1.5rem;
     width: 100%;
   }
 
@@ -197,17 +215,17 @@
     color: #FF5900;
     text-transform: uppercase;
     line-height: 1.2;
-    margin-bottom: 0.5rem; /* Réduit l'espace entre titre et paragraphe */
+    margin-bottom: 0.5rem;
   }
 
   .heroSubtitle {
     font-size: 1.1rem;
-    padding-top: 10px; /* Réduit l'espace après le titre */
+    padding-top: 10px;
   }
 
   /* Réduire l'espacement entre les sections */
   .section + .section {
-    margin-top: -2rem;
+    margin-top: -8vh;
   }
 
   /* Ajuster le z-index pour assurer que le contenu reste visible */
@@ -236,7 +254,7 @@
 
   .heroText {
     width: 100%;
-    padding: 2rem 1.5rem; /* Plus de padding intérieur */
+    padding: 1rem;
   }
 
   .heroTitle {
@@ -249,7 +267,7 @@
 
   /* Réduire encore plus l'espacement pour les très petits écrans */
   .section + .section {
-    margin-top: -2rem;
+    margin-top: -10vh;
   }
 
   .heroImageContainer {
@@ -267,7 +285,7 @@
     margin-left: 0;
     margin-right: 0;
     border-radius: 15px;
-    padding: 2rem 1.5rem; /* Plus de padding intérieur */
+    padding: 2rem 1.5rem;
   }
 
   .heroImage {
