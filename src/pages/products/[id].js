@@ -72,10 +72,10 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen bg-transparent">
       <Navbar />
       <main className="container mx-auto p-4">
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 my-10">
+        <div className="max-w-4xl mx-auto bg-transparent rounded-xl shadow-lg p-6 my-10">
           {/* En-tête du produit */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-orange-500 mb-4">{product.name}</h1>
@@ -129,7 +129,7 @@ export default function ProductDetail() {
               >
                 {[...Array(20)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
-                    {i + 1} {i + 1 === 1 ? 'shot' : 'shots'}
+                    {i + 1 === 7 ? 'Rabais formule semaine' : `${i + 1} ${i + 1 === 1 ? 'shot' : 'shots'}`}
                   </option>
                 ))}
               </select>
