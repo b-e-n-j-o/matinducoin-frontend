@@ -11,6 +11,11 @@
   overflow: hidden;
 }
 
+/* Ajustement spécifique pour la première section hero */
+.section:first-child {
+  padding-top: 15vh;
+}
+
 /* Styles de section */
 .section {
   min-height: 90vh;
@@ -160,6 +165,10 @@
 
 /* Media queries pour la responsivité */
 @media (max-width: 768px) {
+  .section:first-child {
+    padding-top: 10vh;
+  }
+
   .section {
     min-height: auto;
     margin-top: 0;
@@ -212,6 +221,10 @@
 }
 
 @media (max-width: 480px) {
+  .section:first-child {
+    padding-top: 8vh;
+  }
+
   .section {
     padding: 0.25rem;
   }
