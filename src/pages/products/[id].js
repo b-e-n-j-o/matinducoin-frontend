@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
-import ReviewForm from '../../components/ReviewForm';
-import ReviewList from '../../components/ReviewList';
 
 export default function ProductDetail() {
   const router = useRouter();
   const { id } = router.query;
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -26,17 +23,6 @@ export default function ProductDetail() {
         .catch(error => {
           console.error('Erreur lors de la récupération du produit:', error);
           setError(error.message);
-        });
-
-      // Récupération des reviews
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}/reviews`)
-        .then(response => response.json())
-        .then(data => {
-          setReviews(Array.isArray(data) ? data : []);
-        })
-        .catch(error => {
-          console.error('Erreur lors de la récupération des reviews:', error);
-          setReviews([]);
         });
     }
   }, [id]);
@@ -156,13 +142,6 @@ export default function ProductDetail() {
               Ajouter au panier
             </button>
           </div>
-        </div>
-
-        {/* Section avis */}
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 my-10">
-          <h2 className="text-2xl font-bold text-orange-500 mb-6 text-center">Avis clients</h2>
-          <ReviewForm productId={id} />
-          <ReviewList reviews={reviews} />
         </div>
       </main>
     </div>
