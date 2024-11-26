@@ -1,0 +1,60 @@
+.loadingContainer {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    z-index: 9999;
+  }
+  
+  .bottleContainer {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-20px);
+  }
+  
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  
+  .fadeOut {
+    animation: fadeOut 0.5s ease-in-out forwards;
+  }
+  
+  .waterFill {
+    animation: wave 2s infinite linear;
+  }
+  
+  .waterFill2 {
+    animation: wave2 1.6s infinite linear;
+  }
+  
+  @keyframes wave {
+    0% {
+      transform: translate(-50%, 0);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+  
+  @keyframes wave2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(-50%, 0);
+    }
+  }
