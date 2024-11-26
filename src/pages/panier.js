@@ -45,41 +45,53 @@ const CartPage = () => {
     }
   };
 
-  const calculateItemPrice = (item) => {
-    const fullWeekCombos = Math.floor(item.quantity / 7);
-    const remainingShots = item.quantity % 7;
-    let totalPrice = fullWeekCombos * (item.price * 5);
+  const calculateTotalShots = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  };
 
-    if (remainingShots <= 5) {
-      totalPrice += remainingShots * item.price;
+  const calculateItemPrice = (item) => {
+    const totalShots = calculateTotalShots();
+    const fullWeekCombos = Math.floor(totalShots / 7);
+    const remainingShots = totalShots % 7;
+    
+    // Calculate what portion of the discount this item should get
+    const itemPortion = item.quantity / totalShots;
+    let totalPrice = 0;
+
+    if (fullWeekCombos > 0) {
+      // Apply discount proportionally to this item
+      const discountedShots = fullWeekCombos * 7;
+      const itemDiscountedQuantity = Math.min(item.quantity, Math.floor(discountedShots * itemPortion));
+      const itemRemainingQuantity = item.quantity - itemDiscountedQuantity;
+      
+      // Price for discounted portion (5/7 of normal price)
+      totalPrice += (itemDiscountedQuantity * item.price * 5/7);
+      
+      // Price for remaining quantity at full price
+      if (itemRemainingQuantity > 0) {
+        totalPrice += itemRemainingQuantity * item.price;
+      }
     } else {
-      totalPrice += item.price * 5;
+      totalPrice = item.quantity * item.price;
     }
 
     return totalPrice;
   };
 
   const formatItemPrice = (item) => {
-    const fullWeekCombos = Math.floor(item.quantity / 7);
-    const remainingShots = item.quantity % 7;
+    const totalShots = calculateTotalShots();
+    const fullWeekCombos = Math.floor(totalShots / 7);
+    const itemPortion = item.quantity / totalShots;
     let priceString = '';
 
     if (fullWeekCombos > 0) {
-      for (let i = 0; i < fullWeekCombos; i++) {
-        const originalPrice = 7 * item.price;
-        const discountedPrice = 5 * item.price;
-        priceString += `<span class="${styles.originalPrice}">${originalPrice.toFixed(2)}$ CAD</span> ${discountedPrice.toFixed(2)}$ CAD (Offre spéciale semaine)<br>`;
-      }
-    }
-
-    if (remainingShots > 0) {
-      if (priceString) priceString += '<br>';
-      if (remainingShots <= 5) {
-        priceString += `${remainingShots} x ${item.price.toFixed(2)}$ CAD`;
-      } else {
-        const originalPrice = remainingShots * item.price;
-        priceString += `<span class="${styles.originalPrice}">${originalPrice.toFixed(2)}$ CAD</span> ${(item.price * 5).toFixed(2)}$ CAD (Offre spéciale)`;
-      }
+      const discountedShots = Math.min(item.quantity, Math.floor(fullWeekCombos * 7 * itemPortion));
+      const originalPrice = item.quantity * item.price;
+      const discountedPrice = calculateItemPrice(item);
+      
+      priceString += `<span class="${styles.originalPrice}">${originalPrice.toFixed(2)}$ CAD</span> ${discountedPrice.toFixed(2)}$ CAD (Offre spéciale multi-shots)`;
+    } else {
+      priceString += `${item.quantity} x ${item.price.toFixed(2)}$ CAD`;
     }
 
     return priceString;
@@ -88,7 +100,7 @@ const CartPage = () => {
   const total = cart.reduce((sum, item) => sum + calculateItemPrice(item), 0);
 
   const handleCheckout = () => {
-    router.push('/commander'); // Redirige vers la page de commande
+    router.push('/commander');
   };
 
   return (

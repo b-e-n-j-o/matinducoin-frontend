@@ -14,7 +14,8 @@ const OrderForm = () => {
     name: '',
     address: '',
     email: '',
-    promoCode: ''
+    promoCode: '',
+    comment: ''
   });
 
   const products = [
@@ -106,7 +107,8 @@ const OrderForm = () => {
       promoCode: formData.promoCode || undefined,
       reveilSoleil: parseInt(formData.reveilSoleil),
       matchaMatin: parseInt(formData.matchaMatin),
-      berryBalance: parseInt(formData.berryBalance)
+      berryBalance: parseInt(formData.berryBalance),
+      comment: formData.comment || undefined
     };
 
     try {
@@ -256,6 +258,20 @@ const OrderForm = () => {
                 name="promoCode"
                 value={formData.promoCode}
                 onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
+                Ajouter un commentaire, une demande (facultatif)
+              </label>
+              <textarea
+                id="comment"
+                name="comment"
+                value={formData.comment}
+                onChange={handleInputChange}
+                rows={3}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
               />
             </div>
