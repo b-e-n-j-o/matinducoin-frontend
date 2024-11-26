@@ -1,5 +1,6 @@
 // components/NewsletterSection.js
 import React, { useState } from 'react';
+import { subscribeToNewsletter } from '../services/api';
 
 const NewsletterSection = ({ styles }) => {
   const [email, setEmail] = useState('');
@@ -12,27 +13,13 @@ const NewsletterSection = ({ styles }) => {
     setMessage('');
 
     try {
-      const response = await fetch('/api/mailinglist/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setStatus('success');
-        setMessage('Merci pour votre inscription !');
-        setEmail('');
-      } else {
-        setStatus('error');
-        setMessage(data.message || 'Une erreur est survenue');
-      }
+      await subscribeToNewsletter(email);
+      setStatus('success');
+      setMessage('Merci pour votre inscription !');
+      setEmail('');
     } catch (error) {
       setStatus('error');
-      setMessage('Erreur de connexion au serveur');
+      setMessage(error.message || 'Une erreur est survenue');
     }
   };
 

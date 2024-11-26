@@ -42,3 +42,27 @@ export const fetchRelatedProducts = async (productIds) => {
     throw new Error(`Erreur lors de la récupération des produits associés: ${error.message}`);
   }
 };
+
+
+// Nouvelle fonction pour l'inscription à la newsletter
+export const subscribeToNewsletter = async (email) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/mailinglist/subscribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Erreur lors de l\'inscription');
+    }
+    
+    return data;
+  } catch (error) {
+    throw new Error(`Erreur d'inscription à la newsletter: ${error.message}`);
+  }
+};
