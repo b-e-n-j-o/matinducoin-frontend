@@ -329,8 +329,6 @@ const HomeContent = ({ sections = [] }) => {
             <DeliveryZoneMap />
           </div>
         </section>
-
-        <NewsletterSection styles={homeStyles} />
       </main>
 
       <footer className="bg-white/40 py-8 mt-12 rounded-xl shadow-lg">
