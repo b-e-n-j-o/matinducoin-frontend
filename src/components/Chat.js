@@ -242,6 +242,7 @@ const Chat = ({ isOpen, onClose }) => {
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
   const rateLimiter = useRef(new RateLimiter(20, 60000)); // 20 messages/minute
+  const inputRef = useRef(null); // Nouvelle ref pour l'input
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -402,6 +403,10 @@ const Chat = ({ isOpen, onClose }) => {
                     setMessages(prev => prev.map(msg => 
                       msg.id === message.id ? { ...msg, typing: false } : msg
                     ));
+                    // Focus automatique sur l'input après l'affichage du message
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
                   }}
                 />
               ) : (
@@ -429,17 +434,14 @@ const Chat = ({ isOpen, onClose }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="p-4 border-t">
-        {/* Ce formulaire gère la saisie et l'envoi des messages dans le chat */}
         <div className="flex flex-col space-y-2">
-          {/* Affiche le nombre de tokens utilisés avec un avertissement visuel si > 240 */}
           {tokenCount > 0 && (
             <div className={`text-xs ${tokenCount > 240 ? 'text-orange-500' : 'text-gray-500'}`}>
-              {/* Commenté: Affichage du compte de tokens */}
             </div>
           )}
-          {/* Conteneur pour le champ de saisie et le bouton d'envoi */}
           <div className="flex space-x-2">
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
