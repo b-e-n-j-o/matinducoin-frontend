@@ -51,11 +51,24 @@ const ContentBlock = ({ block }) => {
                 key={index} 
                 className="mb-8 bg-white/50 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300"
               >
-                {contentItem.sentences.map((sentence, sentenceIndex) => (
-                  <p key={sentenceIndex} className="text-gray-600 leading-relaxed mb-4 last:mb-0">
-                    {sentence.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}
-                  </p>
-                ))}
+                {contentItem.sentences.map((sentence, sentenceIndex) => {
+                  // Diviser la phrase en segments basés sur les marqueurs **
+                  const segments = sentence.split(/(\*\*.*?\*\*)/g);
+                  
+                  return (
+                    <p key={sentenceIndex} className="text-gray-600 leading-relaxed mb-4 last:mb-0">
+                      {segments.map((segment, segmentIndex) => {
+                        // Vérifier si le segment est entouré de **
+                        if (segment.startsWith('**') && segment.endsWith('**')) {
+                          // Enlever les ** et mettre en gras
+                          return <strong key={segmentIndex}>{segment.slice(2, -2)}</strong>;
+                        }
+                        // Retourner le texte normal
+                        return <span key={segmentIndex}>{segment}</span>;
+                      })}
+                    </p>
+                  );
+                })}
               </div>
             );
           default:
