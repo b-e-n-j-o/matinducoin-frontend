@@ -9,6 +9,8 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import homeStyles from '../styles/Home.module.css';
 import ClickableImage from '../components/ClickableImage';
+import NewsletterSection from '../components/NewsletterSection';
+
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -329,14 +331,7 @@ const HomeContent = ({ sections = [] }) => {
         </section>
 
         <section className={`${homeStyles.section}`}>
-          <div className={`${homeStyles.heroContent} w-11/12 mx-auto`}>
-            <div className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 shadow-lg`}>
-              <h2 className={homeStyles.heroTitle}>Rejoignez le mouvement santé de votre quartier</h2>
-              <p className={homeStyles.heroSubtitle}>Ensemble, créons une communauté dynamique et en pleine forme. Votre bien-être est notre priorité !</p>
-              <p className={homeStyles.heroSubtitle}>Inscrivez-vous pour recevoir notre newsletter! :</p>
-              <input type="email" placeholder="Votre email" className={homeStyles.emailInput} />
-            </div>
-          </div>
+          <NewsletterSection styles={homeStyles} />
         </section>
       </main>
 
