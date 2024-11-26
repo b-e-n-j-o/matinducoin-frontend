@@ -12,7 +12,6 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (id) {
-      // Récupération du produit
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`)
         .then(response => {
           if (!response.ok) {
@@ -49,13 +48,19 @@ export default function ProductDetail() {
       }
 
       localStorage.setItem('cart', JSON.stringify(cart));
-      alert('Produit ajouté au panier !');
+      
+      // Au lieu d'afficher une alerte, on redirige directement vers le panier
+      router.push('/panier');
+      
     } catch (error) {
       console.error('Erreur lors de l\'ajout au panier:', error);
       alert('Une erreur est survenue lors de l\'ajout au panier');
     }
   };
 
+  // Le reste du code reste identique...
+  
+  // Retour des états d'erreur et de chargement
   if (error) {
     return (
       <div className="min-h-screen bg-orange-75 flex justify-center items-center">
@@ -85,9 +90,10 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Conteneur pour les images et le prix */}
+          {/* Le reste du JSX reste identique... */}
+          
+          {/* Images du produit */}
           <div className="bg-white bg-opacity-40 p-6 rounded-lg border border-orange-200 mb-8">
-            {/* Images du produit */}
             <div className="flex justify-center gap-4 mb-8 flex-wrap">
               {Array.isArray(product.images) && product.images.map((image, index) => (
                 <div 
@@ -104,7 +110,6 @@ export default function ProductDetail() {
               ))}
             </div>
 
-            {/* Prix du produit */}
             <div className="text-center">
               <p style={{ fontFamily: "'Bobby Jones Soft', sans-serif" }} className="text-3xl text-orange-500">{product.price} $ (dont 0.50$ de consigne)</p>
             </div>
