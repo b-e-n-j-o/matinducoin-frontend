@@ -181,7 +181,7 @@ const OrderForm = () => {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700">
-                Date de livraison
+                Date de livraison (Lundi et Jeudi uniquement)
               </label>
               <input
                 type="date"
@@ -189,23 +189,35 @@ const OrderForm = () => {
                 name="deliveryDate"
                 required
                 value={formData.deliveryDate}
-                onChange={handleInputChange}
-                min={new Date().toISOString().split('T')[0]}
-                onKeyDown={(e) => e.preventDefault()}
-                onClick={(e) => {
+                onChange={(e) => {
                   const date = new Date(e.target.value);
                   const day = date.getDay();
-                  if (day !== 1 && day !== 4) { // 1 = Lundi, 4 = Jeudi
-                    e.target.value = '';
+                  if (day === 1 || day === 4) {
+                    handleInputChange(e);
                   }
                 }}
+                min={new Date().toISOString().split('T')[0]}
+                onKeyDown={(e) => e.preventDefault()}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                ref={(input) => {
+                  if (input) {
+                    input.addEventListener('input', function() {
+                      const date = new Date(this.value);
+                      const day = date.getDay();
+                      if (day !== 1 && day !== 4) {
+                        this.setCustomValidity('Veuillez sélectionner un lundi ou un jeudi');
+                      } else {
+                        this.setCustomValidity('');
+                      }
+                    });
+                  }
+                }}
               />
             </div>
 
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Nom complet
+                Votre prénom
               </label>
               <input
                 type="text"
@@ -229,6 +241,7 @@ const OrderForm = () => {
                 value={formData.address}
                 onChange={handleInputChange}
                 rows={3}
+                placeholder="Format: Numéro, Rue, Code postal (ex: 123 Rue Saint-Laurent, H2T 1R3)"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
               />
             </div>
