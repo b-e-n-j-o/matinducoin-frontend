@@ -1,21 +1,13 @@
-// components/OrderForm.js
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 const OrderForm = () => {
   const router = useRouter();
   const { flavor: initialFlavor } = router.query;
-
   const [formData, setFormData] = useState({
-    reveilSoleil: '0',
-    matchaMatin: '0',
-    berryBalance: '0', 
-    deliveryDate: '',
-    name: '',
-    address: '',
-    email: '',
-    promoCode: '',
-    comment: ''
+    reveilSoleil: '0', matchaMatin: '0', berryBalance: '0',
+    deliveryDate: '', name: '', address: '', email: '', 
+    promoCode: '', comment: ''
   });
 
   const products = [
@@ -24,74 +16,49 @@ const OrderForm = () => {
     { id: 'berryBalance', name: 'Berry Balance', description: 'Shot aux baies et gingembre' }
   ];
 
-  const quantities = Array.from({ length: 11 }, (_, i) => i.toString());
+  const getNextDeliveryDates = () => {
+    const dates = [];
+    const today = new Date();
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 2);
+    
+    for (let d = new Date(today); d <= futureDate; d.setDate(d.getDate() + 1)) {
+      const day = d.getDay();
+      if ((day === 1 || day === 4) && d >= today) {
+        dates.push(new Date(d).toISOString().split('T')[0]);
+      }
+    }
+    return dates;
+  };
 
   useEffect(() => {
-    // Récupérer les produits du panier depuis le localStorage
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-
-    // Initialiser les quantités des produits en fonction du panier
     const initialQuantities = cartItems.reduce((acc, item) => {
-      switch (item.name) {
-        case 'Réveil Soleil':
-          acc.reveilSoleil = item.quantity.toString();
-          break;
-        case 'Matcha Matin':
-          acc.matchaMatin = item.quantity.toString();
-          break;
-        case 'Berry Balance':
-          acc.berryBalance = item.quantity.toString();
-          break;
-        default:
-          break;
-      }
+      const key = {
+        'Réveil Soleil': 'reveilSoleil',
+        'Matcha Matin': 'matchaMatin',
+        'Berry Balance': 'berryBalance'
+      }[item.name];
+      if (key) acc[key] = item.quantity.toString();
       return acc;
     }, {});
-
-    setFormData((prevData) => ({
-      ...prevData,
-      ...initialQuantities
-    }));
+    setFormData(prev => ({ ...prev, ...initialQuantities }));
   }, []);
 
   useEffect(() => {
     if (initialFlavor) {
-      setFormData((prevData) => ({
-        ...prevData,
-        [initialFlavor]: '1'
-      }));
+      setFormData(prev => ({ ...prev, [initialFlavor]: '1' }));
     }
   }, [initialFlavor]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
-
-  const handleQuantityChange = (e, productId) => {
-    const value = e.target.value;
-    setFormData((prevData) => ({
-      ...prevData,
-      [productId]: value
-    }));
-  };
-
-  const generateFlavorString = () => {
-    return Object.entries(formData)
-      .filter(([key, value]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key) && value !== '0')
-      .map(([key, value]) => `${key.toLowerCase()}:${value}`)
-      .join(', ');
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const hasProducts = Object.entries(formData)
-      .filter(([key]) => ['reveilSoleil', 'matchaMatin', 'berryBalance'].includes(key))
-      .some(([_, value]) => value !== '0');
+    const hasProducts = ['reveilSoleil', 'matchaMatin', 'berryBalance']
+      .some(key => formData[key] !== '0');
 
     if (!hasProducts) {
       alert('Veuillez sélectionner au moins un produit');
@@ -99,29 +66,30 @@ const OrderForm = () => {
     }
 
     const apiData = {
-      name: formData.name,
-      address: formData.address,
+      ...formData,
       deliveryDate: new Date(formData.deliveryDate).toISOString(),
-      email: formData.email,
-      flavor: generateFlavorString(),
-      promoCode: formData.promoCode || undefined,
+      flavor: ['reveilSoleil', 'matchaMatin', 'berryBalance']
+        .filter(key => formData[key] !== '0')
+        .map(key => `${key.toLowerCase()}:${formData[key]}`)
+        .join(', '),
       reveilSoleil: parseInt(formData.reveilSoleil),
       matchaMatin: parseInt(formData.matchaMatin),
-      berryBalance: parseInt(formData.berryBalance),
-      comment: formData.comment || undefined
+      berryBalance: parseInt(formData.berryBalance)
     };
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(apiData),
       });
 
       if (response.ok) {
-        await sendOwnerNotification(apiData);
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notify-owner`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(apiData),
+        });
         alert('Commande passée avec succès!');
         router.push(`/OrderConfirmation?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`);
       } else {
@@ -131,20 +99,6 @@ const OrderForm = () => {
     } catch (error) {
       console.error('Erreur lors de la requête:', error);
       alert(`Erreur lors de la commande: ${error.message}`);
-    }
-  };
-
-  const sendOwnerNotification = async (orderData) => {
-    try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notify-owner`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'envoi de la notification au propriétaire:", error);
     }
   };
 
@@ -163,11 +117,11 @@ const OrderForm = () => {
                 <div className="w-24">
                   <select
                     value={formData[product.id]}
-                    onChange={(e) => handleQuantityChange(e, product.id)}
+                    onChange={(e) => handleInputChange({ target: { name: product.id, value: e.target.value }})}
                     className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
                   >
-                    {quantities.map((qty) => (
-                      <option key={qty} value={qty}>{qty}</option>
+                    {Array.from({ length: 11 }, (_, i) => (
+                      <option key={i} value={i.toString()}>{i}</option>
                     ))}
                   </select>
                 </div>
@@ -183,111 +137,65 @@ const OrderForm = () => {
               <label htmlFor="deliveryDate" className="block text-sm font-medium text-gray-700">
                 Date de livraison (Lundi et Jeudi uniquement)
               </label>
-              <input
-                type="date"
+              <select
                 id="deliveryDate"
                 name="deliveryDate"
                 required
                 value={formData.deliveryDate}
-                onChange={(e) => {
-                  const date = new Date(e.target.value);
-                  const day = date.getDay();
-                  if (day === 1 || day === 4) {
-                    handleInputChange(e);
-                  }
-                }}
-                min={new Date().toISOString().split('T')[0]}
-                onKeyDown={(e) => e.preventDefault()}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-                ref={(input) => {
-                  if (input) {
-                    input.addEventListener('input', function() {
-                      const date = new Date(this.value);
-                      const day = date.getDay();
-                      if (day !== 1 && day !== 4) {
-                        this.setCustomValidity('Veuillez sélectionner un lundi ou un jeudi');
-                      } else {
-                        this.setCustomValidity('');
-                      }
-                    });
-                  }
-                }}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Votre prénom
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
                 onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-              />
+              >
+                <option value="">Sélectionnez une date</option>
+                {getNextDeliveryDates().map((date) => (
+                  <option key={date} value={date}>
+                    {new Date(date).toLocaleDateString('fr-FR', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long'
+                    })}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                Adresse de livraison
-              </label>
-              <textarea
-                id="address"
-                name="address"
-                required
-                value={formData.address}
-                onChange={handleInputChange}
-                rows={3}
-                placeholder="Format: Numéro, Rue, Code postal (ex: 123 Rue Saint-Laurent, H2T 1R3)"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-              />
-            </div>
+            {[
+              { id: 'name', label: 'Votre prénom', type: 'text' },
+              { id: 'email', label: 'Email', type: 'email' },
+              { id: 'promoCode', label: 'Code Promo', type: 'text', required: false }
+            ].map(field => (
+              <div key={field.id}>
+                <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">
+                  {field.label}
+                </label>
+                <input
+                  type={field.type}
+                  id={field.id}
+                  name={field.id}
+                  required={field.required !== false}
+                  value={formData[field.id]}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                />
+              </div>
+            ))}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="promoCode" className="block text-sm font-medium text-gray-700">
-                Code Promo
-              </label>
-              <input
-                type="text"
-                id="promoCode"
-                name="promoCode"
-                value={formData.promoCode}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
-                Ajouter un commentaire, une demande (facultatif)
-              </label>
-              <textarea
-                id="comment"
-                name="comment"
-                value={formData.comment}
-                onChange={handleInputChange}
-                rows={3}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
-              />
-            </div>
+            {['address', 'comment'].map(field => (
+              <div key={field}>
+                <label htmlFor={field} className="block text-sm font-medium text-gray-700">
+                  {field === 'address' ? 'Adresse de livraison' : 'Ajouter un commentaire, une demande (facultatif)'}
+                </label>
+                <textarea
+                  id={field}
+                  name={field}
+                  required={field === 'address'}
+                  value={formData[field]}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder={field === 'address' ? "Format: Numéro, Rue, Code postal (ex: 123 Rue Saint-Laurent, H2T 1R3)" : ''}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-[#ff5900] focus:border-[#ff5900]"
+                />
+              </div>
+            ))}
           </div>
         </div>
 
