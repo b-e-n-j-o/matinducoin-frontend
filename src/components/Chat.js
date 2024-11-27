@@ -1,16 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-// Fonction pour estimer le nombre de tokens (approximation simple)
 const estimateTokens = (text) => {
-  // Approximation basée sur les règles GPT :
-  // - environ 4 caractères par token pour les langues occidentales
-  // - les espaces comptent comme des caractères
-  // Cette estimation est conservatrice pour éviter les dépassements
   return Math.ceil(text.length / 3);
 };
 
-// Messages de bienvenue
 const WELCOME_MESSAGES = [
   "Bonjour et bienvenue chez Matin du Coin ! 🌞 Nous sommes ravis de vous accueillir. Je suis ici pour répondre à toutes vos questions ou vous aider à passer commande. N'hésitez pas à demander ce que vous souhaitez !",
   "Salut et bienvenue chez Matin du Coin ! 🌞 Vous avez des questions ou souhaitez passer commande ? Je suis là pour vous aider avec plaisir !",
@@ -19,15 +13,11 @@ const WELCOME_MESSAGES = [
   "Salut et merci de choisir Matin du Coin ! 🌞 Vous pouvez me poser vos questions ou passer une commande directement ici. Je suis là pour vous !"
 ];
 
-// Fonction pour valider les messages entrants et sortants
 const validateInput = (input) => {
-  // Limites et contraintes
-  const MAX_MESSAGE_LENGTH = 1000;           // Limite en caractères
+  const MAX_MESSAGE_LENGTH = 1000;
   const MIN_MESSAGE_LENGTH = 1;
-  const MAX_TOKENS = 250;                   // Limite en tokens (~450-500 caractères pour GPT)
-  const MAX_MESSAGES_PER_MINUTE = 10;
-  
-  // Vérification de la longueur en caractères
+  const MAX_TOKENS = 250;
+
   if (input.length > MAX_MESSAGE_LENGTH || input.length < MIN_MESSAGE_LENGTH) {
     return {
       isValid: false,
@@ -35,7 +25,6 @@ const validateInput = (input) => {
     };
   }
 
-  // Vérification des tokens
   const estimatedTokens = estimateTokens(input);
   if (estimatedTokens > MAX_TOKENS) {
     return {
@@ -44,7 +33,6 @@ const validateInput = (input) => {
     };
   }
 
-  // Expression régulière pour détecter les caractères et patterns malveillants
   const MALICIOUS_PATTERNS = [
     /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
     /javascript:/gi,
@@ -62,7 +50,6 @@ const validateInput = (input) => {
     /{{.*?}}/g,
   ];
 
-  // Vérification des patterns malveillants
   for (const pattern of MALICIOUS_PATTERNS) {
     if (pattern.test(input)) {
       return {
@@ -78,7 +65,6 @@ const validateInput = (input) => {
   };
 };
 
-// Classe pour limiter le nombre de requêtes
 class RateLimiter {
   constructor(maxRequests, timeWindow) {
     this.maxRequests = maxRequests;
@@ -89,17 +75,10 @@ class RateLimiter {
   tryRequest() {
     const now = Date.now();
     this.requests = this.requests.filter(time => now - time < this.timeWindow);
-    
-    if (this.requests.length >= this.maxRequests) {
-      return false;
-    }
-    
-    this.requests.push(now);
-    return true;
+    return this.requests.length < this.maxRequests && (this.requests.push(now), true);
   }
 }
 
-// Fonction pour nettoyer le texte des caractères dangereux
 const sanitizeText = (text) => {
   return text
     .replace(/&/g, '&amp;')
@@ -175,14 +154,13 @@ const formatBotMessage = (message) => {
 
     return decodeHTMLEntities(cleanMessageContent(message.toString()));
   } catch (e) {
-    console.log('Erreur de parsing:', e);
+    console.error('Erreur de parsing:', e);
     return '';
   }
 };
 
 const cleanMessageContent = (content) => {
   if (!content) return '';
-
   return content
     .replace(/\\n/g, '\n')
     .replace(/\\r/g, '')
@@ -202,13 +180,11 @@ const isValidMessage = (message) => {
     '[object Object]'
   ];
 
-  const containsInvalidPattern = invalidPatterns.some(pattern => 
+  return !invalidPatterns.some(pattern => 
     message.toString().includes(pattern)
-  );
-
-  return !containsInvalidPattern && 
-         message.toString().trim().length > 0 && 
-         message.toString().length < 5000;
+  ) && 
+  message.toString().trim().length > 0 && 
+  message.toString().length < 5000;
 };
 
 const TypingMessage = ({ text, onComplete }) => {
@@ -218,10 +194,9 @@ const TypingMessage = ({ text, onComplete }) => {
   useEffect(() => {
     if (currentIndex < text.length) {
       const timer = setTimeout(() => {
-        setDisplayedText(prevText => prevText + text[currentIndex]);
-        setCurrentIndex(prevIndex => prevIndex + 1);
+        setDisplayedText(prev => prev + text[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
       }, 15);
-
       return () => clearTimeout(timer);
     } else if (onComplete) {
       onComplete();
@@ -241,8 +216,8 @@ const Chat = ({ isOpen, onClose }) => {
   const [tokenCount, setTokenCount] = useState(0);
   const messagesEndRef = useRef(null);
   const ws = useRef(null);
-  const rateLimiter = useRef(new RateLimiter(20, 60000)); // 20 messages/minute
-  const inputRef = useRef(null); // Nouvelle ref pour l'input
+  const rateLimiter = useRef(new RateLimiter(20, 60000));
+  const inputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -253,12 +228,10 @@ const Chat = ({ isOpen, onClose }) => {
   }, [messages, isTyping]);
 
   useEffect(() => {
-    const tokens = estimateTokens(input);
-    setTokenCount(tokens);
+    setTokenCount(estimateTokens(input));
   }, [input]);
 
   useEffect(() => {
-    // Afficher un message de bienvenue aléatoire immédiatement
     const welcomeMessage = WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)];
     setMessages([{
       text: welcomeMessage,
@@ -267,7 +240,6 @@ const Chat = ({ isOpen, onClose }) => {
       typing: true
     }]);
 
-    // Initialiser la connexion WebSocket
     ws.current = new WebSocket('wss://matinducoin-backend-b2f47bd8118b.herokuapp.com');
 
     ws.current.onopen = () => {
@@ -295,7 +267,7 @@ const Chat = ({ isOpen, onClose }) => {
         if (formattedMessage && isValidMessage(formattedMessage)) {
           setIsTyping(true);
           setMessages(prev => [...prev, {
-            text: decodeHTMLEntities(sanitizeText(formattedMessage)),
+            text: formattedMessage,
             sender: 'assistant',
             id: Date.now(),
             typing: true
@@ -330,8 +302,8 @@ const Chat = ({ isOpen, onClose }) => {
       return;
     }
 
-    // Validation avec vérification des tokens
-    const sanitizedInput = sanitizeText(input.trim());
+    const decodedInput = decodeHTMLEntities(input.trim());
+    const sanitizedInput = sanitizeText(decodedInput);
     const validationResult = validateInput(sanitizedInput);
 
     if (!validationResult.isValid) {
@@ -344,7 +316,7 @@ const Chat = ({ isOpen, onClose }) => {
     setTokenCount(0);
 
     setMessages(prev => [...prev, {
-      text: sanitizedInput,
+      text: decodedInput,
       sender: 'user',
       id: Date.now()
     }]);
@@ -352,7 +324,7 @@ const Chat = ({ isOpen, onClose }) => {
     try {
       ws.current.send(JSON.stringify({
         type: 'message',
-        content: sanitizedInput,
+        content: decodedInput,
         tokenCount: validationResult.tokens
       }));
     } catch (error) {
@@ -403,7 +375,6 @@ const Chat = ({ isOpen, onClose }) => {
                     setMessages(prev => prev.map(msg => 
                       msg.id === message.id ? { ...msg, typing: false } : msg
                     ));
-                    // Focus automatique sur l'input après l'affichage du message
                     if (inputRef.current) {
                       inputRef.current.focus();
                     }
@@ -435,10 +406,6 @@ const Chat = ({ isOpen, onClose }) => {
 
       <form onSubmit={handleSubmit} className="p-4 border-t">
         <div className="flex flex-col space-y-2">
-          {tokenCount > 0 && (
-            <div className={`text-xs ${tokenCount > 240 ? 'text-orange-500' : 'text-gray-500'}`}>
-            </div>
-          )}
           <div className="flex space-x-2">
             <input
               ref={inputRef}
@@ -448,31 +415,31 @@ const Chat = ({ isOpen, onClose }) => {
               placeholder="Posez votre question..."
               className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5900]"
               disabled={isLoading || isTyping}
-            />
-            <button
-              type="submit"
-              className={`
-                px-6 py-3 rounded-lg
-                bg-[#ff5900] text-[#ffd97f]
-                hover:bg-[#ffd97f] hover:text-[#ff5900]
-                transition-colors
-                disabled:opacity-50
-                font-['Bobby_Jones_Soft',_sans-serif]
-              `}
-              disabled={isLoading || isTyping || tokenCount > 150}
-            >
-              Envoyer
-            </button>
-          </div>
-          {error && (
-            <div className="text-red-500 text-sm mt-1">
-              {error}
+              />
+              <button
+                type="submit"
+                className={`
+                  px-6 py-3 rounded-lg
+                  bg-[#ff5900] text-[#ffd97f]
+                  hover:bg-[#ffd97f] hover:text-[#ff5900]
+                  transition-colors
+                  disabled:opacity-50
+                  font-['Bobby_Jones_Soft',_sans-serif]
+                `}
+                disabled={isLoading || isTyping || tokenCount > 150}
+              >
+                Envoyer
+              </button>
             </div>
-          )}
-        </div>
-      </form>
-    </div>
-  );
-};
-
-export default Chat;
+            {error && (
+              <div className="text-red-500 text-sm mt-1">
+                {error}
+              </div>
+            )}
+          </div>
+        </form>
+      </div>
+    );
+  };
+  
+  export default Chat;
