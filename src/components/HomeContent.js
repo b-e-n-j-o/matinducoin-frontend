@@ -341,20 +341,6 @@ const HomeContent = ({ sections = [] }) => {
         </div>
       </footer>
 
-      <button
-        onClick={toggleChat}
-        className={`
-          ${homeStyles.chatButton}
-          fixed bottom-5 right-5 p-3 rounded-full shadow-lg
-          bg-[#ff5900] text-[#ffd97f]
-          hover:bg-[#ffd97f] hover:text-[#ff5900]
-          transition-all duration-300
-          ${isChatOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}
-        `}
-      >
-        {!isChatOpen && 'Posez vos questions!'}
-      </button>
-
       {isChatVisible && (
         <Chat 
           isOpen={isChatOpen} 
