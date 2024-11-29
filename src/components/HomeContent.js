@@ -160,7 +160,7 @@ const HomeContent = ({ sections = [] }) => {
       <section className={`${homeStyles.section} ${isInverted ? homeStyles.invertedSection : ''} w-[95vw] mx-auto`}>
         <div className={`${homeStyles.heroContent} w-full`}>
           <div 
-            className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-16 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
+            className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-12 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
             onClick={() => handleClick(id)}
           >
             <div className="h-full flex flex-col">
