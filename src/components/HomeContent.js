@@ -160,13 +160,13 @@ const HomeContent = ({ sections = [] }) => {
       <section className={`${homeStyles.section} ${isInverted ? homeStyles.invertedSection : ''} w-[95vw] mx-auto`}>
         <div className={`${homeStyles.heroContent} w-full`}>
           <div 
-            className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-24 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
+            className={`${homeStyles.heroText} w-full bg-white/40 rounded-xl p-6 pb-16 shadow-lg cursor-pointer relative hover:shadow-xl transition-shadow duration-300`}
             onClick={() => handleClick(id)}
           >
-            <div className="h-full">
+            <div className="h-full flex flex-col">
               {title}
               {subtitle}
-              <span className="see-more absolute bottom-6 right-4 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">
+              <span className="see-more text-center mt-8 text-sm text-gray-500 italic hover:scale-110 hover:text-[#ff5900] transition-all duration-300">
                 voir plus
               </span>
             </div>
